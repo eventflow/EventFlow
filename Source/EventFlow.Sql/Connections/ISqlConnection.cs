@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,18 +34,21 @@ namespace EventFlow.Sql.Connections
     {
         Task<int> ExecuteAsync(
             Label label,
+            string connectionStringName,
             CancellationToken cancellationToken,
             string sql,
             object param = null);
         
-        Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>
-            (Label label,
+        Task<IReadOnlyCollection<TResult>> QueryAsync<TResult>(
+            Label label,
+            string connectionStringName,
             CancellationToken cancellationToken,
             string sql,
             object param = null);
         
         Task<IReadOnlyCollection<TResult>> InsertMultipleAsync<TResult, TRow>(
             Label label,
+            string connectionStringName,
             CancellationToken cancellationToken,
             string sql,
             IEnumerable<TRow> rows)
@@ -53,6 +56,7 @@ namespace EventFlow.Sql.Connections
 
         Task<TResult> WithConnectionAsync<TResult>(
             Label label,
+            string connectionStringName,
             Func<IDbConnection, CancellationToken, Task<TResult>> withConnection,
             CancellationToken cancellationToken);
     }

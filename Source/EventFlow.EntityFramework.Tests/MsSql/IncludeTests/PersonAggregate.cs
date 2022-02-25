@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2020 Rasmus Mikkelsen
 // Copyright (c) 2015-2020 eBay Software Foundation
@@ -21,37 +21,40 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
-using EventFlow.MongoDB.Extensions;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Suites;
-using Mongo2Go;
-using NUnit.Framework;
+using EventFlow.Aggregates;
+using EventFlow.EntityFramework.Tests.MsSql.IncludeTests.Events;
 
-namespace EventFlow.MongoDB.Tests.IntegrationTests.SnapshotStores
+namespace EventFlow.EntityFramework.Tests.MsSql.IncludeTests
 {
-    [Category(Categories.Integration)]
-    public class PostgreSqlSnapshotStoreTests : TestSuiteForSnapshotStore
+    [AggregateName("Person")]
+    public class PersonAggregate : AggregateRoot<PersonAggregate, PersonId>,
+        IEmit<PersonCreatedEvent>,
+        IEmit<AddressAddedEvent>
     {
-        private MongoDbRunner _runner;
-
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        public PersonAggregate(PersonId id) : base(id)
         {
-            _runner = MongoDbRunner.Start();
-
-            var resolver = eventFlowOptions
-                .ConfigureMongoDb(_runner.ConnectionString, "eventflow")
-                .UseMongoDbSnapshotStore()
-                .CreateResolver();
-
-
-            return resolver;
         }
 
-        [TearDown]
-        public void TearDown()
+        public void Create(string name)
         {
-            _runner.Dispose();
+            Emit(new PersonCreatedEvent(name));
+        }
+
+        public void AddAddress(Address address)
+        {
+            Emit(new AddressAddedEvent(address));
+        }
+
+        void IEmit<PersonCreatedEvent>.Apply(PersonCreatedEvent aggregateEvent)
+        {
+            // save name into field for later usage
+            // ..
+        }
+
+        void IEmit<AddressAddedEvent>.Apply(AddressAddedEvent aggregateEvent)
+        {
+            // save address into field for later usage
+            // ..
         }
     }
 }

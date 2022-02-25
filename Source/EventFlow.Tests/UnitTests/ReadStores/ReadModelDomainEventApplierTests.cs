@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -48,6 +48,21 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             {
                 PingEventsReceived = true;
                 return Task.CompletedTask;
+            }
+        }
+
+        public class ExplicitPingReadModel : IReadModel,
+            IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
+        {
+            public bool PingEventsReceived { get; private set; }
+
+            async Task IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>.ApplyAsync(
+                IReadModelContext context, 
+                IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
+                CancellationToken cancellationToken)
+            {
+                await Task.Delay(50, cancellationToken).ConfigureAwait(false);
+                PingEventsReceived = true;
             }
         }
 
@@ -215,6 +230,28 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 events,
                 A<IReadModelContext>(),
                 CancellationToken.None)
+                .ConfigureAwait(false);
+
+            // Assert
+            readModel.PingEventsReceived.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task ExplicitInterfaceReadModelReceivesEvent()
+        {
+            // Arrange
+            var events = new[]
+            {
+                ToDomainEvent(A<ThingyPingEvent>()),
+            };
+            var readModel = new ExplicitPingReadModel();
+
+            // Act
+            await Sut.UpdateReadModelAsync(
+                    readModel,
+                    events,
+                    A<IReadModelContext>(),
+                    CancellationToken.None)
                 .ConfigureAwait(false);
 
             // Assert

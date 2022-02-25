@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2020 Rasmus Mikkelsen
 // Copyright (c) 2015-2020 eBay Software Foundation
@@ -21,13 +21,29 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using EventFlow.Sql.ReadModels.Attributes;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Commands;
 
-namespace EventFlow.MsSql.ReadStores.Attributes
+namespace EventFlow.EntityFramework.Tests.MsSql.IncludeTests.Commands
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class MsSqlReadModelVersionColumnAttribute : SqlReadModelVersionColumnAttribute
+    public class CreatePersonCommand : Command<PersonAggregate,PersonId>
     {
+        public string Name { get; }
+
+        public CreatePersonCommand(PersonId aggregateId, string name)
+            :base(aggregateId)
+        {
+            Name = name;
+        }
+    }
+
+    public class CreatePersonCommandHandler : CommandHandler<PersonAggregate, PersonId, CreatePersonCommand>
+    {
+        public override Task ExecuteAsync(PersonAggregate aggregate, CreatePersonCommand command, CancellationToken cancellationToken)
+        {
+            aggregate.Create(command.Name);
+            return Task.CompletedTask;
+        }
     }
 }

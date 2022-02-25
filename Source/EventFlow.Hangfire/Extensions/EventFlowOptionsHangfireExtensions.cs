@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -46,7 +46,17 @@ namespace EventFlow.Hangfire.Extensions
                     sr.Register<IHangfireJobRunner, HangfireJobRunner>();
                     sr.Register<IJobDisplayNameBuilder, JobDisplayNameBuilder>();
                     sr.Register<IBackgroundJobClient>(r => new BackgroundJobClient());
+                    sr.Register<IQueueNameProvider>(r => new QueueNameProvider(null));
                 });
+        }
+
+        public static IEventFlowOptions UseHangfireJobScheduler(
+            this IEventFlowOptions eventFlowOptions,
+            Action<IEventFlowHangfireOptions> configurationAction)
+        {
+            var options = eventFlowOptions.UseHangfireJobScheduler();
+            configurationAction(new EventFlowHangfireOptions(options));
+            return options;
         }
     }
 }

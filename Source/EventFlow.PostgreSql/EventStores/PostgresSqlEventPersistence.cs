@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,8 +30,8 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
-using EventFlow.Logs;
 using EventFlow.PostgreSql.Connections;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 
 namespace EventFlow.PostgreSql.EventStores
@@ -49,11 +49,11 @@ namespace EventFlow.PostgreSql.EventStores
             public int AggregateSequenceNumber { get; set; }
         }
 
-        private readonly ILog _log;
+        private readonly ILogger<PostgreSqlEventPersistence> _log;
         private readonly IPostgreSqlConnection _connection;
 
         public PostgreSqlEventPersistence(
-            ILog log,
+            ILogger<PostgreSqlEventPersistence> log,
             IPostgreSqlConnection connection)
         {
             _log = log;
@@ -80,6 +80,7 @@ namespace EventFlow.PostgreSql.EventStores
                 LIMIT @pageSize;";
             var eventDataModels = await _connection.QueryAsync<EventDataModel>(
                     Label.Named("postgresql-fetch-events"),
+                    null,
                     cancellationToken,
                     sql,
                     new
@@ -118,7 +119,7 @@ namespace EventFlow.PostgreSql.EventStores
                     })
                 .ToList();
 
-            _log.Verbose(
+            _log.LogTrace(
                 "Committing {0} events to PostgreSQL event store for entity with ID '{1}'",
                 eventDataModels.Count,
                 id);
@@ -137,6 +138,7 @@ namespace EventFlow.PostgreSql.EventStores
             {
                 ids = await _connection.InsertMultipleAsync<long, EventDataModel>(
                     Label.Named("postgresql-insert-events"),
+                    null,
                     cancellationToken,
                     sql,
                     eventDataModels)
@@ -184,6 +186,7 @@ namespace EventFlow.PostgreSql.EventStores
                     AggregateSequenceNumber ASC;";
             var eventDataModels = await _connection.QueryAsync<EventDataModel>(
                 Label.Named("postgresql-fetch-events"),
+                null,
                 cancellationToken,
                 sql,
                 new
@@ -202,12 +205,13 @@ namespace EventFlow.PostgreSql.EventStores
             const string sql = @"DELETE FROM EventFlow WHERE AggregateId = @AggregateId;";
             var affectedRows = await _connection.ExecuteAsync(
                 Label.Named("postgresql-delete-aggregate"),
+                null,
                 cancellationToken,
                 sql,
                 new { AggregateId = id.Value })
                 .ConfigureAwait(false);
 
-            _log.Verbose(
+            _log.LogTrace(
                 "Deleted entity with ID '{0}' by deleting all of its {1} events",
                 id,
                 affectedRows);

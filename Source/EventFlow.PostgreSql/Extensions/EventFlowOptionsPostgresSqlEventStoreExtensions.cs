@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,8 +21,10 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.PostgreSql.EventStores;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow.PostgreSql.Extensions
 {
@@ -30,7 +32,7 @@ namespace EventFlow.PostgreSql.Extensions
     {
         public static IEventFlowOptions UsePostgreSqlEventStore(this IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions.UseEventStore<PostgreSqlEventPersistence>();
+            return eventFlowOptions.RegisterServices(f => f.TryAddTransient<IEventPersistence, PostgreSqlEventPersistence>());
         }
     }
 }

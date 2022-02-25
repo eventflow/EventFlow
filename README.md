@@ -15,7 +15,7 @@
     </td>
     <td  width="25%">
       <p>
-        <a href="https://ci.appveyor.com/project/eventflow/eventflow"><img src="https://ci.appveyor.com/api/projects/status/51yvhvbd909e4o82/branch/develop?svg=true" /></a>
+        <a href="https://github.com/eventflow/EventFlow/actions/workflows/ci.yml"><img src="https://github.com/eventflow/EventFlow/actions/workflows/ci.yml/badge.svg" /></a>
       </p>
       <p>
         <a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
@@ -71,7 +71,32 @@ The following list key characteristics of each version as well as its related br
   been releases. It will take a few alpha/beta/rc releases to get this right. These
   will be released as soon as any significant changes have been made.
 
-  Branches:
+  **NuGet package status**
+
+  - 🟢 compiles and pushed in `-alpha` releases
+  - 🔴 not yet ported to 1.0
+  - 💀 for packages that are removed as part of 1.0, see the
+    [migration guide](./MIGRATION_GUIDE.md) for details)
+
+  Projects
+    - 🟢 `EventFlow`
+    - 🔴 `EventFlow.AspNetCore`
+    - 💀 `EventFlow.Autofac`
+    - 💀 `EventFlow.DependencyInjection`
+    - 🔴 `EventFlow.Elasticsearch`
+    - 🔴 `EventFlow.EntityFramework`
+    - 🔴 `EventFlow.EventStores.EventStore`
+    - 🔴 `EventFlow.Hangfire`
+    - 🟢 `EventFlow.MongoDB`
+    - 🟢 `EventFlow.MsSql`
+    - 💀 `EventFlow.Owin`
+    - 🟢 `EventFlow.PostgreSql`
+    - 🔴 `EventFlow.RabbitMQ`
+    - 🟢 `EventFlow.Sql`
+    - 🔴 `EventFlow.SQLite`
+    - 🟢 `EventFlow.TestHelpers`
+    
+  **Branches:**
   - `develop-v1`: Development branch, pull requests should be done here
   - `release-v1`: Release branch, merge commits are done to this branch from
     `develop-v1` to create releases. Typically each commit represents a release
@@ -79,13 +104,13 @@ The following list key characteristics of each version as well as its related br
 * `0.x` (API stable)
 
   The current stable version of EventFlow and has been the version of EventFlow
-  for almost siz years. 0.x versions have .NET Framework support and limited
+  for almost six years. 0.x versions have .NET Framework support and limited
   support to the Microsoft extension packages through extra NuGet packages.
 
   Feature and bug fix releases will still be done while there's interest in
   the community.
 
-  Branches:
+  **Branches:**
   - `develop-v0`: Development branch, pull requests should be done here
   - `release-v0`: Release branch, merge commits are done to this branch from
     `develop-v0` to create releases. Typically each commit represents a release
@@ -248,29 +273,30 @@ public async Task Example()
   // We wire up EventFlow with all of our classes. Instead of adding events,
   // commands, etc. explicitly, we could have used the the simpler
   // AddDefaults(Assembly) instead.
-  using (var resolver = EventFlowOptions.New
-    .AddEvents(typeof(ExampleEvent))
-    .AddCommands(typeof(ExampleCommand))
-    .AddCommandHandlers(typeof(ExampleCommandHandler))
-    .UseInMemoryReadStoreFor<ExampleReadModel>()
-    .CreateResolver())
+  var serviceCollection = new ServiceCollection()
+    .AddLogging()
+    .AddEventFlow(o => o
+      .AddEvents(typeof(ExampleEvent))
+      .AddCommands(typeof(ExampleCommand))
+      .AddCommandHandlers(typeof(ExampleCommandHandler))
+      .UseInMemoryReadStoreFor<ExampleReadModel>());
+
+  using (var serviceProvider = serviceCollection.BuildServiceProvider())
   {
     // Create a new identity for our aggregate root
     var exampleId = ExampleId.New;
 
     // Resolve the command bus and use it to publish a command
-    var commandBus = resolver.Resolve<ICommandBus>();
+    var commandBus = serviceProvider.GetRequiredService<ICommandBus>();
     await commandBus.PublishAsync(
-      new ExampleCommand(exampleId, 42), CancellationToken.None)
-      .ConfigureAwait(false);
+      new ExampleCommand(exampleId, 42), CancellationToken.None);
 
     // Resolve the query handler and use the built-in query for fetching
     // read models by identity to get our read model representing the
     // state of our aggregate root
-    var queryProcessor = resolver.Resolve<IQueryProcessor>();
+    var queryProcessor = serviceProvider.GetRequiredService<IQueryProcessor>();
     var exampleReadModel = await queryProcessor.ProcessAsync(
-      new ReadModelByIdQuery<ExampleReadModel>(exampleId), CancellationToken.None)
-      .ConfigureAwait(false);
+      new ReadModelByIdQuery<ExampleReadModel>(exampleId), CancellationToken.None);
 
     // Verify that the read model has the expected magic number
     exampleReadModel.MagicNumber.Should().Be(42);
@@ -354,7 +380,7 @@ public class ExampleCommandHandler
     CancellationToken cancellationToken)
   {
     aggregate.SetMagicNumber(command.MagicNumber);
-    return Task.FromResult(0);
+    return Task.CompletedTask;;
   }
 }
 ```
@@ -366,11 +392,13 @@ public class ExampleReadModel : IReadModel,
 {
   public int MagicNumber { get; private set; }
 
-  public void Apply(
+  public Task ApplyAsync(
     IReadModelContext context,
-    IDomainEvent<ExampleAggregate, ExampleId, ExampleEvent> domainEvent)
+    IDomainEvent<ExampleAggregate, ExampleId, ExampleEvent> domainEvent,
+    CancellationToken _cancellationToken
   {
     MagicNumber = domainEvent.AggregateEvent.MagicNumber;
+    return Task.CompletedTask;
   }
 }
 ```
@@ -423,20 +451,23 @@ share it by creating an issue with the link.
 
 
 ### Integration tests
+
 EventFlow has several tests that verify that its ability to use the systems it
 integrates with correctly.
 
- * **Elasticsearch:** [Elasticsearch](https://www.elastic.co/) run as Docker [Windows Container](https://docs.microsoft.com//virtualization/windowscontainers/about/). if use in local, requires its environment and `docker-compose` tool, and execute `PS> up_integration-test-env.ps1`
- * **EventStore:** [EventStore](https://geteventstore.com/) is same as the above
- * **RabbitMQ:** [RabbitMQ](https://www.rabbitmq.com/) is same as the above
- * **MSSQL:** Microsoft SQL Server is required to be running
- * **RabbitMQ:** Set an environment variable named `RABBITMQ_URL` with the URL
-   for the [RabbitMQ](https://www.rabbitmq.com/) instance you would like to use.
- * **EntityFramework:** Microsoft SQL Server and PostgreSQL is required to be running
- * **PostgreSQL:** PostgreSQL is required to be running
+ * [Elasticsearch](https://www.elastic.co/)
+ * [EventStore](https://geteventstore.com/)
+ * [RabbitMQ](https://www.rabbitmq.com/)
+ * Microsoft SQL Server
+ * PostgreSQL
 
-There's a Vagrant box with both Elasticsearch and RabbitMQ you can use
-[here](https://github.com/rasmus/Vagrant.Boxes).
+To setup a local test environment run the following commands in the checkout
+directory of EventFlow.
+
+```
+docker-compose pull
+docker-compose up
+```
 
 Alternatively, you can skip the NUnit tests marked with the `integration`
 category.
@@ -462,8 +493,8 @@ category.
 ```
 The MIT License (MIT)
 
-Copyright (c) 2015-2020 Rasmus Mikkelsen
-Copyright (c) 2015-2020 eBay Software Foundation
+Copyright (c) 2015-2021 Rasmus Mikkelsen
+Copyright (c) 2015-2021 eBay Software Foundation
 https://github.com/eventflow/EventFlow
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -484,3 +515,4 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+

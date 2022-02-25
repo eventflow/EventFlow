@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2020 Rasmus Mikkelsen
 // Copyright (c) 2015-2020 eBay Software Foundation
@@ -21,13 +21,23 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using EventFlow.Sql.ReadModels.Attributes;
+using EventFlow.Entities;
 
-namespace EventFlow.MsSql.ReadStores.Attributes
+namespace EventFlow.EntityFramework.Tests.MsSql.IncludeTests
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class MsSqlReadModelIgnoreColumnAttribute : SqlReadModelIgnoreColumnAttribute
+    public class Address : Entity<AddressId>
     {
+        public string Street { get; set; }
+        public string PostalCode { get; set; }
+        public string City { get; set; }
+        public string Country { get; set; }
+
+        public Address(AddressId id, string street, string postalCode, string city, string country) : base(id)
+        {
+            Street = street;
+            PostalCode = postalCode;
+            City = city;
+            Country = country;
+        }
     }
 }

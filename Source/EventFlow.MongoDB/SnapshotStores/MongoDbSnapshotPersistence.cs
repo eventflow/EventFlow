@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,7 +23,6 @@
 
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Logs;
 using EventFlow.MongoDB.ValueObjects;
 using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
@@ -32,20 +31,21 @@ using MongoDB.Driver;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.MongoDB.SnapshotStores
 {
     public class MongoDbSnapshotPersistence : ISnapshotPersistence
     {
         private static string SnapShotsCollectionName = "snapShots";
-        private readonly ILog _log;
+        private readonly ILogger<MongoDbSnapshotPersistence> _logger;
         private readonly IMongoDatabase _mongoDatabase;
 
         public MongoDbSnapshotPersistence(
-            ILog log,
+            ILogger<MongoDbSnapshotPersistence> logger,
             IMongoDatabase mongoDatabase)
         {
-            _log = log;
+            _logger = logger;
             _mongoDatabase = mongoDatabase;
         }
 

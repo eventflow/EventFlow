@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,9 +23,11 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.MsSql.ReadStores.Attributes;
 using EventFlow.ReadStores;
+using EventFlow.Sql.ReadModels.Attributes;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Events;
@@ -39,21 +41,29 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels
     {
         public string ThingyId { get; set; }
 
-        [MsSqlReadModelIdentityColumn]
+        [SqlReadModelIdentityColumn]
         public string MessageId { get; set; }
 
         public string Message { get; set; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent)
+        public Task ApplyAsync(
+            IReadModelContext context,
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent,
+            CancellationToken cancellationToken)
         {
             ThingyId = domainEvent.AggregateIdentity.Value;
 
             var thingyMessage = domainEvent.AggregateEvent.ThingyMessage;
             MessageId = thingyMessage.Id.Value;
             Message = thingyMessage.Message;
+
+            return Task.CompletedTask;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageHistoryAddedEvent> domainEvent)
+        public Task ApplyAsync(
+            IReadModelContext context,
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageHistoryAddedEvent> domainEvent,
+            CancellationToken cancellationToken)
         {
             ThingyId = domainEvent.AggregateIdentity.Value;
 
@@ -61,6 +71,8 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels
             var thingyMessage = domainEvent.AggregateEvent.ThingyMessages.Single(m => m.Id == messageId);
             MessageId = messageId.Value;
             Message = thingyMessage.Message;
+
+            return Task.CompletedTask;
         }
 
         public ThingyMessage ToThingyMessage()

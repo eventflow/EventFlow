@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,9 +30,12 @@ namespace EventFlow.MsSql.Tests.Extensions
 {
     public static class MsSqlDatabaseExtensions
     {
-        public static IReadOnlyCollection<T> Query<T>(this IMsSqlDatabase database, string sql)
+        public static IReadOnlyCollection<T> Query<T>(
+            this IMsSqlDatabase database,
+            string sql,
+            object param = null)
         {
-            return database.WithConnection<IReadOnlyCollection<T>>(c => c.Query<T>(sql).ToList());
+            return database.WithConnection<IReadOnlyCollection<T>>(c => c.Query<T>(sql, param).ToList());
         }
 
         public static int Execute(this IMsSqlDatabase database, string sql, object param)

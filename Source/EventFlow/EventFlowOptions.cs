@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 using EventFlow.Aggregates;
@@ -52,11 +53,11 @@ namespace EventFlow
 {
     public class EventFlowOptions : IEventFlowOptions
     {
-        private readonly List<Type> _aggregateEventTypes = new List<Type>();
-        private readonly List<Type> _sagaTypes = new List<Type>(); 
-        private readonly List<Type> _commandTypes = new List<Type>();
+        private readonly ConcurrentBag<Type> _aggregateEventTypes = new ConcurrentBag<Type>();
+        private readonly ConcurrentBag<Type> _sagaTypes = new ConcurrentBag<Type>(); 
+        private readonly ConcurrentBag<Type> _commandTypes = new ConcurrentBag<Type>();
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
-        private readonly List<Type> _jobTypes = new List<Type>
+        private readonly ConcurrentBag<Type> _jobTypes = new ConcurrentBag<Type>
             {
                 typeof(PublishCommandJob),
                 typeof(DispatchToAsynchronousEventSubscribersJob)
@@ -72,8 +73,13 @@ namespace EventFlow
             RegisterDefaults(ServiceCollection);
         }
 
-        public static IEventFlowOptions New() => new EventFlowOptions(new ServiceCollection()
-            .AddLogging(b => b.AddConsole()));
+        public static IEventFlowOptions New() => 
+            new EventFlowOptions(
+                new ServiceCollection()
+                    .AddLogging(b => b
+                        .SetMinimumLevel(LogLevel.Trace)
+                        .AddConsole()));
+
         public static IEventFlowOptions New(IServiceCollection serviceCollection) => new EventFlowOptions(serviceCollection);
 
         public IEventFlowOptions ConfigureOptimisticConcurrencyRetry(int retries, TimeSpan delayBeforeRetry)
@@ -202,6 +208,7 @@ namespace EventFlow
             serviceCollection.TryAddTransient<ICancellationConfiguration>(_ => _eventFlowConfiguration);
             serviceCollection.TryAddTransient(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));
             serviceCollection.TryAddSingleton(typeof(IReadModelFactory<>), typeof(ReadModelFactory<>));
+            serviceCollection.TryAddSingleton<Func<Type, ISagaErrorHandler>>(_ => __ => null);
 
             // Definition services
             serviceCollection.TryAddSingleton<IEventDefinitionService, EventDefinitionService>();
@@ -210,7 +217,7 @@ namespace EventFlow
             serviceCollection.TryAddSingleton<ISagaDefinitionService, SagaDefinitionService>();
             serviceCollection.TryAddSingleton<ICommandDefinitionService, CommandDefinitionService>();
 
-            serviceCollection.AddSingleton<ILoadedVersionedTypes>(r => new LoadedVersionedTypes(
+            serviceCollection.TryAddSingleton<ILoadedVersionedTypes>(r => new LoadedVersionedTypes(
                 _jobTypes,
                 _commandTypes,
                 _aggregateEventTypes,

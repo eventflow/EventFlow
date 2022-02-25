@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,13 +21,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.MongoDB.ReadStores;
 using EventFlow.ReadStores;
 using EventFlow.MongoDB.EventStore;
 using MongoDB.Driver;
 using System;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow.MongoDB.Extensions
 {
@@ -66,25 +67,23 @@ namespace EventFlow.MongoDB.Extensions
             this IEventFlowOptions eventFlowOptions,
             Func<IMongoDatabase> mongoDatabaseFactory)
         {
-            return eventFlowOptions.RegisterServices(sr =>
-            {
-                sr.Register(f => mongoDatabaseFactory(), Lifetime.Singleton);
-                sr.Register<IReadModelDescriptionProvider, ReadModelDescriptionProvider>(Lifetime.Singleton, true);
-                sr.Register<IMongoDbEventSequenceStore, MongoDbEventSequenceStore>(Lifetime.Singleton);
-            });
+            eventFlowOptions.ServiceCollection.TryAddSingleton(f => mongoDatabaseFactory());
+            eventFlowOptions.ServiceCollection.TryAddSingleton<IReadModelDescriptionProvider, ReadModelDescriptionProvider>();
+            eventFlowOptions.ServiceCollection.TryAddSingleton<IMongoDbEventSequenceStore, MongoDbEventSequenceStore>();
+
+            return eventFlowOptions;
         }
 
         public static IEventFlowOptions UseMongoDbReadModel<TReadModel>(
             this IEventFlowOptions eventFlowOptions)
             where TReadModel : class, IMongoDbReadModel
         {
-            return eventFlowOptions
-                .RegisterServices(f =>
-                {
-                    f.Register<IMongoDbReadModelStore<TReadModel>, MongoDbReadModelStore<TReadModel>>();
-                    f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IMongoDbReadModelStore<TReadModel>>());
-                })
-                .UseReadStoreFor<IMongoDbReadModelStore<TReadModel>, TReadModel>();
+            eventFlowOptions.ServiceCollection.TryAddTransient<IMongoDbReadModelStore<TReadModel>, MongoDbReadModelStore<TReadModel>>();
+            eventFlowOptions.ServiceCollection.TryAddTransient<IReadModelStore<TReadModel>>(r => r.GetService<IMongoDbReadModelStore<TReadModel>>());
+            
+            eventFlowOptions.UseReadStoreFor<IMongoDbReadModelStore<TReadModel>, TReadModel>();
+            
+            return eventFlowOptions;
         }
 
         public static IEventFlowOptions UseMongoDbReadModel<TReadModel, TReadModelLocator>(
@@ -92,13 +91,12 @@ namespace EventFlow.MongoDB.Extensions
             where TReadModel : class, IMongoDbReadModel
             where TReadModelLocator : IReadModelLocator
         {
-            return eventFlowOptions
-                .RegisterServices(f =>
-                {
-                    f.Register<IMongoDbReadModelStore<TReadModel>, MongoDbReadModelStore<TReadModel>>();
-                    f.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IMongoDbReadModelStore<TReadModel>>());
-                })
-                .UseReadStoreFor<IMongoDbReadModelStore<TReadModel>, TReadModel, TReadModelLocator>();
+            eventFlowOptions.ServiceCollection.TryAddTransient<IMongoDbReadModelStore<TReadModel>, MongoDbReadModelStore<TReadModel>>();
+            eventFlowOptions.ServiceCollection.TryAddTransient<IReadModelStore<TReadModel>>(r => r.GetService<IMongoDbReadModelStore<TReadModel>>());
+            
+            eventFlowOptions.UseReadStoreFor<IMongoDbReadModelStore<TReadModel>, TReadModel, TReadModelLocator>();
+            
+            return eventFlowOptions;
         }
     }
 }

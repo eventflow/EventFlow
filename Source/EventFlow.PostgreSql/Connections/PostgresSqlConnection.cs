@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,16 +22,16 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Core;
-using EventFlow.Logs;
 using EventFlow.PostgreSql.RetryStrategies;
 using EventFlow.Sql.Connections;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.PostgreSql.Connections
 {
     public class PostgreSqlConnection : SqlConnection<IPostgreSqlConfiguration, IPostgreSqlErrorRetryStrategy, IPostgreSqlConnectionFactory>, IPostgreSqlConnection
     {
         public PostgreSqlConnection(
-            ILog log,
+            ILogger<PostgreSqlConnection> log,
             IPostgreSqlConfiguration configuration,
             IPostgreSqlConnectionFactory connectionFactory,
             ITransientFaultHandler<IPostgreSqlErrorRetryStrategy> transientFaultHandler)

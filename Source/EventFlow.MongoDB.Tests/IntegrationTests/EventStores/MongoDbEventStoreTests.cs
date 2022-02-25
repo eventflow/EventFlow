@@ -1,7 +1,7 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,11 +21,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
+using System;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
 using EventFlow.MongoDB.EventStore;
 using EventFlow.MongoDB.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Mongo2Go;
 
@@ -37,17 +38,20 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.EventStores
 	{
 		private MongoDbRunner _runner;
 		
-		protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+		protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
 		{
 		    _runner = MongoDbRunner.Start();
-            var resolver = eventFlowOptions
-				.ConfigureMongoDb(_runner.ConnectionString, "eventflow")
-				.UseMongoDbEventStore()
-				.CreateResolver();
-		    var eventPersistenceInitializer = resolver.Resolve<IMongoDbEventPersistenceInitializer>();
-            eventPersistenceInitializer.Initialize();
 		    
-			return resolver;
+		    eventFlowOptions
+			    .ConfigureMongoDb(_runner.ConnectionString, "eventflow")
+			    .UseMongoDbEventStore();
+            
+		    var serviceProvider = base.Configure(eventFlowOptions);
+		    
+		    var eventPersistenceInitializer = serviceProvider.GetService<IMongoDbEventPersistenceInitializer>();
+            eventPersistenceInitializer.Initialize();
+
+            return serviceProvider;
 		}
 
         [TearDown]

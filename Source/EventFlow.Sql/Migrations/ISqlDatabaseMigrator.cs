@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,14 +23,21 @@
 
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EventFlow.Sql.Migrations
 {
     public interface ISqlDatabaseMigrator
     {
-        void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly);
-        void MigrateDatabaseUsingEmbeddedScripts(Assembly assembly, string connectionString);
-        void MigrateDatabaseUsingScripts(IEnumerable<SqlScript> sqlScripts, string connectionString);
-        void MigrateDatabaseUsingScripts(IEnumerable<SqlScript> sqlScripts);
+        Task MigrateDatabaseUsingEmbeddedScriptsAsync(
+            Assembly assembly,
+            string connectionStringName,
+            CancellationToken cancellationToken);
+        
+        Task MigrateDatabaseUsingScriptsAsync(
+            string connectionStringName,
+            IEnumerable<SqlScript> sqlScripts,
+            CancellationToken cancellationToken);
     }
 }

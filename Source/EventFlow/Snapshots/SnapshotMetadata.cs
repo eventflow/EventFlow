@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -31,6 +32,8 @@ namespace EventFlow.Snapshots
 {
     public class SnapshotMetadata : MetadataContainer, ISnapshotMetadata
     {
+        private static readonly IReadOnlyCollection<ISourceId> Empty = new List<ISourceId>();
+        private static readonly char[] SourceIdSeparators = {','};
         public SnapshotMetadata()
         {
         }
@@ -83,6 +86,25 @@ namespace EventFlow.Snapshots
         {
             get => GetMetadataValue(SnapshotMetadataKeys.SnapshotVersion, int.Parse);
             set => Add(SnapshotMetadataKeys.SnapshotVersion, value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        [JsonIgnore]
+        public IReadOnlyCollection<ISourceId> PreviousSourceIds
+        {
+            get
+            {
+                if (!TryGetValue(SnapshotMetadataKeys.PreviousSourceIds, out var ids) ||
+                    string.IsNullOrEmpty(ids))
+                {
+                    return Empty;
+                }
+
+                return ids
+                    .Split(SourceIdSeparators, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(sourceId => new SourceId(sourceId))
+                    .ToArray();
+            }
+            set => Add(SnapshotMetadataKeys.PreviousSourceIds, string.Join(",", value.Select(x => x.Value)));
         }
     }
 }

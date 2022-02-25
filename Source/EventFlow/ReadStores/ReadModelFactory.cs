@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -66,7 +66,8 @@ namespace EventFlow.ReadStores
             {
                 _logger.LogTrace(
                     "Creating new instance of read model type {ReadModelType} with ID {Id}",
-                    typeof(TReadModel).PrettyPrint());
+                    typeof(TReadModel).PrettyPrint(),
+                    id);
             }
 
             var readModel = (TReadModel) Activator.CreateInstance(typeof(TReadModel));

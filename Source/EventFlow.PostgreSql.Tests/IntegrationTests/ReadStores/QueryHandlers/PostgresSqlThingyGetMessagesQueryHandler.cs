@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -48,6 +48,7 @@ namespace EventFlow.PostgreSql.Tests.IntegrationTests.ReadStores.QueryHandlers
         {
             var readModels = await _postgreSqlConnection.QueryAsync<PostgreSqlThingyMessageReadModel>(
                 Label.Named("postgresql-fetch-thingy-message-read-model"),
+                null,
                 cancellationToken,
                 "SELECT * FROM \"ReadModel-ThingyMessage\" WHERE ThingyId = @ThingyId;",
                 new { ThingyId = query.ThingyId.Value })

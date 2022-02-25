@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,6 +22,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Concurrent;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Core;
 
 namespace EventFlow.Sql.Connections
@@ -29,17 +32,36 @@ namespace EventFlow.Sql.Connections
     public abstract class SqlConfiguration<T> : ISqlConfiguration<T>
         where T : ISqlConfiguration<T>
     {
-        public string ConnectionString { get; private set; }
+        private readonly ConcurrentDictionary<string, string> _connectionStrings = new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         public RetryDelay TransientRetryDelay { get; private set; } = RetryDelay.Between(
             TimeSpan.FromMilliseconds(50),
             TimeSpan.FromMilliseconds(100));
 
         public int TransientRetryCount { get; private set; } = 2;
+        public TimeSpan UpgradeExecutionTimeout { get; private set; } = TimeSpan.FromMinutes(5);
 
         public T SetConnectionString(string connectionString)
         {
-            ConnectionString = connectionString;
+            if (!_connectionStrings.TryAdd(string.Empty, connectionString))
+            {
+                throw new ArgumentException("Default connection string already configured");
+            }
+
+            // Are there alternatives to this double cast?
+            return (T)(object)this;
+        }
+
+        public T SetConnectionString(
+            string connectionStringName,
+            string connectionString)
+        {
+            if (!_connectionStrings.TryAdd(connectionStringName, connectionString))
+            {
+                throw new ArgumentException(
+                    $"There's already a connection string named '{connectionStringName}'",
+                    nameof(connectionStringName));
+            }
 
             // Are there alternatives to this double cast?
             return (T)(object)this;
@@ -59,6 +81,27 @@ namespace EventFlow.Sql.Connections
 
             // Are there alternatives to this double cast?
             return (T)(object)this;
+        }
+
+        public T SetUpgradeExecutionTimeout(TimeSpan timeout)
+        {
+            UpgradeExecutionTimeout = timeout;
+
+            // Are there alternatives to this double cast?
+            return (T)(object)this;
+        }
+
+        public virtual Task<string> GetConnectionStringAsync(
+            Label label,
+            string name,
+            CancellationToken cancellationToken)
+        {
+            if (!_connectionStrings.TryGetValue(name ?? string.Empty, out var connectionString))
+            {
+                throw new ArgumentOutOfRangeException($"There's no connection string named '{name}'");
+            }
+
+            return Task.FromResult(connectionString);
         }
     }
 }

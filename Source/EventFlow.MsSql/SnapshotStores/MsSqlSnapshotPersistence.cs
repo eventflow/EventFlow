@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -50,9 +50,14 @@ namespace EventFlow.MsSql.SnapshotStores
         {
             var msSqlSnapshotDataModels = await _msSqlConnection.QueryAsync<MsSqlSnapshotDataModel>(
                 Label.Named("fetch-snapshot"),
+                null,
                 cancellationToken,
                 "SELECT TOP 1 * FROM [dbo].[EventFlowSnapshots] WHERE AggregateName = @AggregateName AND AggregateId = @AggregateId ORDER BY AggregateSequenceNumber DESC",
-                new {AggregateId = identity.Value, AggregateName = aggregateType.GetAggregateName().Value})
+                new
+                {
+                    AggregateId = identity.Value,
+                    AggregateName = aggregateType.GetAggregateName().Value
+                })
                 .ConfigureAwait(false);
 
             if (!msSqlSnapshotDataModels.Any())
@@ -85,6 +90,7 @@ namespace EventFlow.MsSql.SnapshotStores
             {
                 await _msSqlConnection.ExecuteAsync(
                     Label.Named("set-snapshot"),
+                    null,
                     cancellationToken,
                     @"INSERT INTO [dbo].[EventFlowSnapshots]
                         (AggregateId, AggregateName, AggregateSequenceNumber, Metadata, Data)
@@ -106,9 +112,14 @@ namespace EventFlow.MsSql.SnapshotStores
         {
             return _msSqlConnection.ExecuteAsync(
                 Label.Named("delete-snapshots-for-aggregate"),
+                null,
                 cancellationToken,
                 "DELETE FROM [dbo].[EventFlowSnapshots] WHERE AggregateName = @AggregateName AND AggregateId = @AggregateId",
-                new {AggregateId = identity.Value, AggregateName = aggregateType.GetAggregateName().Value});
+                new
+                {
+                    AggregateId = identity.Value, 
+                    AggregateName = aggregateType.GetAggregateName().Value
+                });
         }
 
         public Task PurgeSnapshotsAsync(
@@ -117,9 +128,13 @@ namespace EventFlow.MsSql.SnapshotStores
         {
             return _msSqlConnection.ExecuteAsync(
                 Label.Named("purge-snapshots-for-aggregate"),
+                null,
                 cancellationToken,
                 "DELETE FROM [dbo].[EventFlowSnapshots] WHERE AggregateName = @AggregateName",
-                new {AggregateName = aggregateType.GetAggregateName().Value});
+                new
+                {
+                    AggregateName = aggregateType.GetAggregateName().Value
+                });
         }
 
         public Task PurgeSnapshotsAsync(
@@ -127,6 +142,7 @@ namespace EventFlow.MsSql.SnapshotStores
         {
             return _msSqlConnection.ExecuteAsync(
                 Label.Named("purge-all-snapshots"),
+                null,
                 cancellationToken,
                 "DELETE FROM [dbo].[EventFlowSnapshots]");
         }

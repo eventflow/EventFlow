@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,6 +23,7 @@
 
 using EventFlow.Extensions;
 using EventFlow.MongoDB.EventStore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow.MongoDB.Extensions
 {
@@ -31,8 +32,11 @@ namespace EventFlow.MongoDB.Extensions
         public static IEventFlowOptions UseMongoDbEventStore(this IEventFlowOptions eventFlowOptions)
         {
 
-            return eventFlowOptions.UseEventStore<MongoDbEventPersistence>()
-                .RegisterServices(f=> f.Register<IMongoDbEventPersistenceInitializer, MongoDbEventPersistenceInitializer>());
+            eventFlowOptions.UseEventPersistence<MongoDbEventPersistence>();
+            eventFlowOptions.ServiceCollection
+                .TryAddTransient<IMongoDbEventPersistenceInitializer, MongoDbEventPersistenceInitializer>();
+
+            return eventFlowOptions;
         }
     }
 }

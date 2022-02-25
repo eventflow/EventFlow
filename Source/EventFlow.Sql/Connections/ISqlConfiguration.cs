@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,6 +21,9 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Core;
 
 namespace EventFlow.Sql.Connections
@@ -28,11 +31,19 @@ namespace EventFlow.Sql.Connections
     public interface ISqlConfiguration<out T>
         where T : ISqlConfiguration<T>
     {
-        string ConnectionString { get; }
         RetryDelay TransientRetryDelay { get; }
         int TransientRetryCount { get; }
+        TimeSpan UpgradeExecutionTimeout { get; }
 
+        T SetConnectionString(string connectionString);
+        T SetConnectionString(string connectionStringName, string connectionString);
         T SetTransientRetryDelay(RetryDelay retryDelay);
         T SetTransientRetryCount(int retryCount);
+        T SetUpgradeExecutionTimeout(TimeSpan timeout);
+
+        Task<string> GetConnectionStringAsync(
+            Label label,
+            string name,
+            CancellationToken cancellationToken);
     }
 }

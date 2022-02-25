@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,8 +30,8 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
-using EventFlow.Logs;
 using EventFlow.MongoDB.ValueObjects;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 
 namespace EventFlow.MongoDB.EventStore
@@ -39,13 +39,13 @@ namespace EventFlow.MongoDB.EventStore
     public class MongoDbEventPersistence : IEventPersistence
     {
         public static readonly string CollectionName = "eventflow.events";
-        private readonly ILog _log;
+        private readonly ILogger<MongoDbEventPersistence> _logger;
         private readonly IMongoDatabase _mongoDatabase;
         private readonly IMongoDbEventSequenceStore _mongoDbEventSequenceStore;
 
-        public MongoDbEventPersistence(ILog log, IMongoDatabase mongoDatabase, IMongoDbEventSequenceStore mongoDbEventSequenceStore)
+        public MongoDbEventPersistence(ILogger<MongoDbEventPersistence> logger, IMongoDatabase mongoDatabase, IMongoDbEventSequenceStore mongoDbEventSequenceStore)
         {
-            _log = log;
+            _logger = logger;
             _mongoDatabase = mongoDatabase;
             _mongoDbEventSequenceStore = mongoDbEventSequenceStore;
         }
@@ -90,7 +90,7 @@ namespace EventFlow.MongoDB.EventStore
                 .OrderBy(x => x.AggregateSequenceNumber)
                 .ToList();
 
-            _log.Verbose("Committing {0} events to MongoDb event store for entity with ID '{1}'", eventDataModels.Count, id);
+            _logger.LogTrace("Committing {EventCount} events to MongoDb event store for entity with ID '{AggregateId}'", eventDataModels.Count, id);
             try
             {
                 await MongoDbEventStoreCollection
@@ -119,7 +119,7 @@ namespace EventFlow.MongoDB.EventStore
                 .DeleteManyAsync(x => x.AggregateId == id.Value, cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
 
-            _log.Verbose("Deleted entity with ID '{0}' by deleting all of its {1} events", id, affectedRows.DeletedCount);
+            _logger.LogTrace("Deleted entity with ID '{AggregateId}' by deleting all of its {EventCount} events", id, affectedRows.DeletedCount);
         }
 
         private IMongoCollection<MongoDbEventDataModel> MongoDbEventStoreCollection => _mongoDatabase.GetCollection<MongoDbEventDataModel>(CollectionName);
