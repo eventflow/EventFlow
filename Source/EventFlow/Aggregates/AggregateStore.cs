@@ -34,17 +34,18 @@ using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
-using EventFlow.Logs;
 using EventFlow.Snapshots;
 using EventFlow.Subscribers;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Aggregates
 {
     public class AggregateStore : IAggregateStore
     {
         private static readonly IReadOnlyCollection<IDomainEvent> EmptyDomainEventCollection = new IDomainEvent[] { };
-        private readonly ILog _log;
-        private readonly IResolver _resolver;
+        private readonly ILogger<AggregateStore> _logger;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IAggregateFactory _aggregateFactory;
         private readonly IEventStore _eventStore;
         private readonly ISnapshotStore _snapshotStore;
@@ -54,8 +55,8 @@ namespace EventFlow.Aggregates
         private readonly IEventFlowConfiguration _eventFlowConfiguration;
 
         public AggregateStore(
-            ILog log,
-            IResolver resolver,
+            ILogger<AggregateStore> logger,
+            IServiceProvider serviceProvider,
             IAggregateFactory aggregateFactory,
             IEventStore eventStore,
             ISnapshotStore snapshotStore,
@@ -64,8 +65,8 @@ namespace EventFlow.Aggregates
             IAggregateStoreResilienceStrategy aggregateStoreResilienceStrategy,
             IEventFlowConfiguration eventFlowConfiguration)
         {
-            _log = log;
-            _resolver = resolver;
+            _logger = logger;
+            _serviceProvider = serviceProvider;
             _aggregateFactory = aggregateFactory;
             _eventStore = eventStore;
             _snapshotStore = snapshotStore;
@@ -139,7 +140,9 @@ namespace EventFlow.Aggregates
                     var result = await updateAggregate(aggregate, c).ConfigureAwait(false);
                     if (!result.IsSuccess)
                     {
-                        _log.Debug(() => $"Execution failed on aggregate '{typeof(TAggregate).PrettyPrint()}', disregarding any events emitted");
+                        _logger.LogDebug(
+                            "Execution failed on aggregate {AggregateType}, disregarding any events emitted",
+                            typeof(TAggregate).PrettyPrint());
                         return new AggregateUpdateResult<TExecutionResult>(
                             result,
                             EmptyDomainEventCollection);
@@ -204,7 +207,7 @@ namespace EventFlow.Aggregates
                     .ConfigureAwait(false);
                 try
                 {
-                    var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
+                    var domainEventPublisher = _serviceProvider.GetRequiredService<IDomainEventPublisher>();
                     await domainEventPublisher.PublishAsync(
                             aggregateUpdateResult.DomainEvents,
                             cancellationToken)
@@ -259,7 +262,7 @@ namespace EventFlow.Aggregates
 
             if (domainEvents.Any())
             {
-                var domainEventPublisher = _resolver.Resolve<IDomainEventPublisher>();
+                var domainEventPublisher = _serviceProvider.GetRequiredService<IDomainEventPublisher>();
                 await domainEventPublisher.PublishAsync(
                     domainEvents,
                     cancellationToken)

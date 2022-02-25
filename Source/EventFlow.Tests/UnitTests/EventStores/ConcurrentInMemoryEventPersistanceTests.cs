@@ -33,21 +33,20 @@ using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
 using EventFlow.Exceptions;
-using EventFlow.Logs;
 using EventFlow.Snapshots;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
-using Moq;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.EventStores
 {
     [Explicit]
     [Category(Categories.Unit)]
-    public class ConcurrentInMemoryEventPersistanceTests
+    public class ConcurrentInMemoryEventPersistanceTests : Test
     {
         // Higher values have exponential effect on duration
         // due to OptimsticConcurrency and retry
@@ -78,19 +77,20 @@ namespace EventFlow.Tests.UnitTests.EventStores
 
         private EventStoreBase CreateStore()
         {
-            var aggregateFactory = Mock.Of<IAggregateFactory>();
-            var resolver = Mock.Of<IResolver>();
+            var aggregateFactory = Mock<IAggregateFactory>();
+            var serviceProvider = Mock<IServiceProvider>();
             var metadataProviders = Enumerable.Empty<IMetadataProvider>();
-            var snapshotStore = Mock.Of<ISnapshotStore>();
-            var log = new NullLog();
+            var snapshotStore = Mock<ISnapshotStore>();
             var factory = new DomainEventFactory();
-            var persistence = new InMemoryEventPersistence(log);
-            var upgradeManager = new EventUpgradeManager(log, resolver);
-            var definitionService = new EventDefinitionService(log);
+            var persistence = new InMemoryEventPersistence(Logger<InMemoryEventPersistence>());
+            var upgradeManager = new EventUpgradeManager(Logger<EventUpgradeManager>(), serviceProvider);
+            var definitionService = new EventDefinitionService(Logger<EventDefinitionService>(), Mock<ILoadedVersionedTypes>());
             definitionService.Load(typeof(ThingyPingEvent));
             var serializer = new EventJsonSerializer(new JsonSerializer(), definitionService, factory);
 
-            var store = new EventStoreBase(log, aggregateFactory,
+            var store = new EventStoreBase(
+                Logger<EventStoreBase>(),
+                aggregateFactory,
                 serializer, upgradeManager, metadataProviders,
                 persistence, snapshotStore);
 
@@ -104,7 +104,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 new ThingyPingEvent(PingId.New),
             };
 
-            for (int i = 0; i < NumberOfEvents; i++)
+            for (var i = 0; i < NumberOfEvents; i++)
             {
                 await RetryAsync(async () =>
                 {

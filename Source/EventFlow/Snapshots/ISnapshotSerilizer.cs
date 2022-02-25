@@ -29,7 +29,7 @@ namespace EventFlow.Snapshots
 {
     public interface ISnapshotSerilizer
     {
-        Task<SerializedSnapshot> SerilizeAsync<TAggregate, TIdentity, TSnapshot>(
+        Task<SerializedSnapshot> SerializeAsync<TAggregate, TIdentity, TSnapshot>(
             SnapshotContainer snapshotContainer,
             CancellationToken cancellationToken)
             where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>

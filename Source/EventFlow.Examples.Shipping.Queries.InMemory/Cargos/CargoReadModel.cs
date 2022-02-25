@@ -22,6 +22,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Events;
@@ -40,19 +42,27 @@ namespace EventFlow.Examples.Shipping.Queries.InMemory.Cargos
         public Itinerary Itinerary { get; private set; }
         public Route Route { get; private set; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<CargoAggregate, CargoId, CargoBookedEvent> domainEvent)
+        public Task ApplyAsync(
+            IReadModelContext context,
+            IDomainEvent<CargoAggregate, CargoId, CargoBookedEvent> domainEvent,
+            CancellationToken _)
         {
             Id = domainEvent.AggregateIdentity;
             Route = domainEvent.AggregateEvent.Route;
+            return Task.CompletedTask;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<CargoAggregate, CargoId, CargoItinerarySetEvent> domainEvent)
+        public Task ApplyAsync(
+            IReadModelContext context,
+            IDomainEvent<CargoAggregate, CargoId, CargoItinerarySetEvent> domainEvent,
+            CancellationToken _)
         {
             Itinerary = domainEvent.AggregateEvent.Itinerary;
             foreach (var transportLeg in domainEvent.AggregateEvent.Itinerary.TransportLegs)
             {
                 DependentVoyageIds.Add(transportLeg.VoyageId);
             }
+            return Task.CompletedTask;
         }
 
         public Cargo ToCargo()

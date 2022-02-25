@@ -23,6 +23,7 @@
 
 using EventFlow.Extensions;
 using EventFlow.MsSql.SnapshotStores;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.MsSql.Extensions
 {
@@ -32,7 +33,7 @@ namespace EventFlow.MsSql.Extensions
             this IEventFlowOptions eventFlowOptions)
         {
             return eventFlowOptions
-                .UseSnapshotStore<MsSqlSnapshotPersistence>();
+                .UseSnapshotPersistence<MsSqlSnapshotPersistence>(ServiceLifetime.Transient);
         }
     }
 }

@@ -27,20 +27,20 @@ using System.ComponentModel;
 using System.Data.SqlClient;
 using System.Linq;
 using EventFlow.Core;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.MsSql.RetryStrategies
 {
     public class MsSqlErrorRetryStrategy : IMsSqlErrorRetryStrategy
     {
-        private readonly ILog _log;
+        private readonly ILogger<MsSqlErrorRetryStrategy> _logger;
         private readonly IMsSqlConfiguration _msSqlConfiguration;
 
         public MsSqlErrorRetryStrategy(
-            ILog log,
+            ILogger<MsSqlErrorRetryStrategy> logger,
             IMsSqlConfiguration msSqlConfiguration)
         {
-            _log = log;
+            _logger = logger;
             _msSqlConfiguration = msSqlConfiguration;
         }
 
@@ -77,8 +77,8 @@ namespace EventFlow.MsSql.RetryStrategies
                     case 40501:
                     {
                         var delay = _msSqlConfiguration.ServerBusyRetryDelay.PickDelay();
-                        _log.Warning(
-                            "MSSQL server returned error 40501 which means it too busy and asked us to wait 10 seconds! Trying to wait {0:0.###} seconds.",
+                        _logger.LogWarning(
+                            "MSSQL server returned error 40501 which means it too busy and asked us to wait 10 seconds! Trying to wait {Seconds} seconds.",
                             delay.TotalSeconds);
                         yield return Retry.YesAfter(delay);
                         yield break;

@@ -36,6 +36,7 @@ using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Extensions;
 using EventFlow.TestHelpers.Suites;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Mongo2Go;
 using NUnit.Framework;
 
@@ -49,12 +50,12 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores
 
         private MongoDbRunner _runner;
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
             _runner = MongoDbRunner.Start();
 
             var resolver = eventFlowOptions
-                .RegisterServices(sr => { sr.RegisterType(typeof(ThingyMessageLocator)); })
+                .RegisterServices(sr => sr.AddTransient(typeof(ThingyMessageLocator)))
                 .ConfigureMongoDb(_runner.ConnectionString, "eventflow")
                 .UseMongoDbReadModel<MongoDbThingyReadModel>()
                 .UseMongoDbReadModel<MongoDbThingyMessageReadModel, ThingyMessageLocator>()
@@ -63,10 +64,11 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores
                     typeof(MongoDbThingyGetVersionQueryHandler),
                     typeof(MongoDbThingyGetMessagesQueryHandler),
                     typeof(MongoDbThingyGetWithLinqQueryHandler)
-                       )
-                .CreateResolver();
+                );
 
-            return resolver;
+            var serviceProvider = base.Configure(eventFlowOptions);
+
+            return serviceProvider;
         }
 
         [Test]

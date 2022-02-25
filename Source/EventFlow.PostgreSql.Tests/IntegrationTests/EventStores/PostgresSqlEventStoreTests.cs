@@ -21,14 +21,15 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
-using EventFlow.Extensions;
+using System;
+using System.Threading;
 using EventFlow.PostgreSql.Connections;
 using EventFlow.PostgreSql.EventStores;
 using EventFlow.PostgreSql.Extensions;
 using EventFlow.PostgreSql.TestsHelpers;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.PostgreSql.Tests.IntegrationTests.EventStores
@@ -37,21 +38,22 @@ namespace EventFlow.PostgreSql.Tests.IntegrationTests.EventStores
     public class PostgreSqlEventStoreTests : TestSuiteForEventStore
     {
         private IPostgreSqlDatabase _testDatabase;
-
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
             _testDatabase = PostgreSqlHelpz.CreateDatabase("eventflow");
 
-            var resolver = eventFlowOptions
+            eventFlowOptions
                 .ConfigurePostgreSql(PostgreSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
-                .UseEventStore<PostgreSqlEventPersistence>()
-                .CreateResolver();
+                .UsePostgreSqlEventStore();
+            
+            var serviceProvider = base.Configure(eventFlowOptions);
 
-            var databaseMigrator = resolver.Resolve<IPostgreSqlDatabaseMigrator>();
-            EventFlowEventStoresPostgreSql.MigrateDatabase(databaseMigrator);
-            databaseMigrator.MigrateDatabaseUsingEmbeddedScripts(GetType().Assembly);
+            var databaseMigrator = serviceProvider.GetRequiredService<IPostgreSqlDatabaseMigrator>();
+            EventFlowEventStoresPostgreSql.MigrateDatabaseAsync(databaseMigrator, CancellationToken.None).Wait();
+            databaseMigrator.MigrateDatabaseUsingEmbeddedScriptsAsync(GetType().Assembly, null, CancellationToken.None).Wait();
 
-            return resolver;
+            return serviceProvider;
         }
 
         [TearDown]

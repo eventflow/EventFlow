@@ -23,12 +23,13 @@
 
 using System;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.MsSql.ReadStores;
 using EventFlow.ReadStores;
 using EventFlow.Sql.ReadModels;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow.MsSql.Extensions
 {
@@ -66,12 +67,12 @@ namespace EventFlow.MsSql.Extensions
         }
 
         private static void RegisterMssqlReadStore<TReadModel>(
-            IServiceRegistration serviceRegistration)
+            IServiceCollection serviceCollection)
             where TReadModel : class, IReadModel
         {
-            serviceRegistration.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton, true);
-            serviceRegistration.Register<IMssqlReadModelStore<TReadModel>, MssqlReadModelStore<TReadModel>>();
-            serviceRegistration.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IMssqlReadModelStore<TReadModel>>());
+            serviceCollection.TryAddSingleton<IReadModelSqlGenerator, ReadModelSqlGenerator>();
+            serviceCollection.TryAddTransient<IMssqlReadModelStore<TReadModel>, MssqlReadModelStore<TReadModel>>();
+            serviceCollection.TryAddTransient<IReadModelStore<TReadModel>>(p => p.GetRequiredService<IMssqlReadModelStore<TReadModel>>());
         }
     }
 }

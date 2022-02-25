@@ -26,12 +26,12 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.Exploration
@@ -39,21 +39,21 @@ namespace EventFlow.Tests.Exploration
     [Category(Categories.Integration)]
     public class EventUpgradeExplorationTest
     {
-        private IResolver _resolver;
+        private IServiceProvider _serviceProvider;
 
         [SetUp]
         public void SetUp()
         {
-            _resolver = EventFlowOptions.New
+            _serviceProvider = EventFlowOptions.New()
                 .AddEvents(new []{ typeof(UpgradeEventV1), typeof(UpgradeEventV2) })
                 .AddEventUpgraders(typeof(UpgradeV1ToV2))
-                .CreateResolver();
+                .ServiceCollection.BuildServiceProvider();
         }
 
         [TearDown]
         public void TearDown()
         {
-            (_resolver as IDisposable)?.Dispose();
+            (_serviceProvider as IDisposable)?.Dispose();
         }
 
         [Test]
@@ -61,7 +61,7 @@ namespace EventFlow.Tests.Exploration
         {
             // Arrange
             var id = UpgradeId.New;
-            var aggregateStore = _resolver.Resolve<IAggregateStore>();
+            var aggregateStore = _serviceProvider.GetRequiredService<IAggregateStore>();
 
             // Act
             await aggregateStore.UpdateAsync<UpgradeAggregate, UpgradeId>(

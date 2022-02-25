@@ -25,7 +25,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
@@ -34,6 +33,7 @@ using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests
@@ -52,12 +52,12 @@ namespace EventFlow.Tests.IntegrationTests
                 var pingId = PingId.New;
 
                 // Act
-                await resolver1.Resolve<ICommandBus>().PublishAsync(
+                await resolver1.GetRequiredService<ICommandBus>().PublishAsync(
                     new ThingyPingCommand(thingyId, pingId))
                     .ConfigureAwait(false);
 
                 // Assert
-                var aggregate = await resolver2.Resolve<IAggregateStore>().LoadAsync<ThingyAggregate, ThingyId>(
+                var aggregate = await resolver2.GetRequiredService<IAggregateStore>().LoadAsync<ThingyAggregate, ThingyId>(
                     thingyId,
                     CancellationToken.None)
                     .ConfigureAwait(false);
@@ -65,10 +65,10 @@ namespace EventFlow.Tests.IntegrationTests
             }
         }
 
-        private static IRootResolver SetupEventFlow(Func<IEventFlowOptions, IEventFlowOptions> configure = null)
+        private static ServiceProvider SetupEventFlow(Func<IEventFlowOptions, IEventFlowOptions> configure = null)
         {
-            var eventFlowOptions = EventFlowOptions.New
-                .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
+            var eventFlowOptions = EventFlowOptions.New()
+                .RegisterServices(sr => sr.AddScoped<IScopedContext, ScopedContext>())
                 .AddDefaults(EventFlowTestHelpers.Assembly);
 
             if (configure != null)
@@ -76,7 +76,7 @@ namespace EventFlow.Tests.IntegrationTests
                 eventFlowOptions = configure(eventFlowOptions);
             }
 
-            return eventFlowOptions.CreateResolver(false);
+            return eventFlowOptions.ServiceCollection.BuildServiceProvider();
         }
     }
 }

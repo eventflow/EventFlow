@@ -22,17 +22,17 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using DbUp.Builder;
-using EventFlow.Logs;
 using EventFlow.Sql.Migrations;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.MsSql
 {
     public class MsSqlDatabaseMigrator : SqlDatabaseMigrator<IMsSqlConfiguration>, IMsSqlDatabaseMigrator
     {
         public MsSqlDatabaseMigrator(
-            ILog log,
-            IMsSqlConfiguration sqlConfiguration)
-            : base(log, sqlConfiguration)
+            ILogger<MsSqlDatabaseMigrator> logger,
+            IMsSqlConfiguration configuration)
+            : base(logger, configuration)
         {
         }
 

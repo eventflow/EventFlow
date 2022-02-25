@@ -23,12 +23,11 @@
 
 using System;
 using System.IO;
-using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.EventStores.Files;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests.EventStores
@@ -38,7 +37,7 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
     {
         private IFilesEventStoreConfiguration _configuration;
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
             var storePath = Path.Combine(
                 Path.GetTempPath(),
@@ -46,13 +45,13 @@ namespace EventFlow.Tests.IntegrationTests.EventStores
 
             Directory.CreateDirectory(storePath);
 
-            var resolver = eventFlowOptions
-                .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
-                .CreateResolver();
+            var serviceProvider = eventFlowOptions
+                .UseFilesEventPersistence(FilesEventStoreConfiguration.Create(storePath))
+                .ServiceCollection.BuildServiceProvider();
 
-            _configuration = resolver.Resolve<IFilesEventStoreConfiguration>();
+            _configuration = serviceProvider.GetRequiredService<IFilesEventStoreConfiguration>();
 
-            return resolver;
+            return serviceProvider;
         }
 
         [TearDown]

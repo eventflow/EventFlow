@@ -22,15 +22,22 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using EventFlow.Configuration;
 using EventFlow.Core.VersionedTypes;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Commands
 {
-    public class CommandDefinitionService : VersionedTypeDefinitionService<ICommand, CommandVersionAttribute, CommandDefinition>, ICommandDefinitionService
+    public class CommandDefinitionService :
+        VersionedTypeDefinitionService<ICommand, CommandVersionAttribute, CommandDefinition>,
+        ICommandDefinitionService
     {
-        public CommandDefinitionService(ILog log) : base(log)
+        public CommandDefinitionService(
+            ILogger<CommandDefinitionService> logger,
+            ILoadedVersionedTypes loadedVersionedTypes)
+            : base(logger)
         {
+            Load(loadedVersionedTypes.Commands);
         }
 
         protected override CommandDefinition CreateDefinition(int version, Type type, string name)

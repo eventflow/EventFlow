@@ -26,18 +26,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Snapshots.Stores.Null
 {
     public class NullSnapshotPersistence : ISnapshotPersistence
     {
-        private readonly ILog _log;
+        private readonly ILogger<NullSnapshotPersistence> _logger;
 
         public NullSnapshotPersistence(
-            ILog log)
+            ILogger<NullSnapshotPersistence> logger)
         {
-            _log = log;
+            _logger = logger;
         }
 
         public Task<CommittedSnapshot> GetSnapshotAsync(
@@ -54,9 +54,12 @@ namespace EventFlow.Snapshots.Stores.Null
             SerializedSnapshot serializedSnapshot,
             CancellationToken cancellationToken)
         {
-            _log.Warning($"Trying to store aggregate snapshot '{aggregateType.PrettyPrint()}' with ID '{identity}' in the NULL store. Configure another store!");
+            _logger.LogWarning(
+                "Trying to store aggregate snapshot {AggregateType} with ID {Id} in the NULL store. Configure another store!",
+                aggregateType.PrettyPrint(),
+                identity);
 
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         public Task DeleteSnapshotAsync(
@@ -64,20 +67,20 @@ namespace EventFlow.Snapshots.Stores.Null
             IIdentity identity,
             CancellationToken cancellationToken)
         {
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         public Task PurgeSnapshotsAsync(
             Type aggregateType,
             CancellationToken cancellationToken)
         {
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         public Task PurgeSnapshotsAsync(
             CancellationToken cancellationToken)
         {
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
     }
 }

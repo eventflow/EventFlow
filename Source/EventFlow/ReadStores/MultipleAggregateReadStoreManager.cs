@@ -21,14 +21,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.ReadStores
 {
@@ -41,13 +41,13 @@ namespace EventFlow.ReadStores
         private readonly TReadModelLocator _readModelLocator;
 
         public MultipleAggregateReadStoreManager(
-            ILog log,
-            IResolver resolver,
+            ILogger<MultipleAggregateReadStoreManager<TReadStore, TReadModel, TReadModelLocator>> logger,
+            IServiceProvider serviceProvider,
             TReadStore readModelStore,
             IReadModelDomainEventApplier readModelDomainEventApplier,
             TReadModelLocator readModelLocator,
             IReadModelFactory<TReadModel> readModelFactory)
-            : base(log, resolver, readModelStore, readModelDomainEventApplier, readModelFactory)
+            : base(logger, serviceProvider, readModelStore, readModelDomainEventApplier, readModelFactory)
         {
             _readModelLocator = readModelLocator;
         }

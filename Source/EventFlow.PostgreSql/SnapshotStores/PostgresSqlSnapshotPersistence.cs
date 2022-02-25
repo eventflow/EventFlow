@@ -27,21 +27,21 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Logs;
 using EventFlow.PostgreSql.Connections;
 using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 
 namespace EventFlow.PostgreSql.SnapshotStores
 {
     public class PostgreSqlSnapshotPersistence : ISnapshotPersistence
     {
-        private readonly ILog _log;
+        private readonly ILogger<PostgreSqlSnapshotPersistence> _log;
         private readonly IPostgreSqlConnection _postgreSqlConnection;
 
         public PostgreSqlSnapshotPersistence(
-            ILog log,
+            ILogger<PostgreSqlSnapshotPersistence> log,
             IPostgreSqlConnection postgreSqlConnection)
         {
             _log = log;
@@ -55,6 +55,7 @@ namespace EventFlow.PostgreSql.SnapshotStores
         {
             var postgreSqlSnapshotDataModels = await _postgreSqlConnection.QueryAsync<PostgreSqlSnapshotDataModel>(
                 Label.Named("fetch-snapshot"),
+                null,
                 cancellationToken,
                 "SELECT * FROM EventFlowSnapshots " +
                 "WHERE AggregateName = @AggregateName AND AggregateId = @AggregateId ORDER BY AggregateSequenceNumber DESC " +
@@ -92,6 +93,7 @@ namespace EventFlow.PostgreSql.SnapshotStores
             {
                 await _postgreSqlConnection.ExecuteAsync(
                     Label.Named("set-snapshot"),
+                    null,
                     cancellationToken,
                     @"INSERT INTO EventFlowSnapshots
                         (AggregateId, AggregateName, AggregateSequenceNumber, Metadata, Data)
@@ -105,7 +107,7 @@ namespace EventFlow.PostgreSql.SnapshotStores
                 //If we have a duplicate key exception, then the snapshot has already been created
                 //https://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
 
-                _log.Debug("Duplicate key SQL exception : {0}", sqlException.MessageText);
+                _log.LogDebug("Duplicate key SQL exception : {0}", sqlException.MessageText);
             }
         }
 
@@ -116,6 +118,7 @@ namespace EventFlow.PostgreSql.SnapshotStores
         {
             return _postgreSqlConnection.ExecuteAsync(
                 Label.Named("delete-snapshots-for-aggregate"),
+                null,
                 cancellationToken,
                 "DELETE FROM EventFlowSnapshots WHERE AggregateName = @AggregateName AND AggregateId = @AggregateId;",
                 new {AggregateId = identity.Value, AggregateName = aggregateType.GetAggregateName().Value});
@@ -127,6 +130,7 @@ namespace EventFlow.PostgreSql.SnapshotStores
         {
             return _postgreSqlConnection.ExecuteAsync(
                 Label.Named("purge-snapshots-for-aggregate"),
+                null,
                 cancellationToken,
                 "DELETE FROM EventFlowSnapshots WHERE AggregateName = @AggregateName;",
                 new {AggregateName = aggregateType.GetAggregateName().Value});
@@ -137,6 +141,7 @@ namespace EventFlow.PostgreSql.SnapshotStores
         {
             return _postgreSqlConnection.ExecuteAsync(
                 Label.Named("purge-all-snapshots"),
+                null,
                 cancellationToken,
                 "DELETE FROM EventFlowSnapshots;");
         }

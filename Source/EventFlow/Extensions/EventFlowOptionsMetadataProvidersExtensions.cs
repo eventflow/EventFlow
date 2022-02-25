@@ -25,20 +25,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using EventFlow.Configuration;
 using EventFlow.EventStores;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Extensions
 {
     public static class EventFlowOptionsMetadataProvidersExtensions
     {
         public static IEventFlowOptions AddMetadataProvider<TMetadataProvider>(
-            this IEventFlowOptions eventFlowOptions,
-            Lifetime lifetime = Lifetime.AlwaysUnique)
+            this IEventFlowOptions eventFlowOptions)
             where TMetadataProvider : class, IMetadataProvider
         {
-            return eventFlowOptions
-                .RegisterServices(f => f.Register<IMetadataProvider, TMetadataProvider>(lifetime));
+            eventFlowOptions.ServiceCollection
+                .AddTransient<IMetadataProvider, TMetadataProvider>();
+            return eventFlowOptions;
         }
 
         public static IEventFlowOptions AddMetadataProviders(
@@ -75,7 +75,7 @@ namespace EventFlow.Extensions
                     throw new ArgumentException($"Type '{t.PrettyPrint()}' is not an '{typeof(IMetadataProvider).PrettyPrint()}'");
                 }
 
-                eventFlowOptions.RegisterServices(sr => sr.Register(typeof(IMetadataProvider), t));
+                eventFlowOptions.ServiceCollection.AddTransient(typeof(IMetadataProvider), t);
             }
             return eventFlowOptions;
         }

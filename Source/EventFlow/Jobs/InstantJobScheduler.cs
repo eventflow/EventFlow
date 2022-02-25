@@ -26,7 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Jobs
 {
@@ -34,16 +34,16 @@ namespace EventFlow.Jobs
     {
         private readonly IJobDefinitionService _jobDefinitionService;
         private readonly IJobRunner _jobRunner;
+        private readonly ILogger<InstantJobScheduler> _logger;
         private readonly IJsonSerializer _jsonSerializer;
-        private readonly ILog _log;
 
         public InstantJobScheduler(
-            ILog log,
+            ILogger<InstantJobScheduler> logger,
             IJsonSerializer jsonSerializer,
             IJobRunner jobRunner,
             IJobDefinitionService jobDefinitionService)
         {
-            _log = log;
+            _logger = logger;
             _jsonSerializer = jsonSerializer;
             _jobRunner = jobRunner;
             _jobDefinitionService = jobDefinitionService;
@@ -59,7 +59,11 @@ namespace EventFlow.Jobs
             {
                 var json = _jsonSerializer.Serialize(job);
 
-                _log.Verbose(() => $"Executing job '{jobDefinition.Name}' v{jobDefinition.Version}: {json}");
+                _logger.LogDebug(
+                    "Executing job {JobName} v{JobVersion}: {Json}",
+                    jobDefinition.Name,
+                    jobDefinition.Version,
+                    json);
 
                 await _jobRunner.ExecuteAsync(jobDefinition.Name, jobDefinition.Version, json, cancellationToken).ConfigureAwait(false);
             }
@@ -67,27 +71,52 @@ namespace EventFlow.Jobs
             {
                 // We want the InstantJobScheduler to behave as an out-of-process scheduler, i.e., doesn't
                 // throw exceptions directly related to the job execution
-                _log.Error(e, $"Execution of job '{jobDefinition.Name}' v{jobDefinition.Version} failed!");
+
+                _logger.LogError(
+                    e,
+                    "Execution of job {JobName} v{JobVersion} failed due to {ExceptionType}: {ExceptionMessage}",
+                    jobDefinition.Name,
+                    jobDefinition.Version,
+                    e.GetType().PrettyPrint(),
+                    e.Message);
             }
 
             return JobId.New;
         }
 
-        public Task<IJobId> ScheduleAsync(IJob job, DateTimeOffset runAt, CancellationToken cancellationToken)
+        public Task<IJobId> ScheduleAsync(
+            IJob job,
+            DateTimeOffset runAt,
+            CancellationToken cancellationToken)
         {
-            if (job == null) throw new ArgumentNullException(nameof(job));
+            if (job == null)
+            {
+                throw new ArgumentNullException(nameof(job));
+            }
 
-            _log.Warning($"Instant scheduling configured, executing job '{job.GetType().PrettyPrint()}' NOW! Instead of at '{runAt}'");
+            _logger.LogWarning(
+                "Instant scheduling configured, executing job {JobType} NOW! Instead of at {RunAt}",
+                job.GetType().PrettyPrint(),
+                runAt);
 
             // Don't schedule, just execute...
             return ScheduleNowAsync(job, cancellationToken);
         }
 
-        public Task<IJobId> ScheduleAsync(IJob job, TimeSpan delay, CancellationToken cancellationToken)
+        public Task<IJobId> ScheduleAsync(
+            IJob job,
+            TimeSpan delay,
+            CancellationToken cancellationToken)
         {
-            if (job == null) throw new ArgumentNullException(nameof(job));
+            if (job == null)
+            {
+                throw new ArgumentNullException(nameof(job));
+            }
 
-            _log.Warning($"Instant scheduling configured, executing job '{job.GetType().PrettyPrint()}' NOW! Instead of in '{delay}'");
+            _logger.LogWarning(
+                "Instant scheduling configured, executing job {JobType} NOW! Instead of in {Delay}",
+                job.GetType().PrettyPrint(),
+                delay);
 
             // Don't schedule, just execute...
             return ScheduleNowAsync(job, cancellationToken);

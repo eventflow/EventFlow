@@ -24,7 +24,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Exceptions;
 
@@ -34,43 +33,27 @@ namespace EventFlow.Jobs
     {
         private readonly IJobDefinitionService _jobDefinitionService;
         private readonly IJsonSerializer _jsonSerializer;
-        private readonly IResolver _resolver;
+        private readonly IServiceProvider _serviceProvider;
 
         public JobRunner(
-            IResolver resolver,
+            IServiceProvider serviceProvider,
             IJobDefinitionService jobDefinitionService,
             IJsonSerializer jsonSerializer)
         {
-            _resolver = resolver;
+            _serviceProvider = serviceProvider;
             _jobDefinitionService = jobDefinitionService;
             _jsonSerializer = jsonSerializer;
         }
 
-        [Obsolete("Non-async extensions methods will all be removed in EventFlow 1.0, use async methods instead")]
-        public void Execute(string jobName, int version, string job)
-        {
-            Execute(jobName, version, job, CancellationToken.None);
-        }
-
-        [Obsolete("Non-async extensions methods will all be removed in EventFlow 1.0, use async methods instead")]
-        public void Execute(string jobName, int version, string json, CancellationToken cancellationToken)
-        {
-            using (var a = AsyncHelper.Wait)
-            {
-                a.Run(ExecuteAsync(jobName, version, json, cancellationToken));
-            }
-        }
-
         public Task ExecuteAsync(string jobName, int version, string json, CancellationToken cancellationToken)
         {
-            JobDefinition jobDefinition;
-            if (!_jobDefinitionService.TryGetDefinition(jobName, version, out jobDefinition))
+            if (!_jobDefinitionService.TryGetDefinition(jobName, version, out var jobDefinition))
             {
                 throw UnknownJobException.With(jobName, version);
             }
 
             var executeCommandJob = (IJob) _jsonSerializer.Deserialize(json, jobDefinition.Type);
-            return executeCommandJob.ExecuteAsync(_resolver, cancellationToken);
+            return executeCommandJob.ExecuteAsync(_serviceProvider, cancellationToken);
         }
     }
 }
