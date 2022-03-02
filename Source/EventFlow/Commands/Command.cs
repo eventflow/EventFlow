@@ -49,7 +49,7 @@ namespace EventFlow.Commands
         protected Command(TIdentity aggregateId, ISourceId sourceId)
         {
             if (aggregateId == null) throw new ArgumentNullException(nameof(aggregateId));
-            if (sourceId == null) throw new ArgumentNullException(nameof(aggregateId));
+            if (sourceId == null) throw new ArgumentNullException(nameof(sourceId));
 
             AggregateId = aggregateId;
             SourceId = sourceId;
