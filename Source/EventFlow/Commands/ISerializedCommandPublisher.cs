@@ -29,7 +29,7 @@ namespace EventFlow.Commands
 {
     public interface ISerializedCommandPublisher
     {
-        Task<ISourceId> PublishSerilizedCommandAsync(
+        Task<ISourceId> PublishSerializedCommandAsync(
             string name,
             int version,
             string json,

@@ -26,12 +26,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
+using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
-using EventFlow.Logs;
 using EventFlow.TestHelpers;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
 // ReSharper disable IdentifierTypo
@@ -40,7 +42,7 @@ using NUnit.Framework;
 namespace EventFlow.Tests.IntegrationTests
 {
     [Category(Categories.Integration)]
-    public class UnicodeTests
+    public class UnicodeTests : Test
     {
         [Test]
         public void UpperCaseIdentityThrows()
@@ -76,7 +78,9 @@ namespace EventFlow.Tests.IntegrationTests
         public void UnicodeCommands()
         {
             // Arrange
-            var commandDefinitions = new CommandDefinitionService(new NullLog());
+            var commandDefinitions = new CommandDefinitionService(
+                Mock<ILogger<CommandDefinitionService>>(),
+                Mock<ILoadedVersionedTypes>());
 
             // Act
             Action action = () => commandDefinitions.Load(typeof(Cömmand));
@@ -89,7 +93,9 @@ namespace EventFlow.Tests.IntegrationTests
         public void UnicodeEvents()
         {
             // Arrange
-            var eventDefinitionService = new EventDefinitionService(new NullLog());
+            var eventDefinitionService = new EventDefinitionService(
+                Mock<ILogger<EventDefinitionService>>(),
+                Mock<ILoadedVersionedTypes>());
 
             // Act
             Action action = () => eventDefinitionService.Load(typeof(Püng1Event));
@@ -101,13 +107,13 @@ namespace EventFlow.Tests.IntegrationTests
         [Test]
         public async Task UnicodeIntegration()
         {
-            var resolver = EventFlowOptions.New
+            var resolver = EventFlowOptions.New()
                 .AddEvents(typeof(Püng1Event))
                 .AddCommands(typeof(Cömmand))
                 .AddCommandHandlers(typeof(CömmandHändler))
-                .CreateResolver();
+                .ServiceCollection.BuildServiceProvider();
 
-            var bus = resolver.Resolve<ICommandBus>();
+            var bus = resolver.GetRequiredService<ICommandBus>();
             await bus.PublishAsync(new Cömmand(), CancellationToken.None);
         }
 

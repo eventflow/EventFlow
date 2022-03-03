@@ -27,12 +27,13 @@ using System.IO;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.TestHelpers
 {
     public static class ProcessHelper
     {
-        public static IDisposable StartExe(
+        public static IDisposable Start(
             string exePath,
             string initializationDone,
             params string[] arguments)
@@ -43,7 +44,7 @@ namespace EventFlow.TestHelpers
             var workingDirectory = Path.GetDirectoryName(exePath);
             if (string.IsNullOrEmpty(workingDirectory)) throw new ArgumentException($"Could not find directory for '{exePath}'", nameof(exePath));
 
-            LogHelper.Log.Information($"Starting process: '{exePath}' {string.Join(" ", arguments)}");
+            LogHelper.Logger.LogInformation($"Starting process: '{exePath}' {string.Join(" ", arguments)}");
 
             var process = new Process
                 {
@@ -62,19 +63,19 @@ namespace EventFlow.TestHelpers
             {
                 if (!string.IsNullOrEmpty(e.Data))
                 {
-                    LogHelper.Log.Information($"OUT - {exeName}: {e.Data}");
+                    LogHelper.Logger.LogInformation($"OUT - {exeName}: {e.Data}");
                 }
             }
             void ErrHandler(object sender, DataReceivedEventArgs e)
             {
                 if (!string.IsNullOrEmpty(e.Data))
                 {
-                    LogHelper.Log.Error($"ERR - {exeName}: {e.Data}");
+                    LogHelper.Logger.LogInformation($"ERR - {exeName}: {e.Data}");
                 }
             }
             void InitializeProcess(Process p)
             {
-                LogHelper.Log.Information($"{exeName} START =======================================");
+                LogHelper.Logger.LogInformation($"{exeName} START =======================================");
                 p.Start();
                 p.BeginOutputReadLine();
                 p.BeginErrorReadLine();
@@ -90,45 +91,18 @@ namespace EventFlow.TestHelpers
                     {
                         process.OutputDataReceived -= OutHandler;
                         process.ErrorDataReceived -= ErrHandler;
-#if NET452
-                        KillProcessAndChildren(process.Id);
-#endif
+
+                        // TODO: Kill process and its children
                     }
                     catch (Exception e)
                     {
-                        LogHelper.Log.Error($"Failed to kill process: {e.Message}");
+                        LogHelper.Logger.LogInformation($"Failed to kill process: {e.Message}");
                     }
                     finally
                     {
-                        process.DisposeSafe("Process");
+                        process.DisposeSafe(LogHelper.Logger, "Process");
                     }
                 });
         }
-
-#if NET452
-        private static void KillProcessAndChildren(int pid)
-        {
-            var searcher = new System.Management.ManagementObjectSearcher("Select * From Win32_Process Where ParentProcessID=" + pid);
-            var moc = searcher.Get();
-
-            foreach (var o in moc)
-            {
-                var mo = (System.Management.ManagementObject)o;
-                KillProcessAndChildren(Convert.ToInt32(mo["ProcessID"]));
-            }
-
-            try
-            {
-                LogHelper.Log.Information($"Killing process {pid}");
-
-                var proc = Process.GetProcessById(pid);
-                proc.Kill();
-            }
-            catch (ArgumentException)
-            {
-                // Process already exited.
-            }
-        }
-#endif
     }
 }

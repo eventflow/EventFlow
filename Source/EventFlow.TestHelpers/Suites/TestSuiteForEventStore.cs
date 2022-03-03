@@ -27,7 +27,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
@@ -40,6 +39,7 @@ using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
 
@@ -80,7 +80,7 @@ namespace EventFlow.TestHelpers.Suites
             pingEvent.AggregateSequenceNumber.Should().Be(1);
             pingEvent.AggregateType.Should().Be(typeof(ThingyAggregate));
             pingEvent.EventType.Should().Be(typeof(ThingyPingEvent));
-            pingEvent.Timestamp.Should().NotBe(default(DateTimeOffset));
+            pingEvent.Timestamp.Should().NotBe(default);
             pingEvent.Metadata.Count.Should().BeGreaterThan(0);
             pingEvent.Metadata.SourceId.IsNone().Should().BeFalse();
         }
@@ -358,16 +358,16 @@ namespace EventFlow.TestHelpers.Suites
             var pingId2 = PingId.New;
 
             // Act
-            using (var scopedResolver = Resolver.BeginScope())
+            using (var serviceScope = ServiceProvider.CreateScope())
             {
-                var commandBus = scopedResolver.Resolve<ICommandBus>();
+                var commandBus = serviceScope.ServiceProvider.GetRequiredService<ICommandBus>();
                 await commandBus.PublishAsync(
                     new ThingyPingCommand(id, pingId1))
                     .ConfigureAwait(false);
             }
-            using (var scopedResolver = Resolver.BeginScope())
+            using (var serviceScope = ServiceProvider.CreateScope())
             {
-                var commandBus = scopedResolver.Resolve<ICommandBus>();
+                var commandBus = serviceScope.ServiceProvider.GetRequiredService<ICommandBus>();
                 await commandBus.PublishAsync(
                         new ThingyPingCommand(id, pingId2))
                     .ConfigureAwait(false);
@@ -461,7 +461,7 @@ namespace EventFlow.TestHelpers.Suites
                 .Returns(Task.FromResult(0));
 
             return base.Options(eventFlowOptions)
-                .RegisterServices(sr => sr.Register(r => subscribeSynchronousToAllMock.Object, Lifetime.Singleton));
+                .RegisterServices(sr => sr.AddSingleton(_ => subscribeSynchronousToAllMock.Object));
         }
 
         private static async Task ThrowsExceptionAsync<TException>(Func<Task> action)

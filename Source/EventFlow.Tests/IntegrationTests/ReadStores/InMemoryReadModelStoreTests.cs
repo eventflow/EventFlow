@@ -23,13 +23,13 @@
 
 using System;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
 using EventFlow.Tests.IntegrationTests.ReadStores.QueryHandlers;
 using EventFlow.Tests.IntegrationTests.ReadStores.ReadModels;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.IntegrationTests.ReadStores
@@ -39,19 +39,17 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores
     {
         protected override Type ReadModelType { get; } = typeof(InMemoryThingyReadModel);
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
-            var resolver = eventFlowOptions
-                .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
+            return eventFlowOptions
+                .RegisterServices(sr => sr.AddTransient(typeof(ThingyMessageLocator)))
                 .UseInMemoryReadStoreFor<InMemoryThingyReadModel>()
                 .UseInMemoryReadStoreFor<InMemoryThingyMessageReadModel, ThingyMessageLocator>()
                 .AddQueryHandlers(
                     typeof(InMemoryThingyGetQueryHandler),
                     typeof(InMemoryThingyGetVersionQueryHandler),
                     typeof(InMemoryThingyGetMessagesQueryHandler))
-                .CreateResolver();
-
-            return resolver;
+                .ServiceCollection.BuildServiceProvider();
         }
 
         [Test]

@@ -47,7 +47,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         private Mock<IReadStoreManager<TReadModel>> _readStoreManagerMock;
         private Mock<IEventFlowConfiguration> _eventFlowConfigurationMock;
         private Mock<IEventStore> _eventStoreMock;
-        private Mock<IResolver> _resolverMock;
+        private Mock<IServiceProvider> _serviceProviderMock;
         private List<IDomainEvent> _eventStoreData;
 
         [SetUp]
@@ -55,16 +55,16 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         {
             _eventStoreMock = InjectMock<IEventStore>();
             _eventStoreData = null;
-            _resolverMock = InjectMock<IResolver>();
+            _serviceProviderMock = InjectMock<IServiceProvider>();
             _readModelStoreMock = new Mock<IReadModelStore<TReadModel>>();
             _readStoreManagerMock = new Mock<IReadStoreManager<TReadModel>>();
             _eventFlowConfigurationMock = InjectMock<IEventFlowConfiguration>();
 
-            _resolverMock
-                .Setup(r => r.Resolve<IEnumerable<IReadStoreManager>>())
+            _serviceProviderMock
+                .Setup(r => r.GetService(typeof(IEnumerable<IReadStoreManager>)))
                 .Returns(new[] { _readStoreManagerMock.Object });
-            _resolverMock
-                .Setup(r => r.ResolveAll(typeof(IReadModelStore<TReadModel>)))
+            _serviceProviderMock
+                .Setup(r => r.GetService(typeof(IEnumerable<IReadModelStore<TReadModel>>)))
                 .Returns(new[] { _readModelStoreMock.Object });
 
             _eventFlowConfigurationMock

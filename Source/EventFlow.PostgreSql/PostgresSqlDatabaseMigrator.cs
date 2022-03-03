@@ -22,16 +22,16 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using DbUp.Builder;
-using EventFlow.Logs;
 using EventFlow.PostgreSql.Connections;
 using EventFlow.Sql.Migrations;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.PostgreSql
 {
     public class PostgreSqlDatabaseMigrator : SqlDatabaseMigrator<IPostgreSqlConfiguration>, IPostgreSqlDatabaseMigrator
     {
         public PostgreSqlDatabaseMigrator(
-            ILog log,
+            ILogger<PostgreSqlDatabaseMigrator> log,
             IPostgreSqlConfiguration sqlConfiguration)
             : base(log, sqlConfiguration)
         {

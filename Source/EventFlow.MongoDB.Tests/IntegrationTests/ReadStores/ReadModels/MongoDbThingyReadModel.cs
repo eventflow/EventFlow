@@ -22,6 +22,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.MongoDB.ReadStores;
 using EventFlow.MongoDB.ReadStores.Attributes;
@@ -44,26 +46,43 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.ReadModels
         public int PingsReceived { get; set; }
         public Guid LastUpgradedId { get; set; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
+        public Task ApplyAsync(IReadModelContext context,
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent,
+            CancellationToken cancellationToken)
         {
             Id = domainEvent.AggregateIdentity.Value;
             DomainErrorAfterFirstReceived = true;
+            
+            return Task.CompletedTask;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
+        public Task ApplyAsync(IReadModelContext context,
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
+            CancellationToken cancellationToken)
         {
             Id = domainEvent.AggregateIdentity.Value;
             PingsReceived++;
+            
+            return Task.CompletedTask;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDeletedEvent> domainEvent)
+        public Task ApplyAsync(IReadModelContext context,
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyDeletedEvent> domainEvent,
+            CancellationToken cancellationToken)
         {
             context.MarkForDeletion();
+            
+            return Task.CompletedTask;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyUpgradedEvent> domainEvent)
+        public void ApplyAsync(
+            IReadModelContext context,
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyUpgradedEvent> domainEvent,
+            CancellationToken cancellationToken)
         {
             LastUpgradedId = domainEvent.AggregateEvent.Id;
+            
+            return Task.CompletedTask;
         }
 
         public Thingy ToThingy()

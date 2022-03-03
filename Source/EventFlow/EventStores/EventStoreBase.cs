@@ -29,8 +29,8 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Logs;
 using EventFlow.Snapshots;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.EventStores
 {
@@ -38,14 +38,14 @@ namespace EventFlow.EventStores
     {
         private readonly IAggregateFactory _aggregateFactory;
         private readonly IEventJsonSerializer _eventJsonSerializer;
+        private readonly ILogger<EventStoreBase> _logger;
         private readonly IEventPersistence _eventPersistence;
         private readonly ISnapshotStore _snapshotStore;
         private readonly IEventUpgradeManager _eventUpgradeManager;
-        private readonly ILog _log;
         private readonly IReadOnlyCollection<IMetadataProvider> _metadataProviders;
 
         public EventStoreBase(
-            ILog log,
+            ILogger<EventStoreBase> logger,
             IAggregateFactory aggregateFactory,
             IEventJsonSerializer eventJsonSerializer,
             IEventUpgradeManager eventUpgradeManager,
@@ -53,9 +53,9 @@ namespace EventFlow.EventStores
             IEventPersistence eventPersistence,
             ISnapshotStore snapshotStore)
         {
+            _logger = logger;
             _eventPersistence = eventPersistence;
             _snapshotStore = snapshotStore;
-            _log = log;
             _aggregateFactory = aggregateFactory;
             _eventJsonSerializer = eventJsonSerializer;
             _eventUpgradeManager = eventUpgradeManager;
@@ -79,7 +79,11 @@ namespace EventFlow.EventStores
             }
 
             var aggregateType = typeof(TAggregate);
-            _log.Verbose(() => $"Storing {uncommittedDomainEvents.Count} events for aggregate '{aggregateType.PrettyPrint()}' with ID '{id}'");
+            _logger.LogTrace(
+                "Storing {UncommittedDomainEventsCount} events for aggregate {AggregateType} with ID {Id}",
+                uncommittedDomainEvents.Count,
+                aggregateType.PrettyPrint(),
+                id);
 
             var batchId = Guid.NewGuid().ToString();
             var storeMetadata = new[]

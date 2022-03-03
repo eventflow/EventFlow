@@ -21,6 +21,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers.Aggregates;
@@ -31,8 +33,12 @@ namespace EventFlow.Tests.UnitTests.ReadStores
     public class TestReadModel : IReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
     {
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
+        public Task ApplyAsync(
+            IReadModelContext context,
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
+            CancellationToken _)
         {
+            return Task.CompletedTask;
         }
     }
 }

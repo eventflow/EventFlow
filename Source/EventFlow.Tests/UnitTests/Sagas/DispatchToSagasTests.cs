@@ -40,7 +40,7 @@ namespace EventFlow.Tests.UnitTests.Sagas
     [Category(Categories.Unit)]
     public class DispatchToSagasTests : TestsFor<DispatchToSagas>
     {
-        private Mock<IResolver> _resolverMock;
+        private Mock<IServiceProvider> _serviceProviderMock;
         private Mock<ISagaStore> _sagaStoreMock;
         private Mock<ISagaDefinitionService> _sagaDefinitionServiceMock;
         private Mock<ISagaErrorHandler> _sagaErrorHandlerMock;
@@ -52,7 +52,7 @@ namespace EventFlow.Tests.UnitTests.Sagas
         {
             var sagaType = typeof(ThingySaga);
 
-            _resolverMock = InjectMock<IResolver>();
+            _serviceProviderMock = InjectMock<IServiceProvider>();
             _sagaStoreMock = InjectMock<ISagaStore>();
             _sagaDefinitionServiceMock = InjectMock<ISagaDefinitionService>();
             _sagaErrorHandlerMock = InjectMock<ISagaErrorHandler>();
@@ -60,11 +60,11 @@ namespace EventFlow.Tests.UnitTests.Sagas
             _sagaUpdaterMock = new Mock<ISagaUpdater>();
             _sagaLocatorMock = new Mock<ISagaLocator>();
 
-            _resolverMock
-                .Setup(r => r.Resolve(It.Is<Type>(t => typeof(ISagaLocator).IsAssignableFrom(t))))
+            _serviceProviderMock
+                .Setup(r => r.GetService(It.Is<Type>(t => typeof(ISagaLocator).IsAssignableFrom(t))))
                 .Returns(_sagaLocatorMock.Object);
-            _resolverMock
-                .Setup(r => r.Resolve(It.Is<Type>(t => typeof(ISagaUpdater).IsAssignableFrom(t))))
+            _serviceProviderMock
+                .Setup(r => r.GetService(It.Is<Type>(t => typeof(ISagaUpdater).IsAssignableFrom(t))))
                 .Returns(_sagaUpdaterMock.Object);
             _sagaDefinitionServiceMock
                 .Setup(d => d.GetSagaDetails(It.IsAny<Type>()))

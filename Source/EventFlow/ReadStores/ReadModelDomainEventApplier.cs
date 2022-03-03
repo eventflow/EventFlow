@@ -34,8 +34,7 @@ namespace EventFlow.ReadStores
 {
     public class ReadModelDomainEventApplier : IReadModelDomainEventApplier
     {
-        private const string ApplyMethodName = "Apply";
-        private const string ApplyAsyncMethodName = "ApplyAsync";
+        private const string ApplyMethodName = "ApplyAsync";
 
         private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<Type, ApplyMethod>> ApplyMethods =
             new ConcurrentDictionary<Type, ConcurrentDictionary<Type, ApplyMethod>>();
@@ -66,21 +65,8 @@ namespace EventFlow.ReadStores
                         // first try: does it implement the synchronous 'Apply' method?
 
                         var interfaceType = typeof(IAmReadModelFor<,,>).MakeGenericType(aggregateType, identityType, t);
-                        var methodParams = new[] {typeof(IReadModelContext), eventType};
+                        var methodParams = new[] {typeof(IReadModelContext), eventType, typeof(CancellationToken)};
                         var methodInfo = GetMethod(readModelType, interfaceType, ApplyMethodName, methodParams);
-
-                        if (methodInfo != null)
-                        {
-                            var method = ReflectionHelper
-                                .CompileMethodInvocation<Action<IReadModel, IReadModelContext, IDomainEvent>>(methodInfo);
-                            return new ApplyMethod(method);
-                        }
-
-                        // second try: does it implement the asynchronous 'Apply' method?
-
-                        var asyncInterfaceType = typeof(IAmAsyncReadModelFor<,,>).MakeGenericType(aggregateType, identityType, t);
-                        var asyncMethodParams = new[] {typeof(IReadModelContext), eventType, typeof(CancellationToken)};
-                        methodInfo = GetMethod(readModelType, asyncInterfaceType, ApplyAsyncMethodName, asyncMethodParams);
 
                         if (methodInfo != null)
                         {
@@ -123,29 +109,17 @@ namespace EventFlow.ReadStores
 
         private class ApplyMethod
         {
-            private readonly Func<IReadModel, IReadModelContext, IDomainEvent, CancellationToken, Task> _asyncMethod;
-            private readonly Action<IReadModel, IReadModelContext, IDomainEvent> _syncMethod;
+            private readonly Func<IReadModel, IReadModelContext, IDomainEvent, CancellationToken, Task> _method;
 
-            public ApplyMethod(Action<IReadModel, IReadModelContext, IDomainEvent> syncMethod)
+            public ApplyMethod(Func<IReadModel, IReadModelContext, IDomainEvent, CancellationToken, Task> method)
             {
-                _syncMethod = syncMethod;
-            }
-
-            public ApplyMethod(Func<IReadModel, IReadModelContext, IDomainEvent, CancellationToken, Task> asyncMethod)
-            {
-                _asyncMethod = asyncMethod;
+                _method = method;
             }
 
             public Task Apply(IReadModel readModel, IReadModelContext context, IDomainEvent domainEvent,
                 CancellationToken cancellationToken)
             {
-                if (_asyncMethod != null)
-                {
-                    return _asyncMethod(readModel, context, domainEvent, cancellationToken);
-                }
-
-                _syncMethod(readModel, context, domainEvent);
-                return Task.FromResult(true);
+                return _method(readModel, context, domainEvent, cancellationToken);
             }
         }
     }

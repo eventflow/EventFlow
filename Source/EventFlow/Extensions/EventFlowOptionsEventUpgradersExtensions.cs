@@ -26,9 +26,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.EventStores;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Extensions
 {
@@ -40,16 +40,19 @@ namespace EventFlow.Extensions
             where TIdentity : IIdentity
             where TEventUpgrader : class, IEventUpgrader<TAggregate, TIdentity>
         {
-            return eventFlowOptions.RegisterServices(f => f.Register<IEventUpgrader<TAggregate, TIdentity>, TEventUpgrader>());
+            eventFlowOptions.ServiceCollection
+                .AddTransient<IEventUpgrader<TAggregate, TIdentity>, TEventUpgrader>();
+            return eventFlowOptions;
         }
 
         public static IEventFlowOptions AddEventUpgrader<TAggregate, TIdentity>(
             this IEventFlowOptions eventFlowOptions,
-            Func<IResolverContext, IEventUpgrader<TAggregate, TIdentity>> factory)
+            Func<IServiceProvider, IEventUpgrader<TAggregate, TIdentity>> factory)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {
-            return eventFlowOptions.RegisterServices(f => f.Register(factory));
+            eventFlowOptions.ServiceCollection.AddTransient(factory);
+            return eventFlowOptions;
         }
 
         public static IEventFlowOptions AddEventUpgraders(
@@ -92,7 +95,7 @@ namespace EventFlow.Extensions
                     throw new ArgumentException($"Type '{eventUpgraderType.Name}' does not have the '{typeof(IEventUpgrader<,>).PrettyPrint()}' interface");
                 }
 
-                eventFlowOptions.RegisterServices(sr => sr.Register(eventUpgraderForAggregateType, t));
+                eventFlowOptions.ServiceCollection.AddTransient(eventUpgraderForAggregateType, t);
             }
 
             return eventFlowOptions;

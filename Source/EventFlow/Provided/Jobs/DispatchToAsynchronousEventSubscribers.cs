@@ -25,10 +25,10 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Jobs;
 using EventFlow.Subscribers;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Provided.Jobs
 {
@@ -50,11 +50,11 @@ namespace EventFlow.Provided.Jobs
         }
 
         public Task ExecuteAsync(
-            IResolver resolver,
+            IServiceProvider serviceProvider,
             CancellationToken cancellationToken)
         {
-            var eventJsonSerializer = resolver.Resolve<IEventJsonSerializer>();
-            var dispatchToEventSubscribers = resolver.Resolve<IDispatchToEventSubscribers>();
+            var eventJsonSerializer = serviceProvider.GetRequiredService<IEventJsonSerializer>();
+            var dispatchToEventSubscribers = serviceProvider.GetRequiredService<IDispatchToEventSubscribers>();
             var domainEvent = eventJsonSerializer.Deserialize(Event, Metadata);
 
             return dispatchToEventSubscribers.DispatchToAsynchronousSubscribersAsync(
@@ -64,9 +64,9 @@ namespace EventFlow.Provided.Jobs
 
         public static DispatchToAsynchronousEventSubscribersJob Create(
             IDomainEvent domainEvent,
-            IResolver resolver)
+            IServiceProvider serviceProvider)
         {
-            var eventJsonSerializer = resolver.Resolve<IEventJsonSerializer>();
+            var eventJsonSerializer = serviceProvider.GetRequiredService<IEventJsonSerializer>();
             var serializedEvent = eventJsonSerializer.Serialize(domainEvent);
 
             return new DispatchToAsynchronousEventSubscribersJob(

@@ -41,9 +41,13 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         {
             public bool PingEventsReceived { get; private set; }
 
-            public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
+            public Task ApplyAsync(
+                IReadModelContext context,
+                IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
+                CancellationToken _)
             {
                 PingEventsReceived = true;
+                return Task.CompletedTask;
             }
         }
 
@@ -52,44 +56,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         {
             public bool PingEventsReceived { get; private set; }
 
-            void IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>.Apply(
-                IReadModelContext context, 
-                IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
-            {
-                PingEventsReceived = true;
-            }
-        }
-
-        public class TheOtherPingReadModel : IReadModel,
-            IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
-        {
-            public bool PingEventsReceived { get; private set; }
-
-            public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
-            {
-                PingEventsReceived = true;
-            }
-        }
-
-        public class AsyncPingReadModel : IReadModel,
-            IAmAsyncReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
-        {
-            public bool PingEventsReceived { get; private set; }
-
-            public async Task ApplyAsync(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
-                CancellationToken cancellationToken)
-            {
-                await Task.Delay(50, cancellationToken).ConfigureAwait(false);
-                PingEventsReceived = true;
-            }
-        }
-
-        public class AsyncExplicitPingReadModel : IReadModel,
-            IAmAsyncReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
-        {
-            public bool PingEventsReceived { get; private set; }
-
-            async Task IAmAsyncReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>.ApplyAsync(
+            async Task IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>.ApplyAsync(
                 IReadModelContext context, 
                 IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
                 CancellationToken cancellationToken)
@@ -99,14 +66,33 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             }
         }
 
+        public class TheOtherPingReadModel : IReadModel,
+            IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>
+        {
+            public bool PingEventsReceived { get; private set; }
+
+            public Task ApplyAsync(
+                IReadModelContext context,
+                IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
+                CancellationToken _)
+            {
+                PingEventsReceived = true;
+                return Task.CompletedTask;
+            }
+        }
+
         public class DomainErrorAfterFirstReadModel : IReadModel,
             IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>
         {
             public bool DomainErrorAfterFirstEventsReceived { get; private set; }
 
-            public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
+            public Task ApplyAsync(
+                IReadModelContext context,
+                IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent,
+                CancellationToken _)
             {
                 DomainErrorAfterFirstEventsReceived = true;
+                return Task.CompletedTask;
             }
         }
 
@@ -259,50 +245,6 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 ToDomainEvent(A<ThingyPingEvent>()),
             };
             var readModel = new ExplicitPingReadModel();
-
-            // Act
-            await Sut.UpdateReadModelAsync(
-                    readModel,
-                    events,
-                    A<IReadModelContext>(),
-                    CancellationToken.None)
-                .ConfigureAwait(false);
-
-            // Assert
-            readModel.PingEventsReceived.Should().BeTrue();
-        }
-
-        [Test]
-        public async Task AsyncReadModelReceivesEvent()
-        {
-            // Arrange
-            var events = new[]
-                {
-                    ToDomainEvent(A<ThingyPingEvent>()),
-                };
-            var readModel = new AsyncPingReadModel();
-
-            // Act
-            await Sut.UpdateReadModelAsync(
-                readModel,
-                events,
-                A<IReadModelContext>(),
-                CancellationToken.None)
-                .ConfigureAwait(false);
-
-            // Assert
-            readModel.PingEventsReceived.Should().BeTrue();
-        }
-
-        [Test]
-        public async Task AsyncExplicitInterfaceReadModelReceivesEvent()
-        {
-            // Arrange
-            var events = new[]
-            {
-                ToDomainEvent(A<ThingyPingEvent>()),
-            };
-            var readModel = new AsyncExplicitPingReadModel();
 
             // Act
             await Sut.UpdateReadModelAsync(

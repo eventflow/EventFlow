@@ -24,6 +24,7 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace EventFlow.TestHelpers
@@ -32,32 +33,32 @@ namespace EventFlow.TestHelpers
     {
         private static readonly HttpClient HttpClient = new HttpClient();
 
-        public static async Task<string> GetAsync(Uri uri)
+        public static async Task<string> GetAsync(Uri url)
         {
-            LogHelper.Log.Information($"GET {uri}");
+            LogHelper.Logger.LogInformation("GET {Url}", url);
 
-            using (var httpResponseMessage = await HttpClient.GetAsync(uri).ConfigureAwait(false))
+            using (var httpResponseMessage = await HttpClient.GetAsync(url).ConfigureAwait(false))
             {
                 var content = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (content.Length < 1024)
                 {
-                    LogHelper.Log.Information($"RESPONSE FROM {uri}{Environment.NewLine}{content}");
+                    LogHelper.Logger.LogInformation("RESPONSE FROM {Url} {Content}", url, content);
                 }
 
                 return content;
             }
         }
 
-        public static async Task DeleteAsync(Uri uri)
+        public static async Task DeleteAsync(Uri url)
         {
-            LogHelper.Log.Information($"DELETE {uri}");
+            LogHelper.Logger.LogInformation("DELETE {Url}", url);
 
-            using (var httpResponseMessage = await HttpClient.DeleteAsync(uri).ConfigureAwait(false))
+            using (var httpResponseMessage = await HttpClient.DeleteAsync(url).ConfigureAwait(false))
             {
                 var content = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (content.Length < 1024)
                 {
-                    LogHelper.Log.Information($"RESPONSE FROM {uri}{Environment.NewLine}{content}");
+                    LogHelper.Logger.LogInformation("RESPONSE FROM {Url} {Content}", url, content);
                 }
 
                 httpResponseMessage.EnsureSuccessStatusCode();

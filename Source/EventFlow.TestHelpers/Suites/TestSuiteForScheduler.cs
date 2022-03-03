@@ -26,6 +26,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Extensions;
 using EventFlow.Jobs;
 using EventFlow.Provided.Jobs;
 using EventFlow.Subscribers;
@@ -35,6 +36,7 @@ using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
 using FluentAssertions.Common;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.TestHelpers.Suites
@@ -58,7 +60,7 @@ namespace EventFlow.TestHelpers.Suites
         [SetUp]
         public void TestSuiteForSchedulerSetUp()
         {
-            _jobScheduler = Resolver.Resolve<IJobScheduler>();
+            _jobScheduler = ServiceProvider.GetRequiredService<IJobScheduler>();
         }
 
         protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
@@ -66,7 +68,7 @@ namespace EventFlow.TestHelpers.Suites
             _testAsynchronousSubscriber = new TestAsynchronousSubscriber();
 
             return base.Options(eventFlowOptions)
-                .RegisterServices(sr => sr.Register(c => (ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>)_testAsynchronousSubscriber))
+                .RegisterServices(sr => sr.AddTransient(_ => (ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>)_testAsynchronousSubscriber))
                 .Configure(c => c.IsAsynchronousSubscribersEnabled = true);
         }
 
@@ -107,7 +109,7 @@ namespace EventFlow.TestHelpers.Suites
             // Arrange
             var testId = ThingyId.New;
             var pingId = PingId.New;
-            var executeCommandJob = PublishCommandJob.Create(new ThingyPingCommand(testId, pingId), Resolver);
+            var executeCommandJob = PublishCommandJob.Create(new ThingyPingCommand(testId, pingId), ServiceProvider);
 
             // Act
             var jobId = await schedule(executeCommandJob, _jobScheduler).ConfigureAwait(false);
@@ -119,7 +121,7 @@ namespace EventFlow.TestHelpers.Suites
                 var testAggregate = await AggregateStore.LoadAsync<ThingyAggregate, ThingyId>(testId, CancellationToken.None).ConfigureAwait(false);
                 if (!testAggregate.IsNew)
                 {
-                    await AssertJobIsSuccessfullAsync(jobId).ConfigureAwait(false);
+                    await AssertJobIsSuccessfullyAsync(jobId).ConfigureAwait(false);
                     Assert.Pass();
                 }
 
@@ -129,7 +131,7 @@ namespace EventFlow.TestHelpers.Suites
             Assert.Fail("Aggregate did not receive the command as expected");
         }
 
-        protected virtual Task AssertJobIsSuccessfullAsync(IJobId jobId)
+        protected virtual Task AssertJobIsSuccessfullyAsync(IJobId jobId)
         {
             // Overload to do any additional asserts
             return Task.FromResult(0);

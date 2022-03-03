@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using EventFlow.Commands;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Extensions
 {
@@ -70,13 +71,10 @@ namespace EventFlow.Extensions
                     throw new ArgumentException($"Type '{commandHandlerType.PrettyPrint()}' does not implement '{typeof(ICommandHandler<,,,>).PrettyPrint()}'");
                 }
 
-                eventFlowOptions.RegisterServices(sr =>
-                    {
-                        foreach (var handlesCommandType in handlesCommandTypes)
-                        {
-                            sr.Register(handlesCommandType, t);
-                        }
-                    });
+                foreach (var handlesCommandType in handlesCommandTypes)
+                {
+                    eventFlowOptions.ServiceCollection.AddTransient(handlesCommandType, t);
+                }
             }
 
             return eventFlowOptions;

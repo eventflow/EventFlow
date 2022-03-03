@@ -23,6 +23,8 @@
 
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Sql.Extensions;
 using EventFlow.Sql.Migrations;
 
@@ -37,9 +39,9 @@ namespace EventFlow.PostgreSql.EventStores
             return Assembly.GetEmbeddedSqlScripts("EventFlow.PostgreSql.EventStores.Scripts");
         }
 
-        public static void MigrateDatabase(IPostgreSqlDatabaseMigrator postgreSqlDatabaseMigrator)
+        public static Task MigrateDatabaseAsync(IPostgreSqlDatabaseMigrator postgreSqlDatabaseMigrator, CancellationToken cancellationToken)
         {
-            postgreSqlDatabaseMigrator.MigrateDatabaseUsingScripts(GetSqlScripts());
+            return postgreSqlDatabaseMigrator.MigrateDatabaseUsingScriptsAsync(null, GetSqlScripts(), cancellationToken);
         }
     }
 }

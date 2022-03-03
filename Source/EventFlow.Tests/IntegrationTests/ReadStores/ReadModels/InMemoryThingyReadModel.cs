@@ -22,6 +22,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers.Aggregates;
@@ -40,21 +42,33 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores.ReadModels
         public int PingsReceived { get; private set; }
         public Guid LastUpgradedId { get; private set; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
+        public Task ApplyAsync(
+            IReadModelContext context,
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent,
+            CancellationToken _)
         {
             ThingyId = domainEvent.AggregateIdentity;
             DomainErrorAfterFirstReceived = true;
+            return Task.CompletedTask;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
+        public Task ApplyAsync(
+            IReadModelContext context,
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent,
+            CancellationToken _)
         {
             ThingyId = domainEvent.AggregateIdentity;
             PingsReceived++;
+            return Task.CompletedTask;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDeletedEvent> domainEvent)
+        public Task ApplyAsync(
+            IReadModelContext context,
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyDeletedEvent> domainEvent,
+            CancellationToken _)
         {
             context.MarkForDeletion();
+            return Task.CompletedTask;
         }
 
         public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyUpgradedEvent> domainEvent)
