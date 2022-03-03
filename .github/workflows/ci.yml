@@ -1,4 +1,4 @@
-name: build
+name: CI
 
 on:
   push:
@@ -77,11 +77,21 @@ jobs:
       with:
         dotnet-version: "6.0.x"
 
-    - name: Cake - bootstrap
-      run: .\build.ps1 --bootstrap
-      shell: pwsh
+    # Yes, EventFlow has a custom built build tool. If you are reading this
+    # you might have a better idea of how to do it alternatively, if so,
+    # create a PR for EventFlow.
 
-    - name: Cake - build
-      run: .\build.ps1 --Target=All
-      shell: pwsh
+    # https://github.com/rasmus/Bake
+    - name: Install Bake 
+      run: dotnet tool install -g --version 0.12.24-beta Bake
 
+    - name: Run Bake
+      run: bake run --build-version 1.0.$GITHUB_RUN_NUMBER
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v2
+      if: success() || failure()
+      with:
+        name: test-results
+        path: "**/*.trx"
+        if-no-files-found: error
