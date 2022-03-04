@@ -1,0 +1,12 @@
+site_name: EventFlow
+site_url: https://example.com/
+theme: material
+docs_dir: Documentation
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      linenums: true
+
