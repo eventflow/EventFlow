@@ -88,6 +88,14 @@ jobs:
     - name: Run Bake
       run: bake run --build-version 1.0.$GITHUB_RUN_NUMBER
 
+    - name: Upload NuGet packages
+      uses: actions/upload-artifact@v2
+      if: success() || failure()
+      with:
+        name: packages
+        path: "**/*nupkg"
+        if-no-files-found: error
+
     - name: Upload test results
       uses: actions/upload-artifact@v2
       if: success() || failure()
