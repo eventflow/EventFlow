@@ -87,8 +87,9 @@ jobs:
 
     - name: Run Bake
       run: |
-        $VERSION = "1.0."+(5000+$($Env:GITHUB_RUN_NUMBER))
-        bake run --convention=Release --build-version $VERSION --destination="nuget>github,nuget,release>github"
+        declare -i REVISION
+        REVISION=5000+$GITHUB_RUN_NUMBER
+        bake run --convention=Release --build-version 1.0.$REVISION --destination="nuget>github,nuget,release>github"
 
     - name: Upload test results
       uses: actions/upload-artifact@v2
