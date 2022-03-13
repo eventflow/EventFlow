@@ -13,12 +13,13 @@ public API surface.
 Here is the general motivation for introducing breaking changes to EventFlow.
 
 - The initial version of EventFlow had its own IoC and logger implementation,
-  but with the introduction of standardized `Microsoft.Extensions` packages,
-  many of these custom made implementations can be removed
-- Focus on LTS versions of .NET (Core) and removing support .NET Framework.
+  but with the introduction of the standardized `Microsoft.Extensions` packages,
+  EventFlow's custom implementations are removed
+- Focus on LTS versions of .NET (Core) and remove support .NET Framework as many
+  of the new C# language features are not available here
 - Fix misssssspelled API
 - Add obviously missing async/await on critical methods
-- Remove non-async methods wrapper methods
+- Remove non-async methods wrapper methods related to the bundled `AsyncHelper`
 
 ## Notable new features in 1.x
 
@@ -39,7 +40,8 @@ that wasn't possible to add before as introducing them would cause breaking chan
   ```
 
   If the connection string is not known at initialization, provide your own instance
-  of the `IMsSqlConfiguration` which now has a new method.
+  of the `IMsSqlConfiguration` which now has a new method that allows reading connection
+  strings at runtime.
   
   ```csharp
    Task<string> GetConnectionStringAsync(
