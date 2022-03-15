@@ -9,6 +9,7 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <PackageIcon>icon-128.png</PackageIcon>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
