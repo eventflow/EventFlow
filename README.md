@@ -100,7 +100,7 @@ The following list key characteristics of each version as well as its related br
     - 🔴 `EventFlow.SQLite`
     - 🟢 `EventFlow.TestHelpers`
     
-  ## Branches
+  ### Branches
   - `develop-v1`: Development branch, pull requests should be done here
   - `release-v1`: Release branch, merge commits are done to this branch from
     `develop-v1` to create releases. Typically each commit represents a release
