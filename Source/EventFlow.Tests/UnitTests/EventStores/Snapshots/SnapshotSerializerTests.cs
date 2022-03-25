@@ -21,7 +21,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using EventFlow.Configuration;
 using EventFlow.Snapshots;
 using EventFlow.TestHelpers;
@@ -30,8 +29,7 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.EventStores.Snapshots
 {
-    [Obsolete]
-    public class SnapshotSerilizerTests : TestsFor<SnapshotSerilizer>
+    public class SnapshotSerializerTests : TestsFor<SnapshotSerializer>
     {
         [SetUp]
         public void SetUp()
