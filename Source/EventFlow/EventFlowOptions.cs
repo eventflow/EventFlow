@@ -1,19 +1,19 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2015-2020 Rasmus Mikkelsen
 // Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
 // the Software without restriction, including without limitation the rights to
 // use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
 // the Software, and to permit persons to whom the Software is furnished to do so,
 // subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
 // FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -21,9 +21,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Configuration;
@@ -47,21 +44,26 @@ using EventFlow.Subscribers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace EventFlow
 {
     public class EventFlowOptions : IEventFlowOptions
     {
         private readonly List<Type> _aggregateEventTypes = new List<Type>();
-        private readonly List<Type> _sagaTypes = new List<Type>(); 
+        private readonly List<Type> _sagaTypes = new List<Type>();
         private readonly List<Type> _commandTypes = new List<Type>();
         private readonly EventFlowConfiguration _eventFlowConfiguration = new EventFlowConfiguration();
+
         private readonly List<Type> _jobTypes = new List<Type>
             {
                 typeof(PublishCommandJob),
                 typeof(DispatchToAsynchronousEventSubscribersJob)
             };
-        private readonly List<Type> _snapshotTypes = new List<Type>(); 
+
+        private readonly List<Type> _snapshotTypes = new List<Type>();
 
         public IServiceCollection ServiceCollection { get; }
 
@@ -74,6 +76,7 @@ namespace EventFlow
 
         public static IEventFlowOptions New() => new EventFlowOptions(new ServiceCollection()
             .AddLogging(b => b.AddConsole()));
+
         public static IEventFlowOptions New(IServiceCollection serviceCollection) => new EventFlowOptions(serviceCollection);
 
         public IEventFlowOptions ConfigureOptimisticConcurrencyRetry(int retries, TimeSpan delayBeforeRetry)
@@ -164,6 +167,8 @@ namespace EventFlow
         {
             serviceCollection.AddMemoryCache();
 
+            RegisterObsoleteDefaults(serviceCollection);
+
             // Default no-op resilience strategies
             serviceCollection.TryAddTransient<IAggregateStoreResilienceStrategy, NoAggregateStoreResilienceStrategy>();
             serviceCollection.TryAddTransient<IDispatchToReadStoresResilienceStrategy, NoDispatchToReadStoresResilienceStrategy>();
@@ -176,7 +181,7 @@ namespace EventFlow
             serviceCollection.TryAddTransient<ICommandBus, CommandBus>();
             serviceCollection.TryAddTransient<IAggregateStore, AggregateStore>();
             serviceCollection.TryAddTransient<ISnapshotStore, SnapshotStore>();
-            serviceCollection.TryAddTransient<ISnapshotSerilizer, SnapshotSerilizer>();
+            serviceCollection.TryAddTransient<ISnapshotSerializer, SnapshotSerializer>();
             serviceCollection.TryAddTransient<ISnapshotPersistence, NullSnapshotPersistence>();
             serviceCollection.TryAddTransient<ISnapshotUpgradeService, SnapshotUpgradeService>();
             serviceCollection.TryAddTransient<IReadModelPopulator, ReadModelPopulator>();
@@ -216,6 +221,13 @@ namespace EventFlow
                 _aggregateEventTypes,
                 _sagaTypes,
                 _snapshotTypes));
+        }
+
+        private void RegisterObsoleteDefaults(IServiceCollection serviceCollection)
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            serviceCollection.TryAddTransient<ISnapshotSerilizer, SnapshotSerilizer>();
+#pragma warning restore CS0618 // Type or member is obsolete
         }
     }
 }

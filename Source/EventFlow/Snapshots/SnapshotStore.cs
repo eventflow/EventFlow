@@ -1,19 +1,19 @@
 // The MIT License (MIT)
-// 
+//
 // Copyright (c) 2015-2020 Rasmus Mikkelsen
 // Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
 // the Software without restriction, including without limitation the rights to
 // use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
 // the Software, and to permit persons to whom the Software is furnished to do so,
 // subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
 // FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -33,16 +33,16 @@ namespace EventFlow.Snapshots
     public class SnapshotStore : ISnapshotStore
     {
         private readonly ILogger<SnapshotStore> _logger;
-        private readonly ISnapshotSerilizer _snapshotSerilizer;
+        private readonly ISnapshotSerializer _snapshotSerializer;
         private readonly ISnapshotPersistence _snapshotPersistence;
 
         public SnapshotStore(
             ILogger<SnapshotStore> logger,
-            ISnapshotSerilizer snapshotSerilizer,
+            ISnapshotSerializer snapshotSerializer,
             ISnapshotPersistence snapshotPersistence)
         {
             _logger = logger;
-            _snapshotSerilizer = snapshotSerilizer;
+            _snapshotSerializer = snapshotSerializer;
             _snapshotPersistence = snapshotPersistence;
         }
 
@@ -71,7 +71,7 @@ namespace EventFlow.Snapshots
                 return null;
             }
 
-            var snapshotContainer = await _snapshotSerilizer.DeserializeAsync<TAggregate, TIdentity, TSnapshot>(
+            var snapshotContainer = await _snapshotSerializer.DeserializeAsync<TAggregate, TIdentity, TSnapshot>(
                 committedSnapshot,
                 cancellationToken)
                 .ConfigureAwait(false);
@@ -87,7 +87,7 @@ namespace EventFlow.Snapshots
             where TIdentity : IIdentity
             where TSnapshot : ISnapshot
         {
-            var serializedSnapshot = await _snapshotSerilizer.SerializeAsync<TAggregate, TIdentity, TSnapshot>(
+            var serializedSnapshot = await _snapshotSerializer.SerializeAsync<TAggregate, TIdentity, TSnapshot>(
                 snapshotContainer,
                 cancellationToken)
                 .ConfigureAwait(false);
