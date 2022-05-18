@@ -15,7 +15,7 @@
     </td>
     <td  width="25%">
       <p>
-        <a href="https://github.com/eventflow/EventFlow/actions/workflows/build.yml"><img src="https://github.com/eventflow/EventFlow/actions/workflows/build.yml/badge.svg" /></a>
+        <a href="https://github.com/eventflow/EventFlow/actions/workflows/ci.yml"><img src="https://github.com/eventflow/EventFlow/actions/workflows/ci.yml/badge.svg" /></a>
       </p>
       <p>
         <a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
@@ -71,8 +71,12 @@ The following list key characteristics of each version as well as its related br
   been releases. It will take a few alpha/beta/rc releases to get this right. These
   will be released as soon as any significant changes have been made.
 
-  **NuGet package status**
+  ### Documentation (not complete)
+  Version 1.x documentation has been pulled into this repository in order to have
+  the code and documentation closer together and (hopefully) have the documentation
+  updated in the same pull-requests as any code changes.
 
+  ### NuGet package status
   - 🟢 compiles and pushed in `-alpha` releases
   - 🔴 not yet ported to 1.0
   - 💀 for packages that are removed as part of 1.0, see the
@@ -96,7 +100,7 @@ The following list key characteristics of each version as well as its related br
     - 🔴 `EventFlow.SQLite`
     - 🟢 `EventFlow.TestHelpers`
     
-  **Branches:**
+  ### Branches
   - `develop-v1`: Development branch, pull requests should be done here
   - `release-v1`: Release branch, merge commits are done to this branch from
     `develop-v1` to create releases. Typically each commit represents a release
@@ -110,10 +114,14 @@ The following list key characteristics of each version as well as its related br
   Feature and bug fix releases will still be done while there's interest in
   the community.
 
-  **Branches:**
+  ### Branches
   - `develop-v0`: Development branch, pull requests should be done here
   - `release-v0`: Release branch, merge commits are done to this branch from
     `develop-v0` to create releases. Typically each commit represents a release
+
+  ### Documentation
+  Version 0.x documentation is (although a bit outdated) is live at
+  https://docs.geteventflow.net/.
 
 
 ## Examples
@@ -515,4 +523,5 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
 

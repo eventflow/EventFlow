@@ -210,3 +210,6 @@ FakesAssemblies/
 # Project specific files
 /Tools
 /Build
+
+# mkdocs output
+/docs
