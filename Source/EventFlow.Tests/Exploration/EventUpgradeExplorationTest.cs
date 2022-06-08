@@ -124,7 +124,7 @@ namespace EventFlow.Tests.Exploration
         {
         }
 
-        public class UpgradeV1ToV2 : IEventUpgrader<UpgradeAggregate, UpgradeId>
+        public class UpgradeV1ToV2 : EventUpgrader<UpgradeAggregate, UpgradeId>
         {
             private readonly IDomainEventFactory _domainEventFactory;
 
@@ -134,11 +134,10 @@ namespace EventFlow.Tests.Exploration
                 _domainEventFactory = domainEventFactory;
             }
 
-            public IEnumerable<IDomainEvent<UpgradeAggregate, UpgradeId>> Upgrade(
+            protected override IEnumerable<IDomainEvent<UpgradeAggregate, UpgradeId>> Upgrade(
                 IDomainEvent<UpgradeAggregate, UpgradeId> domainEvent)
             {
-                var v1 = domainEvent as IDomainEvent<UpgradeAggregate, UpgradeId, UpgradeEventV1>;
-                yield return v1 == null
+                yield return !(domainEvent is IDomainEvent<UpgradeAggregate, UpgradeId, UpgradeEventV1> v1)
                     ? domainEvent
                     : _domainEventFactory.Upgrade<UpgradeAggregate, UpgradeId>(domainEvent, new UpgradeEventV2());
             }
