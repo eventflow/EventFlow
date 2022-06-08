@@ -128,6 +128,8 @@ namespace EventFlow.Snapshots
 
             SnapshotVersion = snapshotContainer.Metadata.AggregateSequenceNumber;
 
+            AddPreviousSourceIds(snapshotContainer.Metadata.PreviousSourceIds);
+
             return LoadSnapshotAsync(
                 (TSnapshot) snapshotContainer.Snapshot,
                 snapshotContainer.Metadata,
