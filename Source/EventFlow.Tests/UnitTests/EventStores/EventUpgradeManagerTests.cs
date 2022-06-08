@@ -33,7 +33,7 @@ using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
-using Moq;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.EventStores
@@ -41,29 +41,18 @@ namespace EventFlow.Tests.UnitTests.EventStores
     [Category(Categories.Unit)]
     public class EventUpgradeManagerTests : TestsFor<EventUpgradeManager>
     {
-        private Mock<IServiceProvider> _serviceProviderMock;
+        private ServiceProvider _serviceProvider;
 
         [SetUp]
         public void SetUp()
         {
-            _serviceProviderMock = InjectMock<IServiceProvider>();
+            _serviceProvider = new ServiceCollection()
+                .AddSingleton<IEventUpgrader<ThingyAggregate, ThingyId>>(new UpgradeTestEventV1ToTestEventV2(DomainEventFactory))
+                .AddSingleton<IEventUpgrader<ThingyAggregate, ThingyId>>(new UpgradeTestEventV2ToTestEventV3(DomainEventFactory))
+                .AddSingleton<IEventUpgrader<ThingyAggregate, ThingyId>>(new DamagedEventRemover())
+                .BuildServiceProvider();
 
-            _serviceProviderMock
-                .Setup(r => r.GetService(typeof(IEnumerable<IEventUpgrader<ThingyAggregate, ThingyId>>)))
-                .Returns(new IEventUpgrader<ThingyAggregate, ThingyId>[]
-                    {
-                        new UpgradeTestEventV1ToTestEventV2(DomainEventFactory),
-                        new UpgradeTestEventV2ToTestEventV3(DomainEventFactory), 
-                        new DamagedEventRemover(),
-                    });
-            _serviceProviderMock
-                .Setup(r => r.GetService(typeof(IEnumerable<IEventUpgrader<ThingyAggregate, ThingyId>>)))
-                .Returns(new object[]
-                    {
-                        new UpgradeTestEventV1ToTestEventV2(DomainEventFactory),
-                        new UpgradeTestEventV2ToTestEventV3(DomainEventFactory), 
-                        new DamagedEventRemover(),
-                    });
+            Inject<IServiceProvider>(_serviceProvider);
         }
 
         [Test]
