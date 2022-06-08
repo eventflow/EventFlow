@@ -23,6 +23,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.EventStores;
 using EventFlow.TestHelpers;
@@ -64,20 +67,20 @@ namespace EventFlow.Tests.UnitTests.EventStores
         }
 
         [Test]
-        public void EmptyListReturnsEmptyList()
+        public async Task EmptyListReturnsEmptyList()
         {
             // Arrange
             var events = new IDomainEvent<ThingyAggregate, ThingyId>[] { };
 
             // Act
-            var upgradedEvents = Sut.Upgrade(events);
+            var upgradedEvents = await Sut.UpgradeAsync(events.ToAsyncEnumerable(), CancellationToken.None).ToArrayAsync();
 
             // Assert
             upgradedEvents.Should().BeEmpty();
         }
 
         [Test]
-        public void EventWithNoUpgradersIsReturned()
+        public async Task EventWithNoUpgradersIsReturned()
         {
             // Arrange
             var events = new[]
@@ -87,15 +90,15 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 };
 
             // Act
-            var upgradedEvents = Sut.Upgrade(events);
+            var upgradedEvents = await Sut.UpgradeAsync(events.ToAsyncEnumerable(), CancellationToken.None).ToArrayAsync();
 
             // Assert
-            upgradedEvents.Count.Should().Be(2);
+            upgradedEvents.Length.Should().Be(2);
             upgradedEvents.Should().Contain(events);
         }
 
         [Test]
-        public void EventsAreUpgradedToLatestVersion()
+        public async Task EventsAreUpgradedToLatestVersion()
         {
             // Arrange
             var events = new[]
@@ -107,10 +110,10 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 };
 
             // Act
-            var upgradedEvents = Sut.Upgrade(events);
+            var upgradedEvents = await Sut.UpgradeAsync(events.ToAsyncEnumerable(), CancellationToken.None).ToArrayAsync();
 
             // Assert
-            upgradedEvents.Count.Should().Be(3);
+            upgradedEvents.Length.Should().Be(3);
             foreach (var upgradedEvent in upgradedEvents)
             {
                 upgradedEvent.Should().BeAssignableTo<IDomainEvent<ThingyAggregate, ThingyId, TestEventV3>>();

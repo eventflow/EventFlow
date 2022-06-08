@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2022 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
@@ -26,6 +26,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Extensions;
@@ -41,9 +42,9 @@ namespace EventFlow.EventStores
         private class EventUpgraderCacheItem
         {
             public Type EventUpgraderType { get; }
-            public Func<object, IDomainEvent, IEnumerable<IDomainEvent>> Upgrade { get; }
+            public Func<object, IDomainEvent, IEventUpgradeContext, CancellationToken, IAsyncEnumerable<IDomainEvent>> Upgrade { get; }
 
-            public EventUpgraderCacheItem(Type eventUpgraderType, Func<object, IDomainEvent, IEnumerable<IDomainEvent>> upgrade)
+            public EventUpgraderCacheItem(Type eventUpgraderType, Func<object, IDomainEvent, IEventUpgradeContext, CancellationToken, IAsyncEnumerable<IDomainEvent>> upgrade)
             {
                 EventUpgraderType = eventUpgraderType;
                 Upgrade = upgrade;
@@ -61,9 +62,11 @@ namespace EventFlow.EventStores
             _serviceProvider = serviceProvider;
         }
 
-        public IReadOnlyCollection<IDomainEvent> Upgrade(IReadOnlyCollection<IDomainEvent> domainEvents)
+        public IAsyncEnumerable<IDomainEvent> UpgradeAsync(
+            IAsyncEnumerable<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
         {
-            return Upgrade((IEnumerable<IDomainEvent>) domainEvents).ToList();
+            return Upgrade((IEnumerable<IDomainEvent>) domainEvents);
         }
 
         private IEnumerable<IDomainEvent> Upgrade(IEnumerable<IDomainEvent> domainEvents)
@@ -116,8 +119,8 @@ namespace EventFlow.EventStores
                 .OrderBy(d => d.AggregateSequenceNumber);
         }
 
-        public IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> Upgrade<TAggregate, TIdentity>(
-            IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> domainEvents)
+        public IAsyncEnumerable<IDomainEvent<TAggregate, TIdentity>> UpgradeAsync<TAggregate, TIdentity>(
+            IAsyncEnumerable<IDomainEvent<TAggregate, TIdentity>> domainEvents, CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {

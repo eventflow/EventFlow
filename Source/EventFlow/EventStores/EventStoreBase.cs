@@ -131,7 +131,12 @@ namespace EventFlow.EventStores
             var domainEvents = (IReadOnlyCollection<IDomainEvent>) allCommittedEventsPage.CommittedDomainEvents
                 .Select(e => _eventJsonSerializer.Deserialize(e))
                 .ToList();
-            domainEvents = _eventUpgradeManager.Upgrade(domainEvents);
+
+            // TODO: Pass a real IAsyncEnumerable instead
+            domainEvents = await _eventUpgradeManager.UpgradeAsync(
+                domainEvents.ToAsyncEnumerable(),
+                cancellationToken).ToArrayAsync(cancellationToken);
+
             return new AllEventsPage(allCommittedEventsPage.NextGlobalPosition, domainEvents);
         }
 
@@ -170,7 +175,10 @@ namespace EventFlow.EventStores
                 return domainEvents;
             }
 
-            domainEvents = _eventUpgradeManager.Upgrade(domainEvents);
+            // TODO: Pass a real IAsyncEnumerable instead
+            domainEvents = await _eventUpgradeManager.UpgradeAsync(
+                domainEvents.ToAsyncEnumerable(),
+                cancellationToken).ToArrayAsync(cancellationToken);
 
             return domainEvents;
         }
