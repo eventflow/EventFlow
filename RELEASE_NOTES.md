@@ -42,6 +42,10 @@ https://github.com/eventflow/EventFlow/blob/develop-v1/MIGRATION_GUIDE.md
   - `IQueryProcessor.Process`
   - `IReadModelPopulator.Populate`
   - `IReadModelPopulator.Purge`
+* Fix: `SnapshotAggregateRoot` now correctly loads previous source IDs as well
+  adds the current source ID that triggered the snapshot. This causes the
+  `DuplicateOperationException` to be correctly thrown if a duplicate source
+  ID as added before a snapshot was taken
 * Version of 0.x included: `0.83.4713`. 0.x changes are merged to 1.x at regular
   intervals, but might be one or two releases behind
 

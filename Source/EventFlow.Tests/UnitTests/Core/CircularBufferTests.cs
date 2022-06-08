@@ -72,6 +72,22 @@ namespace EventFlow.Tests.UnitTests.Core
         }
 
         [Test]
+        public void OrderAtCapacity()
+        {
+            // Arrange
+            var sut = new CircularBuffer<int>(3);
+            sut.Put(1);
+            sut.Put(2);
+            sut.Put(3);
+
+            // Act
+            var numbers = sut.ToArray();
+
+            // Assert
+            numbers.Should().ContainInOrder(1, 2, 3);
+        }
+
+        [Test]
         public void OrderBelowCapacity()
         {
             // Arrange
