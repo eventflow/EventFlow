@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using EventFlow.Extensions;
 using EventFlow.ValueObjects;
@@ -38,6 +37,7 @@ namespace EventFlow.Core
         private static readonly string Prefix;
         private static readonly Regex ValueValidation;
         // ReSharper enable StaticMemberInGenericType
+        private static Func<string, T> _createIdentityFunc;
 
         static Identity()
         {
@@ -81,18 +81,9 @@ namespace EventFlow.Core
 
         public static T With(string value)
         {
-            try
-            {
-                return (T)Activator.CreateInstance(typeof(T), value);
-            }
-            catch (TargetInvocationException e)
-            {
-                if (e.InnerException != null)
-                {
-                    throw e.InnerException;
-                }
-                throw;
-            }
+            _createIdentityFunc ??= ReflectionHelper.CompileConstructor<string, T>();
+
+            return _createIdentityFunc(value);
         }
 
         public static T With(Guid guid)

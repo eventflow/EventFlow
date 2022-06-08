@@ -26,6 +26,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Core;
 using EventFlow.Extensions;
 using Microsoft.Extensions.Logging;
 
@@ -35,6 +36,7 @@ namespace EventFlow.ReadStores
         where TReadModel : IReadModel
     {
         private readonly ILogger<ReadModelFactory<TReadModel>> _logger;
+        private static Func<TReadModel> _createReadModelFunc;
 
         static ReadModelFactory()
         {
@@ -70,9 +72,9 @@ namespace EventFlow.ReadStores
                     id);
             }
 
-            var readModel = (TReadModel) Activator.CreateInstance(typeof(TReadModel));
+            _createReadModelFunc ??= ReflectionHelper.CompileConstructor<TReadModel>();
 
-            return Task.FromResult(readModel);
+            return Task.FromResult(_createReadModelFunc());
         }
     }
 }
