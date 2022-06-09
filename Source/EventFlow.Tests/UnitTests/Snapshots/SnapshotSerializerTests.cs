@@ -135,3 +135,4 @@ namespace EventFlow.Tests.UnitTests.Snapshots
         }
     }
 }
+
