@@ -8,6 +8,15 @@ as recommendations on how to do the migration.
 
 https://github.com/eventflow/EventFlow/blob/develop-v1/MIGRATION_GUIDE.md
 
+Changes since 1.0.5001-alpha
+
+* Fix: `SnapshotAggregateRoot` now correctly loads previous source IDs as well
+  adds the current source ID that triggered the snapshot. This causes the
+  `DuplicateOperationException` to be correctly thrown if a duplicate source
+  ID as added before a snapshot was taken
+
+Complete 1.0 change log
+
 * New/breaking: Replace internal IoC implementation with `Microsoft.Extensions.DependencyInjection`
 * New/breaking: Replace internal logging implementation with `Microsoft.Extensions.Logging`
 * New/breaking: SQL read models now support different connection strings using the
