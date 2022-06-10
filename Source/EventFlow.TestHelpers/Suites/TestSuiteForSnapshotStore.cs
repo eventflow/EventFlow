@@ -22,12 +22,15 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
+using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Snapshots;
 using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Snapshots;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
@@ -104,6 +107,26 @@ namespace EventFlow.TestHelpers.Suites
             // Assert
             thingySnapshot.Should().NotBeNull();
             thingySnapshot.PingsReceived.Count.Should().Be(ThingyAggregate.SnapshotEveryVersion);
+        }
+
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestCase(9)]
+        public async Task DuplicateOperationExceptionIsThrown(int index)
+        {
+            // Arrange
+            var thingyId = ThingyId.New;
+            const int pingsSent = ThingyAggregate.SnapshotEveryVersion;
+            var commands = await PublishPingCommandsAsync(thingyId, pingsSent);
+            var sourceIds = commands.Select(c => c.SourceId).ToArray();
+
+            // Validate
+            var thingySnapshot = await LoadSnapshotAsync(thingyId).ConfigureAwait(false);
+            thingySnapshot.PingsReceived.Should().HaveCount(ThingyAggregate.SnapshotEveryVersion);
+
+            // Act
+            var command = new ThingyPingCommand(thingyId, sourceIds[index], PingId.New);
+            Assert.ThrowsAsync<DuplicateOperationException>(async () => await CommandBus.PublishAsync(command, CancellationToken.None));
         }
 
         [Test]

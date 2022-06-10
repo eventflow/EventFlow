@@ -21,26 +21,26 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using EventFlow.Configuration;
-using EventFlow.Snapshots;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates.Snapshots;
-using NUnit.Framework;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Core;
 
-namespace EventFlow.Tests.UnitTests.EventStores.Snapshots
+namespace EventFlow.Snapshots
 {
-    [Obsolete]
-    public class SnapshotSerilizerTests : TestsFor<SnapshotSerilizer>
+    public interface ISnapshotSerializer
     {
-        [SetUp]
-        public void SetUp()
-        {
-            var snapshotDefinitionService = new SnapshotDefinitionService(
-                Logger<SnapshotDefinitionService>(),
-                Mock<ILoadedVersionedTypes>());
-            snapshotDefinitionService.Load(typeof(ThingySnapshotV1), typeof(ThingySnapshotV2), typeof(ThingySnapshot));
-            Inject<ISnapshotDefinitionService>(snapshotDefinitionService);
-        }
+        Task<SerializedSnapshot> SerializeAsync<TAggregate, TIdentity, TSnapshot>(
+            SnapshotContainer snapshotContainer,
+            CancellationToken cancellationToken)
+            where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
+            where TIdentity : IIdentity
+            where TSnapshot : ISnapshot;
+
+        Task<SnapshotContainer> DeserializeAsync<TAggregate, TIdentity, TSnapshot>(
+            CommittedSnapshot committedSnapshot,
+            CancellationToken cancellationToken)
+            where TAggregate : ISnapshotAggregateRoot<TIdentity, TSnapshot>
+            where TIdentity : IIdentity
+            where TSnapshot : ISnapshot;
     }
 }
