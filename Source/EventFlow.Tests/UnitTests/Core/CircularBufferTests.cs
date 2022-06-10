@@ -40,8 +40,8 @@ namespace EventFlow.Tests.UnitTests.Core
         public void Put(params int[] numbers)
         {
             // Arrange
-            const int capasity = 2;
-            var sut = new CircularBuffer<int>(capasity);
+            const int capacity = 2;
+            var sut = new CircularBuffer<int>(capacity);
 
             // Act
             foreach (var number in numbers)
@@ -50,8 +50,56 @@ namespace EventFlow.Tests.UnitTests.Core
             }
 
             // Assert
-            var shouldContain = numbers.Reverse().Take(capasity).ToList();
+            var shouldContain = numbers.Reverse().Take(capacity).ToList();
             sut.Should().Contain(shouldContain);
+        }
+
+        [Test]
+        public void OrderAboveCapacity()
+        {
+            // Arrange
+            var sut = new CircularBuffer<int>(3);
+            sut.Put(1);
+            sut.Put(2);
+            sut.Put(3);
+            sut.Put(4);
+
+            // Act
+            var numbers = sut.ToArray();
+
+            // Assert
+            numbers.Should().ContainInOrder(2, 3, 4);
+        }
+
+        [Test]
+        public void OrderAtCapacity()
+        {
+            // Arrange
+            var sut = new CircularBuffer<int>(3);
+            sut.Put(1);
+            sut.Put(2);
+            sut.Put(3);
+
+            // Act
+            var numbers = sut.ToArray();
+
+            // Assert
+            numbers.Should().ContainInOrder(1, 2, 3);
+        }
+
+        [Test]
+        public void OrderBelowCapacity()
+        {
+            // Arrange
+            var sut = new CircularBuffer<int>(3);
+            sut.Put(1);
+            sut.Put(2);
+
+            // Act
+            var numbers = sut.ToArray();
+
+            // Assert
+            numbers.Should().ContainInOrder(1, 2);
         }
     }
 }

@@ -176,6 +176,7 @@ namespace EventFlow.Aggregates
             var sourceIds = domainEvents
                 .Where(e => e.Metadata.ContainsKey(MetadataKeys.SourceId))
                 .Select(e => e.Metadata.SourceId);
+
             AddPreviousSourceIds(sourceIds);
         }
 
