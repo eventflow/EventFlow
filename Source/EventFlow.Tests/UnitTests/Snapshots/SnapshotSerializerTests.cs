@@ -37,9 +37,8 @@ using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Snapshots
 {
-    [Obsolete]
     [Category(Categories.Unit)]
-    public class SnapshotSerilizerTests : TestsFor<SnapshotSerilizer>
+    public class SnapshotSerializerTests : TestsFor<SnapshotSerializer>
     {
         private Mock<ISnapshotUpgradeService> _snapshotUpgradeServiceMock;
         private Mock<ISnapshotDefinitionService> _snapshotDefinitionService;
@@ -136,3 +135,4 @@ namespace EventFlow.Tests.UnitTests.Snapshots
         }
     }
 }
+

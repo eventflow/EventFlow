@@ -110,8 +110,8 @@ namespace EventFlow.TestHelpers
             ThingyId thingyId,
             CancellationToken cancellationToken = default)
         {
-            var pingIds = await PublishPingCommandsAsync(thingyId, 1, cancellationToken).ConfigureAwait(false);
-            return pingIds.Single();
+            var pingIds = await PublishPingCommandsAsync(thingyId, 1, cancellationToken);
+            return pingIds.Single().PingId;
         }
 
         protected Task<ThingySaga> LoadSagaAsync(ThingyId thingyId)
@@ -124,23 +124,27 @@ namespace EventFlow.TestHelpers
                 CancellationToken.None);
         }
 
-        protected async Task<IReadOnlyCollection<PingId>> PublishPingCommandsAsync(
+        protected async Task<IReadOnlyCollection<ThingyPingCommand>> PublishPingCommandsAsync(
             ThingyId thingyId,
             int count, 
             CancellationToken cancellationToken = default)
         {
-            if (count <= 0) throw new ArgumentOutOfRangeException(nameof(count));
+            if (count <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(count));
+            }
 
-            var pingIds = new List<PingId>();
+            var pingCommands = new List<ThingyPingCommand>();
 
             for (var i = 0; i < count; i++)
             {
                 var pingId = PingId.New;
-                await CommandBus.PublishAsync(new ThingyPingCommand(thingyId, pingId), cancellationToken).ConfigureAwait(false);
-                pingIds.Add(pingId);
+                var command = new ThingyPingCommand(thingyId, pingId);
+                await CommandBus.PublishAsync(command, cancellationToken);
+                pingCommands.Add(command);
             }
 
-            return pingIds;
+            return pingCommands;
         }
     }
 }
