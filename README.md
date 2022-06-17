@@ -122,6 +122,10 @@ The following list key characteristics of each version as well as its related br
   Version 0.x documentation is (although a bit outdated) is live at
   https://docs.geteventflow.net/.
 
+## Talks directly related to EventFlow
+
+- [GOTO Aarhus 2022](https://github.com/rasmus/presentation-goto-2022) by [rasmus](https://github.com/rasmus)
+  Practical event sourcing using EventFlow
 
 ## Examples
 
