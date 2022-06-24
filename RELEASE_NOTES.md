@@ -14,6 +14,10 @@ Changes since 1.0.5001-alpha
   adds the current source ID that triggered the snapshot. This causes the
   `DuplicateOperationException` to be correctly thrown if a duplicate source
   ID as added before a snapshot was taken
+* Fix: Upgrade `Newtonsoft.Json` from `11.0.2` to `13.0.1` to fix DoS
+  vulnerability
+  - https://github.com/advisories/GHSA-5crp-9r3c-p9vr
+  - https://security.snyk.io/vuln/SNYK-DOTNET-NEWTONSOFTJSON-2774678
 
 Complete 1.0 change log
 
@@ -55,6 +59,10 @@ Complete 1.0 change log
   adds the current source ID that triggered the snapshot. This causes the
   `DuplicateOperationException` to be correctly thrown if a duplicate source
   ID as added before a snapshot was taken
+* Fix: Upgrade `Newtonsoft.Json` from `11.0.2` to `13.0.1` to fix DoS
+  vulnerability
+  - https://github.com/advisories/GHSA-5crp-9r3c-p9vr
+  - https://security.snyk.io/vuln/SNYK-DOTNET-NEWTONSOFTJSON-2774678
 * Version of 0.x included: `0.83.4713`. 0.x changes are merged to 1.x at regular
   intervals, but might be one or two releases behind
 
