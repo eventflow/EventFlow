@@ -27,8 +27,7 @@ public class RedisEventPersistence : IEventPersistence
             : long.Parse(globalPosition.Value);
 
         var streamNames = await _resolver.GetStreamNamesAsync(cancellationToken);
-        var streamTasks = streamNames.Select(streamName => new RedisKey(streamName))
-            .Select(key => GetCommittedEventsAsync(key, startPosition, cancellationToken, pageSize)).ToList();
+        var streamTasks = streamNames.Select(prefixedKey => GetCommittedEventsAsync(prefixedKey, startPosition, cancellationToken, pageSize)).ToList();
 
         await Task.WhenAll(streamTasks);
         var events = streamTasks.SelectMany(t => t.Result);
@@ -45,7 +44,7 @@ public class RedisEventPersistence : IEventPersistence
     {
         var committedEvents = new List<RedisCommittedDomainEvent>();
         var database = _multiplexer.GetDatabase();
-        var key = new RedisKey(id.Value);
+        var prefixedKey = GetAsPrefixedKey(id.Value);
 
         foreach (var serializedEvent in serializedEvents)
         {
@@ -58,21 +57,21 @@ public class RedisEventPersistence : IEventPersistence
             var metadata = new NameValueEntry(new RedisValue("metadata"),
                 new RedisValue(serializedEvent.SerializedMetadata));
 
-            var result = await database.StreamAddAsync(key, new[] {data, metadata}, messageId);
-            if (result == 0)
+            var result = await database.StreamAddAsync(prefixedKey, new[] {data, metadata}, messageId);
+            if (result == messageId)
             {
                 if (_logger.IsEnabled(LogLevel.Trace))
                     _logger.LogTrace("Committed event with id {EventId} to Redis for aggregate with Id {AggregateId}",
-                        key, messageId);
+                        prefixedKey.Key, messageId);
 
-                committedEvents.Add(new RedisCommittedDomainEvent(key, data.Value, metadata.Value,
+                committedEvents.Add(new RedisCommittedDomainEvent(prefixedKey.Key, data.Value, metadata.Value,
                     serializedEvent.AggregateSequenceNumber));
             }
             else
             {
                 _logger.LogWarning(
-                    "Failed to commit event with id {EventId} to Redis for aggregate with Id {AggregateId}, aborting",
-                    key, messageId);
+                    "Failed to commit event with id {EventId} to Redis for aggregate with Id {AggregateId}, {Result}",
+                    prefixedKey.Key, messageId, result);
             }
         }
 
@@ -82,8 +81,8 @@ public class RedisEventPersistence : IEventPersistence
     public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id,
         int fromEventSequenceNumber, CancellationToken cancellationToken)
     {
-        var key = new RedisKey(id.Value);
-        var events = await GetCommittedEventsAsync(key, fromEventSequenceNumber, cancellationToken);
+        var prefixedKey = GetAsPrefixedKey(id.Value);
+        var events = await GetCommittedEventsAsync(prefixedKey, fromEventSequenceNumber, cancellationToken);
 
         return events.ToList();
     }
@@ -91,18 +90,19 @@ public class RedisEventPersistence : IEventPersistence
     public async Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
     {
         var database = _multiplexer.GetDatabase();
-        var key = new RedisKey(id.Value);
+        var keyWithPrefix = GetAsPrefixedKey(id.Value);
 
-        var result = database.KeyDelete(key);
+        var result = await database.KeyDeleteAsync(keyWithPrefix);
         if (!result)
             _logger.LogWarning("Failed to delete the Redis Stream with id {Id}", id.Value);
     }
 
-    private async Task<IEnumerable<RedisCommittedDomainEvent>> GetCommittedEventsAsync(RedisKey key, long fromPosition,
+    private async Task<IEnumerable<RedisCommittedDomainEvent>> GetCommittedEventsAsync(PrefixedKey prefixedKey,
+        long fromPosition,
         CancellationToken token, int? limit = null)
     {
         var database = _multiplexer.GetDatabase();
-        var result = await database.StreamReadAsync(key, fromPosition, limit);
+        var result = await database.StreamReadAsync(prefixedKey, fromPosition, limit);
         if (!result.Any())
             return Array.Empty<RedisCommittedDomainEvent>();
 
@@ -112,9 +112,12 @@ public class RedisEventPersistence : IEventPersistence
             var metadata = se.Values.FirstOrDefault(v => v.Name == "metadata").Value;
             var sequenceNumber = int.Parse(((string) se.Id).Split("-").Last());
 
-            return new RedisCommittedDomainEvent(key, data, metadata, sequenceNumber);
+            return new RedisCommittedDomainEvent(prefixedKey.Key, data, metadata, sequenceNumber);
         });
 
         return committedEvents.ToList();
     }
+    
+    private static PrefixedKey GetAsPrefixedKey(string id) 
+        => new PrefixedKey(Constants.StreamPrefix, id);
 }

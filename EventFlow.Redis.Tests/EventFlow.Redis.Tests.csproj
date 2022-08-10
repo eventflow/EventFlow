@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\EventFlow.Redis\EventFlow.Redis.csproj" />
+      <ProjectReference Include="..\Source\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
+      <PackageReference Include="StackExchange.Redis" Version="2.6.48" />
+      <PackageReference Include="Testcontainers" Version="2.1.0" />
+      <PackageReference Include="xunit" Version="2.4.2" />
+    </ItemGroup>
+
+</Project>

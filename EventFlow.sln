@@ -45,6 +45,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Redis", "Redis", "{2F91397E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Redis", "EventFlow.Redis\EventFlow.Redis.csproj", "{8BB77769-40E0-44BA-828F-98CF7D9FCF64}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Redis.Tests", "EventFlow.Redis.Tests\EventFlow.Redis.Tests.csproj", "{B2445A28-C974-4B2A-9A64-66C7731D9710}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -107,6 +109,10 @@ Global
 		{8BB77769-40E0-44BA-828F-98CF7D9FCF64}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8BB77769-40E0-44BA-828F-98CF7D9FCF64}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8BB77769-40E0-44BA-828F-98CF7D9FCF64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2445A28-C974-4B2A-9A64-66C7731D9710}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2445A28-C974-4B2A-9A64-66C7731D9710}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2445A28-C974-4B2A-9A64-66C7731D9710}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2445A28-C974-4B2A-9A64-66C7731D9710}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -128,6 +134,7 @@ Global
 		{9132960E-9496-4C77-BD80-A09A86814757} = {9B07B6E9-428A-42F7-AFB1-B23755A409EE}
 		{2F91397E-07F1-4FF4-83B3-4DC88BB912F1} = {5EE323DE-E69B-451A-8AC3-22DD6A004FBA}
 		{8BB77769-40E0-44BA-828F-98CF7D9FCF64} = {2F91397E-07F1-4FF4-83B3-4DC88BB912F1}
+		{B2445A28-C974-4B2A-9A64-66C7731D9710} = {2F91397E-07F1-4FF4-83B3-4DC88BB912F1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {17607E2C-4E8E-45A2-85BD-0A5808E1C0F3}

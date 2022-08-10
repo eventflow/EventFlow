@@ -2,5 +2,5 @@
 
 public interface IEventStreamCollectionResolver
 {
-    Task<IEnumerable<string>> GetStreamNamesAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<PrefixedKey>> GetStreamNamesAsync(CancellationToken cancellationToken = default);
 }
