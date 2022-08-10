@@ -1,5 +1,6 @@
 ﻿using EventFlow.Core;
 using EventFlow.EventStores;
+using EventFlow.Exceptions;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
@@ -27,7 +28,8 @@ public class RedisEventPersistence : IEventPersistence
             : long.Parse(globalPosition.Value);
 
         var streamNames = await _resolver.GetStreamNamesAsync(cancellationToken);
-        var streamTasks = streamNames.Select(prefixedKey => GetCommittedEventsAsync(prefixedKey, startPosition, cancellationToken, pageSize)).ToList();
+        var streamTasks = streamNames.Select(prefixedKey =>
+            GetCommittedEventsAsync(prefixedKey, startPosition, cancellationToken, pageSize)).ToList();
 
         await Task.WhenAll(streamTasks);
         var events = streamTasks.SelectMany(t => t.Result);
@@ -48,30 +50,42 @@ public class RedisEventPersistence : IEventPersistence
 
         foreach (var serializedEvent in serializedEvents)
         {
-            //Redis stream entry id uses the format: <UnixTime>-<IncrementingId>
+            //Redis stream entry id uses the format: <UnixTime>-<IncrementingId>, we leave the timestamp blank to ensure optimistic concurrency works
             var messageId =
                 new RedisValue(
-                    $"{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}-{serializedEvent.AggregateSequenceNumber}");
+                    $"0-{serializedEvent.AggregateSequenceNumber}");
 
             var data = new NameValueEntry(new RedisValue("data"), new RedisValue(serializedEvent.SerializedData));
             var metadata = new NameValueEntry(new RedisValue("metadata"),
                 new RedisValue(serializedEvent.SerializedMetadata));
 
-            var result = await database.StreamAddAsync(prefixedKey, new[] {data, metadata}, messageId);
-            if (result == messageId)
+            try
             {
-                if (_logger.IsEnabled(LogLevel.Trace))
-                    _logger.LogTrace("Committed event with id {EventId} to Redis for aggregate with Id {AggregateId}",
-                        prefixedKey.Key, messageId);
+                var result = await database.StreamAddAsync(prefixedKey, new[] {data, metadata}, messageId);
+                if (result == messageId)
+                {
+                    if (_logger.IsEnabled(LogLevel.Trace))
+                        _logger.LogTrace(
+                            "Committed event with id {EventId} to Redis for aggregate with Id {AggregateId}",
+                            prefixedKey.Key, messageId);
 
-                committedEvents.Add(new RedisCommittedDomainEvent(prefixedKey.Key, data.Value, metadata.Value,
-                    serializedEvent.AggregateSequenceNumber));
+                    committedEvents.Add(new RedisCommittedDomainEvent(prefixedKey.Key, data.Value, metadata.Value,
+                        serializedEvent.AggregateSequenceNumber));
+                }
+                else
+                {
+                    _logger.LogWarning(
+                        "Failed to commit event with id {EventId} to Redis for aggregate with Id {AggregateId}, {Result}",
+                        prefixedKey.Key, messageId, result);
+
+                    throw new Exception(result);
+                }
             }
-            else
+            catch (RedisServerException e)
             {
-                _logger.LogWarning(
-                    "Failed to commit event with id {EventId} to Redis for aggregate with Id {AggregateId}, {Result}",
-                    prefixedKey.Key, messageId, result);
+                if (e.Message.Contains(
+                        "ERR The ID specified in XADD is equal or smaller than the target stream top item"))
+                    throw new OptimisticConcurrencyException(messageId, e);
             }
         }
 
@@ -101,8 +115,11 @@ public class RedisEventPersistence : IEventPersistence
         long fromPosition,
         CancellationToken token, int? limit = null)
     {
+        //Stackexchange.Redis uses XREAD to read streams, which does not include the item at fromPosition, so we have to start one before
+        var fromMessageId = fromPosition == 0 ? $"0-{fromPosition}" : $"0-{fromPosition-1}";
         var database = _multiplexer.GetDatabase();
-        var result = await database.StreamReadAsync(prefixedKey, fromPosition, limit);
+
+        var result = await database.StreamReadAsync(prefixedKey, fromMessageId, count: limit);
         if (!result.Any())
             return Array.Empty<RedisCommittedDomainEvent>();
 
@@ -117,7 +134,7 @@ public class RedisEventPersistence : IEventPersistence
 
         return committedEvents.ToList();
     }
-    
-    private static PrefixedKey GetAsPrefixedKey(string id) 
+
+    private static PrefixedKey GetAsPrefixedKey(string id)
         => new PrefixedKey(Constants.StreamPrefix, id);
 }

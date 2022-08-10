@@ -21,7 +21,7 @@ public class EventStoreTests : TestSuiteForEventStore
     protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
     {
         _container.StartAsync().Wait();
-        var multiplexer = ConnectionMultiplexer.Connect("localhost:6379");
+        var multiplexer = ConnectionMultiplexer.Connect(_container.ConnectionString);
         eventFlowOptions.ServiceCollection.AddSingleton<IConnectionMultiplexer>(multiplexer);
         eventFlowOptions.ServiceCollection
             .AddTransient<IEventStreamCollectionResolver, EventStreamCollectionResolver>();
