@@ -57,12 +57,5 @@ public class EventStoreTests : TestSuiteForEventStore
         names.Should().Contain(secondId.Value);
     }
     
-    [Test]
-    
 
-    [TearDown]
-    public async Task TearDown()
-    {
-        await _container.DisposeAsync().ConfigureAwait(false);
-    }
 }
