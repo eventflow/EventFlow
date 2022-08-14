@@ -1,6 +1,6 @@
 ﻿using StackExchange.Redis;
 
-namespace EventFlow.Redis.EventStore;
+namespace EventFlow.Redis;
 
 public struct PrefixedKey 
 {
@@ -20,4 +20,5 @@ public struct PrefixedKey
     public override string ToString() => $"{Prefix}:{Key}";
 
     public static implicit operator RedisKey(PrefixedKey prefixedKey) => new RedisKey(prefixedKey.ToString());
+    public static implicit operator string(PrefixedKey prefixedKey) => prefixedKey.ToString();
 }

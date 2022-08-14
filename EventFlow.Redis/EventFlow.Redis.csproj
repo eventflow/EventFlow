@@ -7,10 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Source\EventFlow.MongoDB\EventFlow.MongoDB.csproj" />
       <ProjectReference Include="..\Source\EventFlow\EventFlow.csproj" />
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Redis.OM" Version="0.2.1" />
       <PackageReference Include="StackExchange.Redis" Version="2.6.48" />
     </ItemGroup>
 
