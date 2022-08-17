@@ -4,4 +4,5 @@ public static class Constants
 {
     public const string StreamPrefix = "eventflow.events";
     public const string ReadModelPrefix = "eventflow.readmodel";
+    public const string SnapshotPrefix = "eventflow.snapshot";
 }

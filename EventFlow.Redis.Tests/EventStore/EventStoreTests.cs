@@ -20,16 +20,14 @@ public class EventStoreTests : TestSuiteForEventStore
     private readonly TestcontainerDatabase _container
         = new TestcontainersBuilder<RedisTestcontainer>().WithDatabase(new RedisTestcontainerConfiguration
         {
-        }).WithWaitStrategy(Wait.ForUnixContainer()).Build();
+        }).Build();
 
     protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
     {
         _container.StartAsync().Wait();
         var multiplexer = ConnectionMultiplexer.Connect(_container.ConnectionString);
-        eventFlowOptions.ServiceCollection.AddSingleton<IConnectionMultiplexer>(multiplexer);
-        eventFlowOptions.ServiceCollection
-            .AddTransient<IEventStreamCollectionResolver, EventStreamCollectionResolver>();
-        eventFlowOptions.UseEventPersistence<RedisEventPersistence>();
+        eventFlowOptions.ConfigureRedis(multiplexer);
+        eventFlowOptions.UseRedisEventStore();
 
         return base.Configure(eventFlowOptions);
     }
