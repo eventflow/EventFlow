@@ -47,7 +47,7 @@ public class EventStoreTests : TestSuiteForEventStore
         await secondAggregate.CommitAsync(EventStore, SnapshotStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
 
         //Act
-        var keys = await resolver.GetStreamNamesAsync();
+        var keys = await resolver.GetStreamIdsAsync();
         var names = keys.Select(k => k.Key);
 
         //Assert

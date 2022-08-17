@@ -27,7 +27,7 @@ public class RedisEventPersistence : IEventPersistence
             ? 0
             : long.Parse(globalPosition.Value);
 
-        var streamNames = await _resolver.GetStreamNamesAsync(cancellationToken);
+        var streamNames = await _resolver.GetStreamIdsAsync(cancellationToken);
         var streamTasks = streamNames.Select(prefixedKey =>
             GetCommittedEventsAsync(prefixedKey, startPosition, cancellationToken, pageSize)).ToList();
 
@@ -37,6 +37,11 @@ public class RedisEventPersistence : IEventPersistence
         var nextPos = events.Any()
             ? events.Max(e => e.AggregateSequenceNumber)
             : startPosition;
+
+        if (_logger.IsEnabled(LogLevel.Trace))
+        {
+            _logger.LogTrace("Loaded {Count} events from redis", events.Count());
+        }
 
         return new AllCommittedEventsPage(new GlobalPosition(nextPos.ToString()), events.ToList());
     }
@@ -51,13 +56,10 @@ public class RedisEventPersistence : IEventPersistence
         foreach (var serializedEvent in serializedEvents)
         {
             //Redis stream entry id uses the format: <UnixTime>-<IncrementingId>, we leave the timestamp blank to ensure optimistic concurrency works
-            var messageId =
-                new RedisValue(
-                    $"0-{serializedEvent.AggregateSequenceNumber}");
+            var messageId = $"0-{serializedEvent.AggregateSequenceNumber}";
 
-            var data = new NameValueEntry(new RedisValue("data"), new RedisValue(serializedEvent.SerializedData));
-            var metadata = new NameValueEntry(new RedisValue("metadata"),
-                new RedisValue(serializedEvent.SerializedMetadata));
+            var data = new NameValueEntry("data", serializedEvent.SerializedData);
+            var metadata = new NameValueEntry("metadata", serializedEvent.SerializedMetadata);
 
             try
             {
@@ -66,7 +68,7 @@ public class RedisEventPersistence : IEventPersistence
                 {
                     if (_logger.IsEnabled(LogLevel.Trace))
                         _logger.LogTrace(
-                            "Committed event with id {EventId} to Redis for aggregate with Id {AggregateId}",
+                            "Committed event with id {EventId} for aggregate with Id {AggregateId} to Redis ",
                             prefixedKey.Key, messageId);
 
                     committedEvents.Add(new RedisCommittedDomainEvent(prefixedKey.Key, data.Value, metadata.Value,
@@ -75,8 +77,8 @@ public class RedisEventPersistence : IEventPersistence
                 else
                 {
                     _logger.LogWarning(
-                        "Failed to commit event with id {EventId} to Redis for aggregate with Id {AggregateId}, {Result}",
-                        prefixedKey.Key, messageId, result);
+                        "Failed to commit event with id {EventId} for aggregate with Id {AggregateId} to Redis",
+                        prefixedKey.Key, messageId);
 
                     throw new Exception(result);
                 }
@@ -98,6 +100,10 @@ public class RedisEventPersistence : IEventPersistence
         var prefixedKey = GetAsPrefixedKey(id.Value);
         var events = await GetCommittedEventsAsync(prefixedKey, fromEventSequenceNumber, cancellationToken);
 
+        if (_logger.IsEnabled(LogLevel.Trace))
+            _logger.LogTrace("Loaded {Count} events for aggregate with id {AggregateId} from redis", events.Count(),
+                id.Value);
+
         return events.ToList();
     }
 
@@ -108,20 +114,30 @@ public class RedisEventPersistence : IEventPersistence
 
         var result = await database.KeyDeleteAsync(keyWithPrefix);
         if (!result)
+        {
             _logger.LogWarning("Failed to delete the Redis Stream with id {Id}", id.Value);
+            return;
+        }
+
+        if (_logger.IsEnabled(LogLevel.Trace))
+            _logger.LogTrace("Deleted events for aggregate with id {AggregateId}", id.Value);
     }
 
     private async Task<IEnumerable<RedisCommittedDomainEvent>> GetCommittedEventsAsync(PrefixedKey prefixedKey,
         long fromPosition,
         CancellationToken token, int? limit = null)
     {
-        //Stackexchange.Redis uses XREAD to read streams, which does not include the item at fromPosition, so we have to start one before
-        var fromMessageId = fromPosition == 0 ? $"0-{fromPosition}" : $"0-{fromPosition-1}";
+        //Stackexchange.Redis uses XREAD to read streams, which does not include the item at fromPosition, so we have to start at fromPosition -1
+        var fromMessageId = fromPosition == 0 ? $"0-{fromPosition}" : $"0-{fromPosition - 1}";
         var database = _multiplexer.GetDatabase();
 
         var result = await database.StreamReadAsync(prefixedKey, fromMessageId, count: limit);
         if (!result.Any())
+        {
+            if (_logger.IsEnabled(LogLevel.Trace))
+                _logger.LogTrace("No events found for aggregate {AggregateId}", prefixedKey.Key);
             return Array.Empty<RedisCommittedDomainEvent>();
+        }
 
         var committedEvents = result.Select(se =>
         {
@@ -131,6 +147,10 @@ public class RedisEventPersistence : IEventPersistence
 
             return new RedisCommittedDomainEvent(prefixedKey.Key, data, metadata, sequenceNumber);
         });
+        
+        if (_logger.IsEnabled(LogLevel.Trace))
+            _logger.LogTrace("Found {Count} events for aggregate with id {AggregateId}", committedEvents.Count(),
+                prefixedKey.Key);
 
         return committedEvents.ToList();
     }

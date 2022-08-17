@@ -10,12 +10,9 @@ public class EventStreamCollectionResolver : IEventStreamCollectionResolver
     {
         _multiplexer = multiplexer;
     }
-
-    /// <summary>
-    /// Using <a href="https://redis.io/commands/scan/">SCAN</a> instead of KEYS to reduce blocking on the server.
-    /// One alternative would be to create and maintain a list of all aggregates, but that's just extra work
-    /// </summary>
-    public async Task<IEnumerable<PrefixedKey>> GetStreamNamesAsync(CancellationToken cancellationToken = default)
+    
+    // Using https://redis.io/commands/scan/ instead of KEYS to reduce blocking on the server.
+    public async Task<IEnumerable<PrefixedKey>> GetStreamIdsAsync(CancellationToken cancellationToken = default)
     {
         var cursor = 0;
         var names = new List<PrefixedKey>();
