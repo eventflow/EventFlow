@@ -10,9 +10,9 @@ namespace EventFlow.Redis.SnapshotStore;
 
 public class RedisSnapshotPersistence : ISnapshotPersistence
 {
-    private readonly RedisConnectionProvider _provider;
     private readonly IRedisCollection<RedisSnapshot> _collection;
     private readonly ILogger<RedisSnapshotPersistence> _logger;
+    private readonly RedisConnectionProvider _provider;
 
     public RedisSnapshotPersistence(RedisConnectionProvider provider, ILogger<RedisSnapshotPersistence> logger)
     {
@@ -24,7 +24,8 @@ public class RedisSnapshotPersistence : ISnapshotPersistence
     public async Task<CommittedSnapshot> GetSnapshotAsync(Type aggregateType, IIdentity identity,
         CancellationToken cancellationToken)
     {
-        var snapshot = await _collection.FirstOrDefaultAsync(sn => sn.AggregateId == identity.Value);
+        var snapshot = await _collection.FirstOrDefaultAsync(sn => sn.AggregateId == identity.Value)
+            .ConfigureAwait(false);
         if (_logger.IsEnabled(LogLevel.Trace))
             _logger.LogTrace("Found snapshot for id {Id}: {Snapshot}", identity.Value, snapshot);
 
@@ -51,9 +52,9 @@ public class RedisSnapshotPersistence : ISnapshotPersistence
             serializedSnapshot.Metadata.AggregateSequenceNumber).ToListAsync();
 
         var deleteTasks = prevSnapshots.Select(pr => _collection.DeleteAsync(pr));
-        await Task.WhenAll(deleteTasks);
+        await Task.WhenAll(deleteTasks).ConfigureAwait(false);
 
-        await _collection.InsertAsync(snapshot);
+        await _collection.InsertAsync(snapshot).ConfigureAwait(false);
 
         if (_logger.IsEnabled(LogLevel.Trace))
             _logger.LogTrace("Saved snapshot with id {Id}", identity.Value);
@@ -61,7 +62,8 @@ public class RedisSnapshotPersistence : ISnapshotPersistence
 
     public async Task DeleteSnapshotAsync(Type aggregateType, IIdentity identity, CancellationToken cancellationToken)
     {
-        var snapshot = await _collection.FirstOrDefaultAsync(sn => sn.AggregateId == identity.Value);
+        var snapshot = await _collection.FirstOrDefaultAsync(sn => sn.AggregateId == identity.Value)
+            .ConfigureAwait(false);
         if (snapshot is not null)
         {
             await _collection.DeleteAsync(snapshot);
@@ -75,8 +77,9 @@ public class RedisSnapshotPersistence : ISnapshotPersistence
     public async Task PurgeSnapshotsAsync(Type aggregateType, CancellationToken cancellationToken)
     {
         var aggregateName = aggregateType.GetAggregateName().Value;
-        var snapshots = await _collection.Where(sn => sn.AggregateName == aggregateName).ToListAsync();
-        await Task.WhenAll(snapshots.Select(sn => _collection.DeleteAsync(sn)));
+        var snapshots = await _collection.Where(sn => sn.AggregateName == aggregateName).ToListAsync()
+            .ConfigureAwait(false);
+        await Task.WhenAll(snapshots.Select(sn => _collection.DeleteAsync(sn))).ConfigureAwait(false);
 
         if (_logger.IsEnabled(LogLevel.Trace))
             _logger.LogTrace("Purged all snapshots of aggregate {Aggregate}", aggregateName);
@@ -85,13 +88,10 @@ public class RedisSnapshotPersistence : ISnapshotPersistence
     public Task PurgeSnapshotsAsync(CancellationToken cancellationToken)
     {
         var result = _provider.Connection.DropIndexAndAssociatedRecords(typeof(RedisSnapshot));
-        if (_logger.IsEnabled(LogLevel.Trace))
-        {
-            if (!result)
-                _logger.LogTrace("Failed to purge all snapshots");
-            else
-                _logger.LogTrace("Purged all snapshots");
-        }
+        if (!result)
+            _logger.LogWarning("Failed to purge all snapshots");
+        else if (_logger.IsEnabled(LogLevel.Trace))
+            _logger.LogTrace("Purged all snapshots");
 
         return Task.CompletedTask;
     }

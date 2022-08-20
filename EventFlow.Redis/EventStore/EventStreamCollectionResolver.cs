@@ -10,7 +10,7 @@ public class EventStreamCollectionResolver : IEventStreamCollectionResolver
     {
         _multiplexer = multiplexer;
     }
-    
+
     // Using https://redis.io/commands/scan/ instead of KEYS to reduce blocking on the server.
     public async Task<IEnumerable<PrefixedKey>> GetStreamIdsAsync(CancellationToken cancellationToken = default)
     {
@@ -18,7 +18,8 @@ public class EventStreamCollectionResolver : IEventStreamCollectionResolver
         var names = new List<PrefixedKey>();
         do
         {
-            var result = await _multiplexer.GetDatabase().ExecuteAsync("scan", cursor, "MATCH", $"{Constants.StreamPrefix}*");
+            var result = await _multiplexer.GetDatabase()
+                .ExecuteAsync("scan", cursor, "MATCH", $"{Constants.StreamPrefix}*").ConfigureAwait(false);
             var arr = (RedisResult[]) result;
             cursor = (int) arr[0];
             var prefixedKeys = ((RedisResult[]) arr[1]).Select(n => AsPrefixedKey((string) n));

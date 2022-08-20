@@ -8,8 +8,8 @@ namespace EventFlow.Redis.EventStore;
 
 public class RedisEventPersistence : IEventPersistence
 {
-    private readonly IConnectionMultiplexer _multiplexer;
     private readonly ILogger<RedisEventPersistence> _logger;
+    private readonly IConnectionMultiplexer _multiplexer;
     private readonly IEventStreamCollectionResolver _resolver;
 
     public RedisEventPersistence(IConnectionMultiplexer multiplexer, ILogger<RedisEventPersistence> logger,
@@ -27,11 +27,11 @@ public class RedisEventPersistence : IEventPersistence
             ? 0
             : long.Parse(globalPosition.Value);
 
-        var streamNames = await _resolver.GetStreamIdsAsync(cancellationToken);
+        var streamNames = await _resolver.GetStreamIdsAsync(cancellationToken).ConfigureAwait(false);
         var streamTasks = streamNames.Select(prefixedKey =>
             GetCommittedEventsAsync(prefixedKey, startPosition, cancellationToken, pageSize)).ToList();
 
-        await Task.WhenAll(streamTasks);
+        await Task.WhenAll(streamTasks).ConfigureAwait(false);
         var events = streamTasks.SelectMany(t => t.Result);
 
         var nextPos = events.Any()
@@ -63,7 +63,8 @@ public class RedisEventPersistence : IEventPersistence
 
             try
             {
-                var result = await database.StreamAddAsync(prefixedKey, new[] {data, metadata}, messageId);
+                var result = await database.StreamAddAsync(prefixedKey, new[] {data, metadata}, messageId)
+                    .ConfigureAwait(false);
                 if (result == messageId)
                 {
                     if (_logger.IsEnabled(LogLevel.Trace))
@@ -98,7 +99,8 @@ public class RedisEventPersistence : IEventPersistence
         int fromEventSequenceNumber, CancellationToken cancellationToken)
     {
         var prefixedKey = GetAsPrefixedKey(id.Value);
-        var events = await GetCommittedEventsAsync(prefixedKey, fromEventSequenceNumber, cancellationToken);
+        var events = await GetCommittedEventsAsync(prefixedKey, fromEventSequenceNumber, cancellationToken)
+            .ConfigureAwait(false);
 
         if (_logger.IsEnabled(LogLevel.Trace))
             _logger.LogTrace("Loaded {Count} events for aggregate with id {AggregateId} from redis", events.Count(),
@@ -112,7 +114,7 @@ public class RedisEventPersistence : IEventPersistence
         var database = _multiplexer.GetDatabase();
         var keyWithPrefix = GetAsPrefixedKey(id.Value);
 
-        var result = await database.KeyDeleteAsync(keyWithPrefix);
+        var result = await database.KeyDeleteAsync(keyWithPrefix).ConfigureAwait(false);
         if (!result)
         {
             _logger.LogWarning("Failed to delete the Redis Stream with id {Id}", id.Value);
@@ -131,7 +133,7 @@ public class RedisEventPersistence : IEventPersistence
         var fromMessageId = fromPosition == 0 ? $"0-{fromPosition}" : $"0-{fromPosition - 1}";
         var database = _multiplexer.GetDatabase();
 
-        var result = await database.StreamReadAsync(prefixedKey, fromMessageId, count: limit);
+        var result = await database.StreamReadAsync(prefixedKey, fromMessageId, count: limit).ConfigureAwait(false);
         if (!result.Any())
         {
             if (_logger.IsEnabled(LogLevel.Trace))
@@ -147,7 +149,7 @@ public class RedisEventPersistence : IEventPersistence
 
             return new RedisCommittedDomainEvent(prefixedKey.Key, data, metadata, sequenceNumber);
         });
-        
+
         if (_logger.IsEnabled(LogLevel.Trace))
             _logger.LogTrace("Found {Count} events for aggregate with id {AggregateId}", committedEvents.Count(),
                 prefixedKey.Key);
