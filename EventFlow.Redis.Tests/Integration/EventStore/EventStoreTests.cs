@@ -2,8 +2,8 @@
 using DotNet.Testcontainers.Configurations;
 using DotNet.Testcontainers.Containers;
 using EventFlow.Core;
-using EventFlow.Extensions;
 using EventFlow.Redis.EventStore;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Suites;
@@ -11,10 +11,10 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using StackExchange.Redis;
-using Xunit;
 
-namespace EventFlow.Redis.Tests.EventStore;
+namespace EventFlow.Redis.Tests.Integration.EventStore;
 
+[Category(Categories.Integration)]
 public class EventStoreTests : TestSuiteForEventStore
 {
     private readonly TestcontainerDatabase _container
@@ -43,8 +43,10 @@ public class EventStoreTests : TestSuiteForEventStore
         firstAggregate.Ping(PingId.New);
         var secondAggregate = await LoadAggregateAsync(secondId).ConfigureAwait(false);
         secondAggregate.Ping(PingId.New);
-        await firstAggregate.CommitAsync(EventStore, SnapshotStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
-        await secondAggregate.CommitAsync(EventStore, SnapshotStore, SourceId.New, CancellationToken.None).ConfigureAwait(false);
+        await firstAggregate.CommitAsync(EventStore, SnapshotStore, SourceId.New, CancellationToken.None)
+            .ConfigureAwait(false);
+        await secondAggregate.CommitAsync(EventStore, SnapshotStore, SourceId.New, CancellationToken.None)
+            .ConfigureAwait(false);
 
         //Act
         var keys = await resolver.GetStreamIdsAsync();
@@ -54,6 +56,4 @@ public class EventStoreTests : TestSuiteForEventStore
         names.Should().Contain(firstId.Value);
         names.Should().Contain(secondId.Value);
     }
-    
-
 }

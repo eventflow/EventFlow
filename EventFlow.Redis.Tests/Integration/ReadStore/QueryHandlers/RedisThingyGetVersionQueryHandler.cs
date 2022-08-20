@@ -1,12 +1,13 @@
 ﻿using EventFlow.Queries;
 using EventFlow.Redis.ReadStore;
-using EventFlow.Redis.Tests.ReadStore.ReadModels;
+using EventFlow.Redis.Tests.Integration.ReadStore.ReadModels;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using Redis.OM;
 
-namespace EventFlow.Redis.Tests.ReadStore.QueryHandlers;
+namespace EventFlow.Redis.Tests.Integration.ReadStore.QueryHandlers;
 
-public class RedisThingyGetVersionQueryHandler : RedisQueryHandler<RedisThingyReadModel>, IQueryHandler<ThingyGetVersionQuery, long?>
+public class RedisThingyGetVersionQueryHandler : RedisQueryHandler<RedisThingyReadModel>,
+    IQueryHandler<ThingyGetVersionQuery, long?>
 {
     public RedisThingyGetVersionQueryHandler(RedisConnectionProvider provider) : base(provider)
     {

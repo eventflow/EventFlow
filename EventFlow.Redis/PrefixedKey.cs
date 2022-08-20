@@ -2,20 +2,21 @@
 
 namespace EventFlow.Redis;
 
-public struct PrefixedKey 
+public record PrefixedKey
 {
-    public string Prefix { get; private set; }
-    public string Key { get; private set; }
-
     public PrefixedKey(string prefix, string key)
     {
         if (string.IsNullOrEmpty(prefix))
             throw new ArgumentException("Prefix cant be empty");
         if (string.IsNullOrEmpty(key))
             throw new ArgumentException("Key cant be empty");
+
         Prefix = prefix;
         Key = key;
     }
+
+    public string Prefix { get; private set; }
+    public string Key { get; private set; }
 
     public override string ToString() => $"{Prefix}:{Key}";
 

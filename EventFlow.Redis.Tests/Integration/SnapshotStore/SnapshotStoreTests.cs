@@ -1,24 +1,21 @@
 ﻿using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Configurations;
 using DotNet.Testcontainers.Containers;
-using EventFlow.Extensions;
-using EventFlow.ReadStores;
-using EventFlow.Redis.ReadStore;
-using EventFlow.Redis.SnapshotStore;
-using EventFlow.Redis.Tests.ReadStore.ReadModels;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
-using Microsoft.Extensions.DependencyInjection;
-using Redis.OM;
+using NUnit.Framework;
 using StackExchange.Redis;
 
-namespace EventFlow.Redis.Tests.SnapshotStore;
+namespace EventFlow.Redis.Tests.Integration.SnapshotStore;
 
+[Category(Categories.Integration)]
 public class SnapshotStoreTests : TestSuiteForSnapshotStore
 {
     private readonly TestcontainerDatabase _container
-        = new TestcontainersBuilder<RedisTestcontainer>().WithDatabase(new RedisTestcontainerConfiguration("redis/redis-stack")
-        {
-        }).Build();
+        = new TestcontainersBuilder<RedisTestcontainer>().WithDatabase(
+            new RedisTestcontainerConfiguration("redis/redis-stack")
+            {
+            }).Build();
 
     protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
     {

@@ -2,25 +2,25 @@
 using DotNet.Testcontainers.Configurations;
 using DotNet.Testcontainers.Containers;
 using EventFlow.Extensions;
-using EventFlow.ReadStores;
-using EventFlow.Redis.ReadStore;
-using EventFlow.Redis.Tests.ReadStore.QueryHandlers;
-using EventFlow.Redis.Tests.ReadStore.ReadModels;
+using EventFlow.Redis.Tests.Integration.ReadStore.QueryHandlers;
+using EventFlow.Redis.Tests.Integration.ReadStore.ReadModels;
+using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
-using Redis.OM;
 using StackExchange.Redis;
 
-namespace EventFlow.Redis.Tests.ReadStore;
+namespace EventFlow.Redis.Tests.Integration.ReadStore;
 
+[Category(Categories.Integration)]
 public class RedisReadStoreTests : TestSuiteForReadModelStore
 {
     private readonly TestcontainerDatabase _container
-        = new TestcontainersBuilder<RedisTestcontainer>().WithDatabase(new RedisTestcontainerConfiguration("redis/redis-stack")
-        {
-        }).Build();
+        = new TestcontainersBuilder<RedisTestcontainer>().WithDatabase(
+            new RedisTestcontainerConfiguration("redis/redis-stack")
+            {
+            }).Build();
 
     protected override Type ReadModelType => typeof(RedisThingyReadModel);
 
