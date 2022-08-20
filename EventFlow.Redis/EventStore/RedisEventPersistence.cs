@@ -70,7 +70,7 @@ public class RedisEventPersistence : IEventPersistence
                     if (_logger.IsEnabled(LogLevel.Trace))
                         _logger.LogTrace(
                             "Committed event with id {EventId} for aggregate with Id {AggregateId} to Redis ",
-                            prefixedKey.Key, messageId);
+                            messageId, prefixedKey.Key);
 
                     committedEvents.Add(new RedisCommittedDomainEvent(prefixedKey.Key, data.Value, metadata.Value,
                         serializedEvent.AggregateSequenceNumber));
