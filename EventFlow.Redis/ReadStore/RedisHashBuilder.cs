@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System.Collections;
+using System.Collections.Concurrent;
 using System.Reflection;
 using Redis.OM.Modeling;
 
@@ -61,10 +62,10 @@ public class RedisHashBuilder : IRedisHashBuilder
                     hash.Add(propertyName, new DateTimeOffset(val).ToUnixTimeMilliseconds().ToString());
                 }
             }
-            else if (type.GetInterfaces()
-                     .Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+            else if (type == typeof(IEnumerable<>) || type.GetInterfaces()
+                         .Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
             {
-                var e = (IEnumerable<object>) property.GetValue(obj);
+                var e = (IEnumerable) property.GetValue(obj);
                 var i = 0;
                 foreach (var v in e)
                 {
@@ -78,7 +79,7 @@ public class RedisHashBuilder : IRedisHashBuilder
                         var subHash = BuildHashSet(v);
                         foreach (var kvp in subHash)
                         {
-                            hash.Add($"{propertyName}.[{i}].{kvp.Key}", kvp.Value);
+                            hash.Add($"{propertyName}[{i}].{kvp.Key}", kvp.Value);
                         }
                     }
 
