@@ -1,22 +1,28 @@
-﻿using System.Reflection;
+﻿using System.Collections.Concurrent;
+using System.Reflection;
 using Redis.OM.Modeling;
-using StackExchange.Redis;
 
 namespace EventFlow.Redis.ReadStore;
 
-// https://github.dev/redis/redis-om-dotnet/tree/main/src/Redis.OM/Modeling
+//original source: https://github.dev/redis/redis-om-dotnet/tree/main/src/Redis.OM/Modeling
 
 public class RedisHashBuilder : IRedisHashBuilder
 {
-    public Dictionary<string, string> BuildHashSet(object obj)
+    private static readonly ConcurrentDictionary<Type, PropertyInfo[]> CachedProperties = new();
+
+    public IReadOnlyDictionary<string, string> BuildHashSet(object? obj)
     {
         if (obj is null)
             return new Dictionary<string, string>();
 
-        var properties = obj
-            .GetType()
-            .GetProperties()
-            .Where(x => x.GetValue(obj) != null);
+        var objType = obj.GetType();
+        if (!CachedProperties.TryGetValue(objType, out var properties))
+        {
+            properties = objType.GetProperties();
+            CachedProperties.TryAdd(objType, properties);
+        }
+
+        properties = properties.Where(x => x.GetValue(obj) != null).ToArray();
 
         var hash = new Dictionary<string, string>();
         foreach (var property in properties)

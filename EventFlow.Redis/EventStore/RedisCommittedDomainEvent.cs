@@ -2,13 +2,8 @@
 
 namespace EventFlow.Redis.EventStore;
 
-public class RedisCommittedDomainEvent : ICommittedDomainEvent
+internal class RedisCommittedDomainEvent : ICommittedDomainEvent
 {
-    public string AggregateId { get; init; }
-    public string Data { get; init; }
-    public string Metadata { get; init; }
-    public int AggregateSequenceNumber { get; init; }
-
     public RedisCommittedDomainEvent(string aggregateId, string data, string metadata, int aggregateSequenceNumber)
     {
         AggregateId = aggregateId;
@@ -16,4 +11,9 @@ public class RedisCommittedDomainEvent : ICommittedDomainEvent
         Metadata = metadata;
         AggregateSequenceNumber = aggregateSequenceNumber;
     }
+
+    public string AggregateId { get; init; }
+    public string Data { get; init; }
+    public string Metadata { get; init; }
+    public int AggregateSequenceNumber { get; init; }
 }

@@ -6,7 +6,7 @@ using StackExchange.Redis;
 
 namespace EventFlow.Redis.EventStore;
 
-public class RedisEventPersistence : IEventPersistence
+internal class RedisEventPersistence : IEventPersistence
 {
     private readonly ILogger<RedisEventPersistence> _logger;
     private readonly IConnectionMultiplexer _multiplexer;
@@ -63,26 +63,17 @@ public class RedisEventPersistence : IEventPersistence
 
             try
             {
-                var result = await database.StreamAddAsync(prefixedKey, new[] {data, metadata}, messageId)
+                await database
+                    .StreamAddAsync(prefixedKey, new[] {data, metadata}, messageId)
                     .ConfigureAwait(false);
-                if (result == messageId)
-                {
-                    if (_logger.IsEnabled(LogLevel.Trace))
-                        _logger.LogTrace(
-                            "Committed event with id {EventId} for aggregate with Id {AggregateId} to Redis ",
-                            messageId, prefixedKey.Key);
 
-                    committedEvents.Add(new RedisCommittedDomainEvent(prefixedKey.Key, data.Value, metadata.Value,
-                        serializedEvent.AggregateSequenceNumber));
-                }
-                else
-                {
-                    _logger.LogWarning(
-                        "Failed to commit event with id {EventId} for aggregate with Id {AggregateId} to Redis",
-                        prefixedKey.Key, messageId);
+                if (_logger.IsEnabled(LogLevel.Trace))
+                    _logger.LogTrace(
+                        "Committed event with id {EventId} for aggregate with Id {AggregateId} to Redis ",
+                        messageId, prefixedKey.Key);
 
-                    throw new Exception(result);
-                }
+                committedEvents.Add(new RedisCommittedDomainEvent(prefixedKey.Key, data.Value, metadata.Value,
+                    serializedEvent.AggregateSequenceNumber));
             }
             catch (RedisServerException e)
             {

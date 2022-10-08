@@ -10,7 +10,7 @@ using StackExchange.Redis;
 
 namespace EventFlow.Redis.ReadStore;
 
-public class RedisReadModelStore<TReadModel> : IReadModelStore<TReadModel>
+internal class RedisReadModelStore<TReadModel> : IReadModelStore<TReadModel>
     where TReadModel : RedisReadModel
 {
     private readonly IRedisCollection<TReadModel> _collection;

@@ -2,9 +2,9 @@
 
 namespace EventFlow.Redis.ReadStore;
 
-public static class Extensions
+internal static class Extensions
 {
-    public static IEnumerable<HashEntry> ToHashEntries(this Dictionary<string, string> dict)
+    internal static IEnumerable<HashEntry> ToHashEntries(this IReadOnlyDictionary<string, string> dict)
     {
         return dict.ToArray().Select(kv => new HashEntry(kv.Key, kv.Value));
     }
