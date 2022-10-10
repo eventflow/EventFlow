@@ -14,7 +14,7 @@ using StackExchange.Redis;
 
 namespace EventFlow.Redis.Tests.Integration.EventStore;
 
-[Category(Categories.Integration)]
+[NUnit.Framework.Category(Categories.Integration)]
 public class EventStoreTests : TestSuiteForEventStore
 {
     private readonly TestcontainerDatabase _container

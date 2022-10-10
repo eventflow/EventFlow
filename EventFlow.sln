@@ -43,9 +43,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.MongoDB.Tests", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Redis", "Redis", "{2F91397E-07F1-4FF4-83B3-4DC88BB912F1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Redis", "EventFlow.Redis\EventFlow.Redis.csproj", "{8BB77769-40E0-44BA-828F-98CF7D9FCF64}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Redis", "Source\EventFlow.Redis\EventFlow.Redis.csproj", "{8BB77769-40E0-44BA-828F-98CF7D9FCF64}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Redis.Tests", "EventFlow.Redis.Tests\EventFlow.Redis.Tests.csproj", "{B2445A28-C974-4B2A-9A64-66C7731D9710}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFlow.Redis.Tests", "Source\EventFlow.Redis.Tests\EventFlow.Redis.Tests.csproj", "{B2445A28-C974-4B2A-9A64-66C7731D9710}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

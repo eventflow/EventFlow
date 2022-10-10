@@ -7,17 +7,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Source\EventFlow.MongoDB\EventFlow.MongoDB.csproj"/>
-        <ProjectReference Include="..\Source\EventFlow\EventFlow.csproj"/>
+        <ProjectReference Include="..\EventFlow.Redis\EventFlow.Redis.csproj"/>
+        <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Redis.OM" Version="0.2.1"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0"/>
         <PackageReference Include="StackExchange.Redis" Version="2.6.48"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <InternalsVisibleTo Include="EventFlow.Redis.Tests"/>
+        <PackageReference Include="Testcontainers" Version="2.1.0"/>
     </ItemGroup>
 
 </Project>

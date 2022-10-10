@@ -3,7 +3,7 @@ using Redis.OM.Modeling;
 
 namespace EventFlow.Redis.ReadStore;
 
-[Document(Prefixes = new []{Constants.ReadModelPrefix})]
+[Document(Prefixes = new[] {Constants.ReadModelPrefix})]
 public abstract class RedisReadModel : IReadModel
 {
     [RedisIdField] public string Id { get; set; }
