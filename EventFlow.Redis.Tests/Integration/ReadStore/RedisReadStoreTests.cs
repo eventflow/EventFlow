@@ -30,8 +30,8 @@ public class RedisReadStoreTests : TestSuiteForReadModelStore
         var multiplexer = ConnectionMultiplexer.Connect(_container.ConnectionString);
         eventFlowOptions.ConfigureRedis(multiplexer);
         eventFlowOptions.ServiceCollection.AddTransient<ThingyMessageLocator>();
-        eventFlowOptions.UseRedisReadStore<RedisThingyReadModel>();
-        eventFlowOptions.UseRedisReadStore<RedisThingyMessageReadModel, ThingyMessageLocator>();
+        eventFlowOptions.UseRedisReadModel<RedisThingyReadModel>();
+        eventFlowOptions.UseRedisReadModel<RedisThingyMessageReadModel, ThingyMessageLocator>();
 
         eventFlowOptions.AddQueryHandlers(typeof(RedisThingyGetQueryHandler),
             typeof(RedisThingyGetMessagesQueryHandler), typeof(RedisThingyGetVersionQueryHandler));

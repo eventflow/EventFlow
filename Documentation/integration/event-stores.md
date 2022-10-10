@@ -16,6 +16,7 @@ support for alternatives.
 - :ref:`In-memory <eventstore-inmemory>` (for test)
 - :ref:`Microsoft SQL Server <eventstore-mssql>`
 - :ref:`Mongo DB <eventstore-mongodb>`
+- :ref:`Redis <eventstore-redis>`
 - :ref:`Files <eventstore-files>` (for test)
 
 
@@ -91,6 +92,23 @@ To configure EventFlow to use Mongo DB as the event store, simply add the ``UseM
 IRootResolver rootResolver = EventFlowOptions.New
   ...
   .UseMongoDbEventStore()
+  ...
+  .CreateResolver();
+```
+
+.. _eventstore-redis:
+
+## Redis
+
+See :ref:`Redis setup <setup-redis>` for details on how to get started using Redis and EventFlow and make sure your database is persistent.
+
+To configure EventFlow to use Redis as the event store, simply add the ``UseRedisEventStore()`` as shown in the example below.
+
+
+```csharp
+IRootResolver rootResolver = EventFlowOptions.New
+  ...
+  .UseRedisEventStore()
   ...
   .CreateResolver();
 ```

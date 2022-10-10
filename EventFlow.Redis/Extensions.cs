@@ -62,7 +62,7 @@ public static class Extensions
     /// <param name="options"></param>
     /// <typeparam name="TReadModel">The type of the redis ReadModel. Can be queried by using the IndexedAttribute from <a href="https://github.com/redis/redis-om-dotnet"> Redis.Om</a> on the required properties and inheriting from <see cref="RedisQueryHandler{TReadModel}"/></typeparam>
     /// <returns></returns>
-    public static IEventFlowOptions UseRedisReadStore<TReadModel>(this IEventFlowOptions options)
+    public static IEventFlowOptions UseRedisReadModel<TReadModel>(this IEventFlowOptions options)
         where TReadModel : RedisReadModel
     {
         options.ServiceCollection.TryAddTransient<IRedisHashBuilder, RedisHashBuilder>();
@@ -83,7 +83,7 @@ public static class Extensions
     /// <typeparam name="TReadModel">The type of the redis ReadModel. Can be queried by using the IndexedAttribute from <a href="https://github.com/redis/redis-om-dotnet"> Redis.Om</a> on the required properties and inheriting from <see cref="RedisQueryHandler{TReadModel}"/></typeparam>
     /// <typeparam name="TReadModelLocator">The type of the ReadModelLocator</typeparam>
     /// <returns></returns>
-    public static IEventFlowOptions UseRedisReadStore<TReadModel, TReadModelLocator>(this IEventFlowOptions options)
+    public static IEventFlowOptions UseRedisReadModel<TReadModel, TReadModelLocator>(this IEventFlowOptions options)
         where TReadModel : RedisReadModel where TReadModelLocator : IReadModelLocator
     {
         options.ServiceCollection.TryAddTransient<IRedisHashBuilder, RedisHashBuilder>();

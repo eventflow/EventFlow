@@ -19,6 +19,7 @@ EventFlow supports a few others as well.
 - :ref:`Microsoft SQL Server <read-store-mssql>`
 - :ref:`Elasticsearch <read-store-elasticsearch>`
 - :ref:`Mongo DB <read-model-mongodb>`
+- :ref:`Redis <read-store-redis>`
 
 
 ## Creating read models
@@ -263,3 +264,24 @@ var resolver = EventFlowOptions.New
   // ...
   .CreateResolver();
 ```
+.. _read-store-redis:
+
+### Redis
+
+To configure Redis as a read model store, call `UseRedisReadModel<>` or
+`UseRedisReadModel<,>` with your read model and optionally the _ReadModelLocator_ as the generic
+argument.
+
+In order to use Redis as your read model store, you need to enable the Redis Search and Redis JSON modules, both of which are included in [Redis Stack](https://redis.io/docs/stack/get-started/install/docker/).
+
+```csharp
+var resolver = EventFlowOptions.New
+  // ...
+  .UseRedisReadModel<UserReadModel>()
+  .UseRedisReadModel<UserNicknameReadModel,UserNicknameReadModelLocator>()
+  // ...
+  .CreateResolver();
+```
+
+`EventFlow.Redis` uses [Redis OM](https://github.com/redis/redis-om-dotnet) to provide a LINQ like querying experience. 
+Keep in mind that in order to query a readmodel by a field other than the id, you have to add the `[Indexed]` attribute to the field. For more information, check the Redis OM documentation.
