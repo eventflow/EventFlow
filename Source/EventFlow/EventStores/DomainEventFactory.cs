@@ -35,6 +35,10 @@ namespace EventFlow.EventStores
     {
         private static readonly ConcurrentDictionary<Type, Type> AggregateEventToDomainEventTypeMap = new ConcurrentDictionary<Type, Type>();
         private static readonly ConcurrentDictionary<Type, Type> DomainEventToIdentityTypeMap = new ConcurrentDictionary<Type, Type>();
+        private static readonly
+            ConcurrentDictionary<Type, Func<IAggregateEvent, IMetadata, DateTimeOffset, IIdentity, int, IDomainEvent>>
+            DomainEventTypeToCreateInstanceFuncMap = new ConcurrentDictionary<Type, Func<IAggregateEvent, IMetadata, DateTimeOffset, IIdentity, int, IDomainEvent>>();
+        private static readonly ConcurrentDictionary<Type, Func<string, IIdentity>> IdentityTypeToCreateInstanceFuncMap = new ConcurrentDictionary<Type, Func<string, IIdentity>>();
 
         public IDomainEvent Create(
             IAggregateEvent aggregateEvent,
@@ -44,17 +48,28 @@ namespace EventFlow.EventStores
         {
             var domainEventType = AggregateEventToDomainEventTypeMap.GetOrAdd(aggregateEvent.GetType(), GetDomainEventType);
             var identityType = DomainEventToIdentityTypeMap.GetOrAdd(domainEventType, GetIdentityType);
-            var identity = Activator.CreateInstance(identityType, aggregateIdentity);
+            if (!IdentityTypeToCreateInstanceFuncMap.TryGetValue(identityType, out var createInstanceFunc))
+            {
+                createInstanceFunc = ReflectionHelper.CompileConstructor<string, IIdentity>(identityType);
+                IdentityTypeToCreateInstanceFuncMap.TryAdd(identityType, createInstanceFunc);
+            }
+            IIdentity identity = createInstanceFunc(aggregateIdentity);
+            if (!DomainEventTypeToCreateInstanceFuncMap.TryGetValue(domainEventType, out var createDomainEventInstanceFunc))
+            {
+                createDomainEventInstanceFunc =
+                    ReflectionHelper.CompileConstructor<IAggregateEvent, IMetadata, DateTimeOffset, IIdentity, int, IDomainEvent>(
+                        aggregateEvent.GetType(),
+                        typeOfT4Impl: identityType,
+                        typeOfTResultImpl: domainEventType
+                    );
+                DomainEventTypeToCreateInstanceFuncMap.TryAdd(domainEventType, createDomainEventInstanceFunc);
+            }
 
-            var domainEvent = (IDomainEvent)Activator.CreateInstance(
-                domainEventType,
-                aggregateEvent,
+            return createDomainEventInstanceFunc(aggregateEvent,
                 metadata,
                 metadata.Timestamp,
                 identity,
                 aggregateSequenceNumber);
-
-            return domainEvent;
         }
 
         public IDomainEvent<TAggregate, TIdentity> Create<TAggregate, TIdentity>(
@@ -81,7 +96,7 @@ namespace EventFlow.EventStores
             return Create<TAggregate, TIdentity>(
                 aggregateEvent,
                 domainEvent.Metadata,
-                (TIdentity) domainEvent.GetIdentity(),
+                (TIdentity)domainEvent.GetIdentity(),
                 domainEvent.AggregateSequenceNumber);
         }
 
