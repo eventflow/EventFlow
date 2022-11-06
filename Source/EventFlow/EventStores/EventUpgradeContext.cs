@@ -1,4 +1,4 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2022 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
@@ -21,16 +21,39 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using EventFlow.Extensions;
 
 namespace EventFlow.EventStores
 {
-    public interface IEventUpgradeContext
+    public class EventUpgradeContext : IEventUpgradeContext
     {
-        bool TryGetUpgraders(Type aggregateType, out IReadOnlyCollection<IEventUpgrader> upgraders);
+        protected ConcurrentDictionary<Type, IEnumerable> EventUpgrades { get; } = new ConcurrentDictionary<Type, IEnumerable>();
 
-        void AddUpgraders(
+        public virtual bool TryGetUpgraders(Type aggregateType, out IReadOnlyCollection<IEventUpgrader> upgraders)
+        {
+            if (!EventUpgrades.TryGetValue(aggregateType, out var u))
+            {
+                upgraders = null;
+                return false;
+            }
+
+            upgraders = (IReadOnlyCollection<IEventUpgrader>)u;
+            return true;
+        }
+
+        public virtual void AddUpgraders(
             Type aggregateType,
-            IReadOnlyCollection<IEventUpgrader> upgraders);
+            IReadOnlyCollection<IEventUpgrader> upgraders)
+        {
+            if (!EventUpgrades.TryAdd(aggregateType, upgraders))
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(aggregateType),
+                    $"Upgraders for {aggregateType.PrettyPrint()} already added");
+            }
+        }
     }
 }

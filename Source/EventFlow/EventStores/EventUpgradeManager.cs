@@ -22,8 +22,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -31,7 +29,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
-using EventFlow.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -60,10 +57,10 @@ namespace EventFlow.EventStores
             await foreach (var domainEvent in domainEvents.WithCancellation(cancellationToken))
             {
                 var upgradeDomainEvents = new List<IDomainEvent> { domainEvent };
-                if (!eventUpgradeContext.TryGet(domainEvent.AggregateType, out var eventUpgraders))
+                if (!eventUpgradeContext.TryGetUpgraders(domainEvent.AggregateType, out var eventUpgraders))
                 {
                     eventUpgraders = ResolveUpgraders(domainEvent.AggregateType, domainEvent.IdentityType);
-                    eventUpgradeContext.Add(domainEvent.AggregateType, eventUpgraders);
+                    eventUpgradeContext.AddUpgraders(domainEvent.AggregateType, eventUpgraders);
                 }
 
                 foreach (var eventUpgrader in eventUpgraders)
@@ -96,7 +93,7 @@ namespace EventFlow.EventStores
         {
             var eventUpgradeContext = new EventUpgradeContext();
             var eventUpgraders = ResolveUpgraders(typeof(TAggregate), typeof(TIdentity));
-            eventUpgradeContext.Add(typeof(TAggregate), eventUpgraders);
+            eventUpgradeContext.AddUpgraders(typeof(TAggregate), eventUpgraders);
 
             await foreach (var domainEvent in domainEvents.WithCancellation(cancellationToken))
             {
@@ -131,35 +128,6 @@ namespace EventFlow.EventStores
                  .OrderBy(u => u.GetType().Name)
                  .Select(u => (IEventUpgrader)u)
                  .ToList();
-        }
-
-        private class EventUpgradeContext : IEventUpgradeContext
-        {
-            private readonly ConcurrentDictionary<Type, IEnumerable> _eventUpgrades = new ConcurrentDictionary<Type, IEnumerable>();
-
-            public bool TryGet(Type aggregateType, out IReadOnlyCollection<IEventUpgrader> upgraders)
-            {
-                if (!_eventUpgrades.TryGetValue(aggregateType, out var u))
-                {
-                    upgraders = null;
-                    return false;
-                }
-
-                upgraders = (IReadOnlyCollection<IEventUpgrader>)u;
-                return true;
-            }
-
-            public void Add(
-                Type aggregateType,
-                IReadOnlyCollection<IEventUpgrader> upgraders)
-            {
-                if (!_eventUpgrades.TryAdd(aggregateType, upgraders))
-                {
-                    throw new ArgumentOutOfRangeException(
-                        nameof(aggregateType),
-                        $"Upgraders for {aggregateType.PrettyPrint()} already added");
-                }
-            }
         }
     }
 }
