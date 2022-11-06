@@ -124,7 +124,7 @@ namespace EventFlow.Tests.Exploration
         {
         }
 
-        public class UpgradeV1ToV2 : EventUpgrader<UpgradeAggregate, UpgradeId>
+        public class UpgradeV1ToV2 : EventUpgraderNonAsync<UpgradeAggregate, UpgradeId>
         {
             private readonly IDomainEventFactory _domainEventFactory;
 

@@ -28,7 +28,15 @@ using EventFlow.Core;
 
 namespace EventFlow.EventStores
 {
-    public interface IEventUpgrader<TAggregate, TIdentity>
+    public interface IEventUpgrader
+    {
+        IAsyncEnumerable<IDomainEvent> UpgradeAsync(
+            IDomainEvent domainEvent,
+            IEventUpgradeContext eventUpgradeContext,
+            CancellationToken cancellationToken);
+    }
+
+    public interface IEventUpgrader<TAggregate, TIdentity> : IEventUpgrader
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {

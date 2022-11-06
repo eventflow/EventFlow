@@ -23,6 +23,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 
@@ -30,14 +31,14 @@ using EventFlow.Core;
 
 namespace EventFlow.EventStores
 {
-    public abstract class EventUpgrader<TAggregate, TIdentity> : IEventUpgrader<TAggregate, TIdentity>
+    public abstract class EventUpgraderNonAsync<TAggregate, TIdentity> : EventUpgrader<TAggregate, TIdentity>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {
         protected abstract IEnumerable<IDomainEvent<TAggregate, TIdentity>> Upgrade(
             IDomainEvent<TAggregate, TIdentity> domainEvent);
 
-        public async IAsyncEnumerable<IDomainEvent<TAggregate, TIdentity>> UpgradeAsync(
+        public override async IAsyncEnumerable<IDomainEvent<TAggregate, TIdentity>> UpgradeAsync(
             IDomainEvent<TAggregate, TIdentity> domainEvent,
             IEventUpgradeContext eventUpgradeContext,
             [EnumeratorCancellation] CancellationToken cancellationToken)
@@ -47,5 +48,27 @@ namespace EventFlow.EventStores
                 yield return upgradedDomainEvent;
             }
         }
+    }
+
+    public abstract class EventUpgrader<TAggregate, TIdentity> : IEventUpgrader<TAggregate, TIdentity>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+    {
+        public virtual async IAsyncEnumerable<IDomainEvent> UpgradeAsync(
+            IDomainEvent domainEvent,
+            IEventUpgradeContext eventUpgradeContext,
+            [EnumeratorCancellation] CancellationToken cancellationToken)
+        {
+            var castDomainEvent = (IDomainEvent<TAggregate, TIdentity>) domainEvent;
+            await foreach (var e in UpgradeAsync(castDomainEvent, eventUpgradeContext, cancellationToken).WithCancellation(cancellationToken))
+            {
+                yield return e;
+            }
+        }
+
+        public abstract IAsyncEnumerable<IDomainEvent<TAggregate, TIdentity>> UpgradeAsync(
+            IDomainEvent<TAggregate, TIdentity> domainEvent,
+            IEventUpgradeContext eventUpgradeContext,
+            CancellationToken cancellationToken);
     }
 }

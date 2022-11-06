@@ -114,7 +114,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
         public class TestEventV3 : AggregateEvent<ThingyAggregate, ThingyId> { }
         public class DamagedEvent : AggregateEvent<ThingyAggregate, ThingyId> { }
 
-        public class UpgradeTestEventV1ToTestEventV2 : EventUpgrader<ThingyAggregate, ThingyId>
+        public class UpgradeTestEventV1ToTestEventV2 : EventUpgraderNonAsync<ThingyAggregate, ThingyId>
         {
             private readonly IDomainEventFactory _domainEventFactory;
 
@@ -132,7 +132,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             }
         }
 
-        public class UpgradeTestEventV2ToTestEventV3 : EventUpgrader<ThingyAggregate, ThingyId>
+        public class UpgradeTestEventV2ToTestEventV3 : EventUpgraderNonAsync<ThingyAggregate, ThingyId>
         {
             private readonly IDomainEventFactory _domainEventFactory;
 
@@ -150,7 +150,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             }
         }
 
-        public class DamagedEventRemover : EventUpgrader<ThingyAggregate, ThingyId>
+        public class DamagedEventRemover : EventUpgraderNonAsync<ThingyAggregate, ThingyId>
         {
             protected override IEnumerable<IDomainEvent<ThingyAggregate, ThingyId>> Upgrade(
                 IDomainEvent<ThingyAggregate, ThingyId> domainEvent)
