@@ -10,6 +10,12 @@ https://github.com/eventflow/EventFlow/blob/develop-v1/MIGRATION_GUIDE.md
 
 Changes since 1.0.5001-alpha
 
+* New/breaking: `IEventUpgrader<,>` are now (finally) async
+* Fix/breaking: Event upgraders are now used during read model population. As the upgraders
+  are re-used across multiple aggregates, there is a high likelihood that some additions are
+  needed in any existing upgraders. Upgraders are stored on the new `IEventUpgradeContext`,
+  which is created by the new `IEventUpgradeContextFactory`. Replace this if you need addition
+  context during event upgrades
 * Fix: `SnapshotAggregateRoot` now correctly loads previous source IDs as well
   adds the current source ID that triggered the snapshot. This causes the
   `DuplicateOperationException` to be correctly thrown if a duplicate source

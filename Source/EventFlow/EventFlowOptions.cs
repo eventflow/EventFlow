@@ -182,6 +182,7 @@ namespace EventFlow
 
             serviceCollection.TryAddTransient<IDispatchToReadStores, DispatchToReadStores>();
             serviceCollection.TryAddTransient<IEventStore, EventStoreBase>();
+            serviceCollection.TryAddSingleton<IEventUpgradeContextFactory, EventUpgradeContextFactory>();
             serviceCollection.TryAddSingleton<IEventPersistence, InMemoryEventPersistence>();
             serviceCollection.TryAddTransient<ICommandBus, CommandBus>();
             serviceCollection.TryAddTransient<IAggregateStore, AggregateStore>();

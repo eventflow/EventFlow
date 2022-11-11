@@ -41,7 +41,10 @@ namespace EventFlow.TestHelpers.Aggregates
     [AggregateName("Thingy")]
     public class ThingyAggregate : SnapshotAggregateRoot<ThingyAggregate, ThingyId, ThingySnapshot>,
         IEmit<ThingyDomainErrorAfterFirstEvent>,
-        IEmit<ThingyDeletedEvent>
+        IEmit<ThingyDeletedEvent>,
+        IEmit<ThingyUpgradableV1Event>,
+        IEmit<ThingyUpgradableV2Event>,
+        IEmit<ThingyUpgradableV3Event>
     {
         // ReSharper disable once NotAccessedField.Local
         private readonly IScopedContext _scopedContext;
@@ -57,6 +60,10 @@ namespace EventFlow.TestHelpers.Aggregates
         public IReadOnlyCollection<ThingyMessage> Messages => _messages;
         public IReadOnlyCollection<ThingySnapshotVersion> SnapshotVersions { get; private set; } = new ThingySnapshotVersion[] {};
         public bool IsDeleted { get; private set; }
+
+        public int UpgradableEventV1Received { get; private set; }
+        public int UpgradableEventV2Received { get; private set; }
+        public int UpgradableEventV3Received { get; private set; }
 
         public ThingyAggregate(ThingyId id, IScopedContext scopedContext)
             : base(id, SnapshotEveryFewVersionsStrategy.With(SnapshotEveryVersion))
@@ -130,9 +137,43 @@ namespace EventFlow.TestHelpers.Aggregates
             Emit(new ThingySagaExceptionRequestedEvent());
         }
 
+        public void EmitUpgradableEvents(
+            int upgradableEventV1Count,
+            int upgradableEventV2Count,
+            int upgradableEventV3Count)
+        {
+            void EmitCount<T>(int count)
+                where T : IAggregateEvent<ThingyAggregate, ThingyId>, new()
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    Emit(new T());
+                }
+            }
+
+            EmitCount<ThingyUpgradableV1Event>(upgradableEventV1Count);
+            EmitCount<ThingyUpgradableV2Event>(upgradableEventV2Count);
+            EmitCount<ThingyUpgradableV3Event>(upgradableEventV3Count);
+        }
+
         public void Apply(ThingyDomainErrorAfterFirstEvent e)
         {
             DomainErrorAfterFirstReceived = true;
+        }
+
+        public void Apply(ThingyUpgradableV1Event aggregateEvent)
+        {
+            UpgradableEventV1Received++;
+        }
+
+        public void Apply(ThingyUpgradableV2Event aggregateEvent)
+        {
+            UpgradableEventV2Received++;
+        }
+
+        public void Apply(ThingyUpgradableV3Event _)
+        {
+            UpgradableEventV3Received++;
         }
 
         void IEmit<ThingyDeletedEvent>.Apply(ThingyDeletedEvent e)

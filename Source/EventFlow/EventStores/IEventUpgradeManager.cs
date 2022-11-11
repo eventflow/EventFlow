@@ -32,6 +32,7 @@ namespace EventFlow.EventStores
     {
         IAsyncEnumerable<IDomainEvent> UpgradeAsync(
             IAsyncEnumerable<IDomainEvent> domainEvents,
+            IEventUpgradeContext eventUpgradeContext,
             CancellationToken cancellationToken);
             
         IAsyncEnumerable<IDomainEvent<TAggregate, TIdentity>> UpgradeAsync<TAggregate, TIdentity>(

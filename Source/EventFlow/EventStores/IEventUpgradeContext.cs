@@ -27,7 +27,9 @@ namespace EventFlow.EventStores
 {
     public interface IEventUpgradeContext
     {
-        bool TryGetUpgraders(Type aggregateType, out IReadOnlyCollection<IEventUpgrader> upgraders);
+        bool TryGetUpgraders(
+            Type aggregateType,
+            out IReadOnlyCollection<IEventUpgrader> upgraders);
 
         void AddUpgraders(
             Type aggregateType,
