@@ -75,7 +75,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
 
             _eventStoreMock
                 .Setup(s => s.LoadAllEventsAsync(It.IsAny<GlobalPosition>(), It.IsAny<int>(), It.IsAny<IEventUpgradeContext>(), It.IsAny<CancellationToken>()))
-                .Returns<GlobalPosition, int, CancellationToken>((s, p, c) => Task.FromResult(GetEvents(s, p)));
+                .Returns<GlobalPosition, int, IEventUpgradeContext, CancellationToken>((s, p, uc, c) => Task.FromResult(GetEvents(s, p)));
             _readStoreManagerMock
                 .Setup(m => m.ReadModelType)
                 .Returns(typeof(TReadModel));
