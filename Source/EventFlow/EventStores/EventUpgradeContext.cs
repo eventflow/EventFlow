@@ -1,7 +1,6 @@
 // The MIT License (MIT)
 // 
 // Copyright (c) 2015-2022 Rasmus Mikkelsen
-// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,20 +20,40 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.EventStores;
-using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using System;
+using System.Collections;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using EventFlow.Extensions;
 
-namespace EventFlow.TestHelpers.Aggregates.Events
+namespace EventFlow.EventStores
 {
-    [EventVersion("ThingyPing", 1)]
-    public class ThingyPingEvent : AggregateEvent<ThingyAggregate, ThingyId>
+    public class EventUpgradeContext : IEventUpgradeContext
     {
-        public PingId PingId { get; }
+        protected ConcurrentDictionary<Type, IEnumerable> EventUpgrades { get; } = new ConcurrentDictionary<Type, IEnumerable>();
 
-        public ThingyPingEvent(PingId pingId)
+        public virtual bool TryGetUpgraders(Type aggregateType, out IReadOnlyCollection<IEventUpgrader> upgraders)
         {
-            PingId = pingId;
+            if (!EventUpgrades.TryGetValue(aggregateType, out var u))
+            {
+                upgraders = null;
+                return false;
+            }
+
+            upgraders = (IReadOnlyCollection<IEventUpgrader>)u;
+            return true;
+        }
+
+        public virtual void AddUpgraders(
+            Type aggregateType,
+            IReadOnlyCollection<IEventUpgrader> upgraders)
+        {
+            if (!EventUpgrades.TryAdd(aggregateType, upgraders))
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(aggregateType),
+                    $"Upgraders for {aggregateType.PrettyPrint()} already added");
+            }
         }
     }
 }

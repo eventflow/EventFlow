@@ -42,17 +42,20 @@ namespace EventFlow.ReadStores
         private readonly IEventFlowConfiguration _configuration;
         private readonly IEventStore _eventStore;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IEventUpgradeContextFactory _eventUpgradeContextFactory;
 
         public ReadModelPopulator(
             ILogger<ReadModelPopulator> logger,
             IEventFlowConfiguration configuration,
             IEventStore eventStore,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider,
+            IEventUpgradeContextFactory eventUpgradeContextFactory)
         {
             _logger = logger;
             _configuration = configuration;
             _eventStore = eventStore;
             _serviceProvider = serviceProvider;
+            _eventUpgradeContextFactory = eventUpgradeContextFactory;
         }
 
         public Task PurgeAsync<TReadModel>(
@@ -101,6 +104,7 @@ namespace EventFlow.ReadStores
         {
             var stopwatch = Stopwatch.StartNew();
             var readStoreManagers = ResolveReadStoreManagers(readModelType);
+            var eventUpgradeContext = await _eventUpgradeContextFactory.CreateAsync(cancellationToken);
 
             var readModelTypes = new[]
             {
@@ -140,6 +144,7 @@ namespace EventFlow.ReadStores
                 var allEventsPage = await _eventStore.LoadAllEventsAsync(
                     currentPosition,
                     _configuration.PopulateReadModelEventPageSize,
+                    eventUpgradeContext,
                     cancellationToken)
                     .ConfigureAwait(false);
                 totalEvents += allEventsPage.DomainEvents.Count;

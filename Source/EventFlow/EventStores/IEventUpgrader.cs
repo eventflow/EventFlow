@@ -22,15 +22,27 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Threading;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 
 namespace EventFlow.EventStores
 {
-    public interface IEventUpgrader<TAggregate, TIdentity>
+    public interface IEventUpgrader
+    {
+        IAsyncEnumerable<IDomainEvent> UpgradeAsync(
+            IDomainEvent domainEvent,
+            IEventUpgradeContext eventUpgradeContext,
+            CancellationToken cancellationToken);
+    }
+
+    public interface IEventUpgrader<TAggregate, TIdentity> : IEventUpgrader
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : IIdentity
     {
-        IEnumerable<IDomainEvent<TAggregate, TIdentity>> Upgrade(IDomainEvent<TAggregate, TIdentity> domainEvent);
+        IAsyncEnumerable<IDomainEvent<TAggregate, TIdentity>> UpgradeAsync(
+            IDomainEvent<TAggregate, TIdentity> domainEvent,
+            IEventUpgradeContext eventUpgradeContext,
+            CancellationToken cancellationToken);
     }
 }

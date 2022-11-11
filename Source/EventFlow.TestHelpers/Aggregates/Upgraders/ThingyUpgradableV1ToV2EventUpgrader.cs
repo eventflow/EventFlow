@@ -1,7 +1,6 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2022 Rasmus Mikkelsen
-// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,20 +20,36 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Collections.Generic;
 using EventFlow.Aggregates;
 using EventFlow.EventStores;
-using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using EventFlow.TestHelpers.Aggregates.Events;
 
-namespace EventFlow.TestHelpers.Aggregates.Events
+namespace EventFlow.TestHelpers.Aggregates.Upgraders
 {
-    [EventVersion("ThingyPing", 1)]
-    public class ThingyPingEvent : AggregateEvent<ThingyAggregate, ThingyId>
+    public class ThingyUpgradableV1ToV2EventUpgrader : EventUpgraderNonAsync<ThingyAggregate, ThingyId>
     {
-        public PingId PingId { get; }
+        private readonly IDomainEventFactory _domainEventFactory;
 
-        public ThingyPingEvent(PingId pingId)
+        public ThingyUpgradableV1ToV2EventUpgrader(
+            IDomainEventFactory domainEventFactory)
         {
-            PingId = pingId;
+            _domainEventFactory = domainEventFactory;
+        }
+
+        protected override IEnumerable<IDomainEvent<ThingyAggregate, ThingyId>> Upgrade(
+            IDomainEvent<ThingyAggregate, ThingyId> domainEvent)
+        {
+            if (!(domainEvent is IDomainEvent<ThingyAggregate, ThingyId, ThingyUpgradableV1Event> _))
+            {
+                yield return domainEvent;
+            }
+            else
+            {
+                yield return _domainEventFactory.Upgrade<ThingyAggregate, ThingyId>(
+                    domainEvent,
+                    new ThingyUpgradableV2Event());
+            }
         }
     }
 }

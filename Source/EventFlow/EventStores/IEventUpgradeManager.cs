@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Threading;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 
@@ -29,10 +30,14 @@ namespace EventFlow.EventStores
 {
     public interface IEventUpgradeManager
     {
-        IReadOnlyCollection<IDomainEvent> Upgrade(IReadOnlyCollection<IDomainEvent> domainEvents);
+        IAsyncEnumerable<IDomainEvent> UpgradeAsync(
+            IAsyncEnumerable<IDomainEvent> domainEvents,
+            IEventUpgradeContext eventUpgradeContext,
+            CancellationToken cancellationToken);
             
-        IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> Upgrade<TAggregate, TIdentity>(
-            IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>> domainEvents)
+        IAsyncEnumerable<IDomainEvent<TAggregate, TIdentity>> UpgradeAsync<TAggregate, TIdentity>(
+            IAsyncEnumerable<IDomainEvent<TAggregate, TIdentity>> domainEvents,
+            CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity;
     }

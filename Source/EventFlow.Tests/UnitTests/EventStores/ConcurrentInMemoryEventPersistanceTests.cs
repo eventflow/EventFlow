@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2022 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
@@ -39,7 +39,6 @@ using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.EventStores
@@ -71,7 +70,11 @@ namespace EventFlow.Tests.UnitTests.EventStores
             Task.WaitAll(tasks.ToArray());
 
             // Assert
-            var allEvents = await store.LoadAllEventsAsync(GlobalPosition.Start, Int32.MaxValue, CancellationToken.None);
+            var allEvents = await store.LoadAllEventsAsync(
+                GlobalPosition.Start,
+                int.MaxValue,
+                new EventUpgradeContext(),
+                CancellationToken.None);
             allEvents.DomainEvents.Count.Should().Be(NumberOfEvents * DegreeOfParallelism);
         }
 
@@ -83,7 +86,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             var snapshotStore = Mock<ISnapshotStore>();
             var factory = new DomainEventFactory();
             var persistence = new InMemoryEventPersistence(Logger<InMemoryEventPersistence>());
-            var upgradeManager = new EventUpgradeManager(Logger<EventUpgradeManager>(), serviceProvider);
+            var upgradeManager = new EventUpgradeManager(Logger<EventUpgradeManager>(), serviceProvider, new EventUpgradeContextFactory());
             var definitionService = new EventDefinitionService(Logger<EventDefinitionService>(), Mock<ILoadedVersionedTypes>());
             definitionService.Load(typeof(ThingyPingEvent));
             var serializer = new EventJsonSerializer(new JsonSerializer(), definitionService, factory);

@@ -53,6 +53,8 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         [SetUp]
         public void SetUp()
         {
+            Inject<IEventUpgradeContextFactory>(new EventUpgradeContextFactory());
+
             _eventStoreMock = InjectMock<IEventStore>();
             _eventStoreData = null;
             _serviceProviderMock = InjectMock<IServiceProvider>();
@@ -72,8 +74,8 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 .Returns(ReadModelPageSize);
 
             _eventStoreMock
-                .Setup(s => s.LoadAllEventsAsync(It.IsAny<GlobalPosition>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                .Returns<GlobalPosition, int, CancellationToken>((s, p, c) => Task.FromResult(GetEvents(s, p)));
+                .Setup(s => s.LoadAllEventsAsync(It.IsAny<GlobalPosition>(), It.IsAny<int>(), It.IsAny<IEventUpgradeContext>(), It.IsAny<CancellationToken>()))
+                .Returns<GlobalPosition, int, IEventUpgradeContext, CancellationToken>((s, p, uc, c) => Task.FromResult(GetEvents(s, p)));
             _readStoreManagerMock
                 .Setup(m => m.ReadModelType)
                 .Returns(typeof(TReadModel));
