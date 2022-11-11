@@ -52,6 +52,13 @@ that wasn't possible to add before as introducing them would cause breaking chan
 
   This allows for connection strings to be fetched runtime from external sources.
 
+- **Event upgraders are now async and works with the read model populator:** In
+  version 0.x, event upgraders aren't applied when events are loaded and
+  re-populated to read models using the `IReadModelPopulator`. This is fixed for
+  version 1.x, which properly will require some change to upgraders if the
+  re-population feature is used.
+
+
 ## Changes to supported .NET versions
 
 With the 1.x release, EventFlow limits the amount of supported .NET versions, to
@@ -82,6 +89,10 @@ of EventFlow from 0.x to 1.x.
 - Since there is no change to the underlying storage, creating a release that
   only has EventFlow upgraded is highly recommended. This enables easy rollback
   if you encounter unexpected problems
+- Since the `IEventUpgrader<,>` has changed significantly, consider using the new
+  base class `EventUpgraderNonAsync` in any existing upgraders. It provides an
+  `abstract` method with the same signature as the old interface that can be
+  overridden, making the switch significantly easier
 
 ## NuGet packages removed
 
@@ -182,5 +193,3 @@ environments.
 - `IQueryProcessor.Process`
 - `IReadModelPopulator.Populate`
 - `IReadModelPopulator.Purge`
-
-
