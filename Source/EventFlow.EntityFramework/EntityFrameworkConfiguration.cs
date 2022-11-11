@@ -22,14 +22,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.EntityFramework
 {
     public class EntityFrameworkConfiguration : IEntityFrameworkConfiguration
     {
-        private Action<IServiceRegistration> _registerUniqueConstraintDetectionStrategy;
-        private Action<IServiceRegistration> _registerBulkOperationConfiguration;
+        private Action<IServiceCollection> _registerUniqueConstraintDetectionStrategy;
+        private Action<IServiceCollection> _registerBulkOperationConfiguration;
 
         public static EntityFrameworkConfiguration New => new EntityFrameworkConfiguration();
 
@@ -39,24 +39,24 @@ namespace EventFlow.EntityFramework
             UseBulkOperationConfiguration<DefaultBulkOperationConfiguration>();
         }
 
-        void IEntityFrameworkConfiguration.Apply(IServiceRegistration serviceRegistration)
+        void IEntityFrameworkConfiguration.Apply(IServiceCollection serviceCollection)
         {
-            serviceRegistration.Register<IEntityFrameworkConfiguration>(s => this);
-            _registerUniqueConstraintDetectionStrategy(serviceRegistration);
-            _registerBulkOperationConfiguration(serviceRegistration);
+            serviceCollection.AddTransient<IEntityFrameworkConfiguration>(s => this);
+            _registerUniqueConstraintDetectionStrategy(serviceCollection);
+            _registerBulkOperationConfiguration(serviceCollection);
         }
 
         public EntityFrameworkConfiguration UseBulkOperationConfiguration<T>()
             where T : class, IBulkOperationConfiguration
         {
-            _registerBulkOperationConfiguration = s => s.Register<IBulkOperationConfiguration, T>();
+            _registerBulkOperationConfiguration = s => s.AddTransient<IBulkOperationConfiguration, T>();
             return this;
         }
 
         public EntityFrameworkConfiguration UseUniqueConstraintDetectionStrategy<T>()
             where T : class, IUniqueConstraintDetectionStrategy
         {
-            _registerUniqueConstraintDetectionStrategy = s => s.Register<IUniqueConstraintDetectionStrategy, T>();
+            _registerUniqueConstraintDetectionStrategy = s => s.AddTransient<IUniqueConstraintDetectionStrategy, T>();
             return this;
         }
     }

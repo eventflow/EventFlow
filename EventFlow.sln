@@ -41,6 +41,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.MongoDB", "Source
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.MongoDB.Tests", "Source\EventFlow.MongoDB.Tests\EventFlow.MongoDB.Tests.csproj", "{9132960E-9496-4C77-BD80-A09A86814757}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EntityFramework", "EntityFramework", "{2EAEC5A8-CE58-47F6-AB61-F78FECE714D5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.EntityFramework", "Source\EventFlow.EntityFramework\EventFlow.EntityFramework.csproj", "{5B2CBCD6-C8E1-44B9-A258-AE2A252B00E3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +103,10 @@ Global
 		{9132960E-9496-4C77-BD80-A09A86814757}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9132960E-9496-4C77-BD80-A09A86814757}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9132960E-9496-4C77-BD80-A09A86814757}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B2CBCD6-C8E1-44B9-A258-AE2A252B00E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B2CBCD6-C8E1-44B9-A258-AE2A252B00E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B2CBCD6-C8E1-44B9-A258-AE2A252B00E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B2CBCD6-C8E1-44B9-A258-AE2A252B00E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -118,6 +126,8 @@ Global
 		{9B07B6E9-428A-42F7-AFB1-B23755A409EE} = {5EE323DE-E69B-451A-8AC3-22DD6A004FBA}
 		{BF9A0D20-4F8E-443C-8F36-5DD854D188C2} = {9B07B6E9-428A-42F7-AFB1-B23755A409EE}
 		{9132960E-9496-4C77-BD80-A09A86814757} = {9B07B6E9-428A-42F7-AFB1-B23755A409EE}
+		{2EAEC5A8-CE58-47F6-AB61-F78FECE714D5} = {5EE323DE-E69B-451A-8AC3-22DD6A004FBA}
+		{5B2CBCD6-C8E1-44B9-A258-AE2A252B00E3} = {2EAEC5A8-CE58-47F6-AB61-F78FECE714D5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {17607E2C-4E8E-45A2-85BD-0A5808E1C0F3}
