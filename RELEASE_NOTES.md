@@ -18,6 +18,7 @@ Changes since 1.0.5001-alpha
   vulnerability
   - https://github.com/advisories/GHSA-5crp-9r3c-p9vr
   - https://security.snyk.io/vuln/SNYK-DOTNET-NEWTONSOFTJSON-2774678
+* Fix: `UseFilesEventPersistence` should no longer throw exception for .NET regarding relative paths
 
 Complete 1.0 change log
 
