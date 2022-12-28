@@ -23,6 +23,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.EventStores;
 using EventFlow.TestHelpers;
@@ -30,7 +33,7 @@ using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
-using Moq;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.EventStores
@@ -38,46 +41,35 @@ namespace EventFlow.Tests.UnitTests.EventStores
     [Category(Categories.Unit)]
     public class EventUpgradeManagerTests : TestsFor<EventUpgradeManager>
     {
-        private Mock<IServiceProvider> _serviceProviderMock;
+        private ServiceProvider _serviceProvider;
 
         [SetUp]
         public void SetUp()
         {
-            _serviceProviderMock = InjectMock<IServiceProvider>();
+            _serviceProvider = new ServiceCollection()
+                .AddSingleton<IEventUpgrader<ThingyAggregate, ThingyId>>(new UpgradeTestEventV1ToTestEventV2(DomainEventFactory))
+                .AddSingleton<IEventUpgrader<ThingyAggregate, ThingyId>>(new UpgradeTestEventV2ToTestEventV3(DomainEventFactory))
+                .AddSingleton<IEventUpgrader<ThingyAggregate, ThingyId>>(new DamagedEventRemover())
+                .BuildServiceProvider();
 
-            _serviceProviderMock
-                .Setup(r => r.GetService(typeof(IEnumerable<IEventUpgrader<ThingyAggregate, ThingyId>>)))
-                .Returns(new IEventUpgrader<ThingyAggregate, ThingyId>[]
-                    {
-                        new UpgradeTestEventV1ToTestEventV2(DomainEventFactory),
-                        new UpgradeTestEventV2ToTestEventV3(DomainEventFactory), 
-                        new DamagedEventRemover(),
-                    });
-            _serviceProviderMock
-                .Setup(r => r.GetService(typeof(IEnumerable<IEventUpgrader<ThingyAggregate, ThingyId>>)))
-                .Returns(new object[]
-                    {
-                        new UpgradeTestEventV1ToTestEventV2(DomainEventFactory),
-                        new UpgradeTestEventV2ToTestEventV3(DomainEventFactory), 
-                        new DamagedEventRemover(),
-                    });
+            Inject<IServiceProvider>(_serviceProvider);
         }
 
         [Test]
-        public void EmptyListReturnsEmptyList()
+        public async Task EmptyListReturnsEmptyList()
         {
             // Arrange
             var events = new IDomainEvent<ThingyAggregate, ThingyId>[] { };
 
             // Act
-            var upgradedEvents = Sut.Upgrade(events);
+            var upgradedEvents = await Sut.UpgradeAsync(events.ToAsyncEnumerable(), CancellationToken.None).ToArrayAsync();
 
             // Assert
             upgradedEvents.Should().BeEmpty();
         }
 
         [Test]
-        public void EventWithNoUpgradersIsReturned()
+        public async Task EventWithNoUpgradersIsReturned()
         {
             // Arrange
             var events = new[]
@@ -87,15 +79,15 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 };
 
             // Act
-            var upgradedEvents = Sut.Upgrade(events);
+            var upgradedEvents = await Sut.UpgradeAsync(events.ToAsyncEnumerable(), CancellationToken.None).ToArrayAsync();
 
             // Assert
-            upgradedEvents.Count.Should().Be(2);
+            upgradedEvents.Length.Should().Be(2);
             upgradedEvents.Should().Contain(events);
         }
 
         [Test]
-        public void EventsAreUpgradedToLatestVersion()
+        public async Task EventsAreUpgradedToLatestVersion()
         {
             // Arrange
             var events = new[]
@@ -107,10 +99,10 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 };
 
             // Act
-            var upgradedEvents = Sut.Upgrade(events);
+            var upgradedEvents = await Sut.UpgradeAsync(events.ToAsyncEnumerable(), CancellationToken.None).ToArrayAsync();
 
             // Assert
-            upgradedEvents.Count.Should().Be(3);
+            upgradedEvents.Length.Should().Be(3);
             foreach (var upgradedEvent in upgradedEvents)
             {
                 upgradedEvent.Should().BeAssignableTo<IDomainEvent<ThingyAggregate, ThingyId, TestEventV3>>();
@@ -122,7 +114,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
         public class TestEventV3 : AggregateEvent<ThingyAggregate, ThingyId> { }
         public class DamagedEvent : AggregateEvent<ThingyAggregate, ThingyId> { }
 
-        public class UpgradeTestEventV1ToTestEventV2 : IEventUpgrader<ThingyAggregate, ThingyId>
+        public class UpgradeTestEventV1ToTestEventV2 : EventUpgraderNonAsync<ThingyAggregate, ThingyId>
         {
             private readonly IDomainEventFactory _domainEventFactory;
 
@@ -131,16 +123,16 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 _domainEventFactory = domainEventFactory;
             }
 
-            public IEnumerable<IDomainEvent<ThingyAggregate, ThingyId>> Upgrade(IDomainEvent<ThingyAggregate, ThingyId> domainEvent)
+            protected override IEnumerable<IDomainEvent<ThingyAggregate, ThingyId>> Upgrade(
+                IDomainEvent<ThingyAggregate, ThingyId> domainEvent)
             {
-                var testEvent1 = domainEvent as IDomainEvent<ThingyAggregate, ThingyId, TestEventV1>;
-                yield return testEvent1 == null
+                yield return !(domainEvent is IDomainEvent<ThingyAggregate, ThingyId, TestEventV1> _)
                     ? domainEvent
                     : _domainEventFactory.Upgrade<ThingyAggregate, ThingyId>(domainEvent, new TestEventV2());
             }
         }
 
-        public class UpgradeTestEventV2ToTestEventV3 : IEventUpgrader<ThingyAggregate, ThingyId>
+        public class UpgradeTestEventV2ToTestEventV3 : EventUpgraderNonAsync<ThingyAggregate, ThingyId>
         {
             private readonly IDomainEventFactory _domainEventFactory;
 
@@ -149,21 +141,21 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 _domainEventFactory = domainEventFactory;
             }
 
-            public IEnumerable<IDomainEvent<ThingyAggregate, ThingyId>> Upgrade(IDomainEvent<ThingyAggregate, ThingyId> domainEvent)
+            protected override IEnumerable<IDomainEvent<ThingyAggregate, ThingyId>> Upgrade(
+                IDomainEvent<ThingyAggregate, ThingyId> domainEvent)
             {
-                var testEvent2 = domainEvent as IDomainEvent<ThingyAggregate, ThingyId, TestEventV2>;
-                yield return testEvent2 == null
+                yield return !(domainEvent is IDomainEvent<ThingyAggregate, ThingyId, TestEventV2> _)
                     ? domainEvent
                     : _domainEventFactory.Upgrade<ThingyAggregate, ThingyId>(domainEvent, new TestEventV3());
             }
         }
 
-        public class DamagedEventRemover : IEventUpgrader<ThingyAggregate, ThingyId>
+        public class DamagedEventRemover : EventUpgraderNonAsync<ThingyAggregate, ThingyId>
         {
-            public IEnumerable<IDomainEvent<ThingyAggregate, ThingyId>> Upgrade(IDomainEvent<ThingyAggregate, ThingyId> domainEvent)
+            protected override IEnumerable<IDomainEvent<ThingyAggregate, ThingyId>> Upgrade(
+                IDomainEvent<ThingyAggregate, ThingyId> domainEvent)
             {
-                var damagedEvent = domainEvent as IDomainEvent<ThingyAggregate, ThingyId, DamagedEvent>;
-                if (damagedEvent == null)
+                if (!(domainEvent is IDomainEvent<ThingyAggregate, ThingyId, DamagedEvent> _))
                 {
                     yield return domainEvent;
                 }

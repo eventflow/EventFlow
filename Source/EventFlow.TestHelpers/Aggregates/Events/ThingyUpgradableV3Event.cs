@@ -1,7 +1,6 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2022 Rasmus Mikkelsen
-// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,19 +21,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
-using EventFlow.EventStores;
-using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
 namespace EventFlow.TestHelpers.Aggregates.Events
 {
-    [EventVersion("ThingyPing", 1)]
-    public class ThingyPingEvent : AggregateEvent<ThingyAggregate, ThingyId>
+    public class ThingyUpgradableV3Event : AggregateEvent<ThingyAggregate, ThingyId>
     {
-        public PingId PingId { get; }
-
-        public ThingyPingEvent(PingId pingId)
-        {
-            PingId = pingId;
-        }
     }
 }

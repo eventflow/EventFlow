@@ -43,6 +43,7 @@ namespace EventFlow.EventStores
         Task<AllEventsPage> LoadAllEventsAsync(
             GlobalPosition globalPosition,
             int pageSize,
+            IEventUpgradeContext eventUpgradeContext,
             CancellationToken cancellationToken);
 
         Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(

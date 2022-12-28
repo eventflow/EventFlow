@@ -119,6 +119,7 @@ namespace EventFlow.EventStores
         public async Task<AllEventsPage> LoadAllEventsAsync(
             GlobalPosition globalPosition,
             int pageSize,
+            IEventUpgradeContext eventUpgradeContext,
             CancellationToken cancellationToken)
         {
             if (pageSize <= 0) throw new ArgumentOutOfRangeException(nameof(pageSize));
@@ -131,7 +132,13 @@ namespace EventFlow.EventStores
             var domainEvents = (IReadOnlyCollection<IDomainEvent>) allCommittedEventsPage.CommittedDomainEvents
                 .Select(e => _eventJsonSerializer.Deserialize(e))
                 .ToList();
-            domainEvents = _eventUpgradeManager.Upgrade(domainEvents);
+
+            // TODO: Pass a real IAsyncEnumerable instead
+            domainEvents = await _eventUpgradeManager.UpgradeAsync(
+                domainEvents.ToAsyncEnumerable(),
+                eventUpgradeContext,
+                cancellationToken).ToArrayAsync(cancellationToken);
+
             return new AllEventsPage(allCommittedEventsPage.NextGlobalPosition, domainEvents);
         }
 
@@ -170,7 +177,10 @@ namespace EventFlow.EventStores
                 return domainEvents;
             }
 
-            domainEvents = _eventUpgradeManager.Upgrade(domainEvents);
+            // TODO: Pass a real IAsyncEnumerable instead
+            domainEvents = await _eventUpgradeManager.UpgradeAsync(
+                domainEvents.ToAsyncEnumerable(),
+                cancellationToken).ToArrayAsync(cancellationToken);
 
             return domainEvents;
         }
