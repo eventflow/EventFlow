@@ -86,7 +86,7 @@ The following list key characteristics of each version as well as its related br
     - 🔴 `EventFlow.AspNetCore`
     - 💀 `EventFlow.Autofac`
     - 💀 `EventFlow.DependencyInjection`
-    - 🔴 `EventFlow.Elasticsearch`
+    - 🟢 `EventFlow.Elasticsearch`
     - 🔴 `EventFlow.EntityFramework`
     - 🔴 `EventFlow.EventStores.EventStore`
     - 🔴 `EventFlow.Hangfire`

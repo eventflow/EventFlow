@@ -24,22 +24,22 @@
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Elastic.Clients.Elasticsearch;
 using EventFlow.Elasticsearch.ReadStores;
 using EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels;
 using EventFlow.Queries;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Queries;
-using Nest;
 
 namespace EventFlow.Elasticsearch.Tests.IntegrationTests.QueryHandlers
 {
     public class ElasticsearchThingyGetQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
     {
-        private readonly IElasticClient _elasticClient;
+        private readonly ElasticsearchClient _elasticClient;
         private readonly IReadModelDescriptionProvider _readModelDescriptionProvider;
 
         public ElasticsearchThingyGetQueryHandler(
-            IElasticClient elasticClient,
+            ElasticsearchClient elasticClient,
             IReadModelDescriptionProvider readModelDescriptionProvider)
         {
             _elasticClient = elasticClient;
@@ -52,14 +52,14 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests.QueryHandlers
             var getResponse = await _elasticClient.GetAsync<ElasticsearchThingyReadModel>(
                 query.ThingyId.Value,
                 d => d
-                    .Index(readModelDescription.IndexName.Value)
+                    .Index(readModelDescription.IndexName)
                     .RequestConfiguration(c => c
                         .AllowedStatusCodes((int)HttpStatusCode.NotFound)), 
                             cancellationToken)
                 .ConfigureAwait(false);
 
-            return getResponse != null && getResponse.Found
-                ? getResponse.Source.ToThingy()
+            return getResponse is {Found: true}
+                ? getResponse.Source?.ToThingy()
                 : null;
         }
     }

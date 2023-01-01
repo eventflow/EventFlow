@@ -24,30 +24,30 @@
 using System;
 using System.Collections.Concurrent;
 using System.Reflection;
+using EventFlow.Elasticsearch.ReadStores.Attributes;
 using EventFlow.Elasticsearch.ValueObjects;
 using EventFlow.Extensions;
 using EventFlow.ReadStores;
-using Nest;
-using IndexName = EventFlow.Elasticsearch.ValueObjects.IndexName;
 
 namespace EventFlow.Elasticsearch.ReadStores
 {
     public class ReadModelDescriptionProvider : IReadModelDescriptionProvider
     {
-        private static readonly ConcurrentDictionary<Type, ReadModelDescription> IndexNames = new ConcurrentDictionary<Type, ReadModelDescription>();
+        private static readonly ConcurrentDictionary<Type, ReadModelDescription> IndexNames =
+            new ConcurrentDictionary<Type, ReadModelDescription>();
 
         public ReadModelDescription GetReadModelDescription<TReadModel>() where TReadModel : IReadModel
         {
             return IndexNames.GetOrAdd(
                 typeof(TReadModel),
                 t =>
-                    {
-                        var elasticType = t.GetTypeInfo().GetCustomAttribute<ElasticsearchTypeAttribute>();
-                        var indexName = elasticType == null || string.IsNullOrEmpty(elasticType.RelationName)
-                            ? $"eventflow-{typeof(TReadModel).PrettyPrint().ToLowerInvariant()}"
-                            : elasticType.RelationName;
-                        return new ReadModelDescription(new IndexName(indexName));
-                    });
+                {
+                    var elasticType = t.GetTypeInfo().GetCustomAttribute<ElasticsearchIndexAttribute>();
+                    var indexName = elasticType == null || string.IsNullOrEmpty(elasticType.IndexName)
+                        ? $"eventflow-{typeof(TReadModel).PrettyPrint().ToLowerInvariant()}"
+                        : elasticType.IndexName.ToLowerInvariant();
+                    return new ReadModelDescription(indexName);
+                });
         }
     }
 }

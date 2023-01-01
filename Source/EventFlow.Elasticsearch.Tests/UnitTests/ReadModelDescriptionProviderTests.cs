@@ -21,12 +21,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using Elastic.Clients.Elasticsearch.Mapping;
 using EventFlow.Elasticsearch.ReadStores;
+using EventFlow.Elasticsearch.ReadStores.Attributes;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
 using FluentAssertions;
-using Nest;
 using NUnit.Framework;
+ 
 
 namespace EventFlow.Elasticsearch.Tests.UnitTests
 {
@@ -36,12 +38,17 @@ namespace EventFlow.Elasticsearch.Tests.UnitTests
         // ReSharper disable once ClassNeverInstantiated.Local
         private class TestReadModelA : IReadModel
         {
+            public void MappingDescriptor(TypeMappingDescriptor<TestReadModelA> mappingDescriptor)
+            {
+                
+            }
         }
 
         // ReSharper disable once ClassNeverInstantiated.Local
-        [ElasticsearchType(RelationName = "SomeThingFancy")]
+        [ElasticsearchIndex("SomeThingFancy")]
         private class TestReadModelB : IReadModel
         {
+          
         }
 
         [Test]
@@ -51,7 +58,7 @@ namespace EventFlow.Elasticsearch.Tests.UnitTests
             var readModelDescription = Sut.GetReadModelDescription<TestReadModelA>();
 
             // Assert
-            readModelDescription.IndexName.Value.Should().Be("eventflow-testreadmodela");
+            readModelDescription.IndexName.Should().Be("eventflow-testreadmodela");
         }
 
         [Test]
@@ -61,7 +68,7 @@ namespace EventFlow.Elasticsearch.Tests.UnitTests
             var readModelDescription = Sut.GetReadModelDescription<TestReadModelB>();
 
             // Assert
-            readModelDescription.IndexName.Value.Should().Be("SomeThingFancy");
+            readModelDescription.IndexName.Should().Be("SomeThingFancy".ToLowerInvariant());
         }
     }
 }

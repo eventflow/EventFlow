@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using Elastic.Clients.Elasticsearch;
 using EventFlow.ValueObjects;
 
 namespace EventFlow.Elasticsearch.ValueObjects
@@ -30,15 +31,12 @@ namespace EventFlow.Elasticsearch.ValueObjects
     public class ReadModelDescription : ValueObject
     {
         public ReadModelDescription(
-            IndexName indexName)
+            IndexName indices)
         {
-            if (indexName == null) throw new ArgumentNullException(nameof(indexName));
-
-            IndexName = indexName;
+            IndexName = indices;
         }
 
         public IndexName IndexName { get; }
-
         protected override IEnumerable<object> GetEqualityComponents()
         {
             yield return IndexName;

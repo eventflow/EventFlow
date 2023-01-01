@@ -26,22 +26,22 @@ using EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels;
 using EventFlow.Queries;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Queries;
-using Nest;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Elastic.Clients.Elasticsearch;
 
 namespace EventFlow.Elasticsearch.Tests.IntegrationTests.QueryHandlers
 {
     public class ElasticsearchThingyGetMessagesQueryHandler : IQueryHandler<ThingyGetMessagesQuery, IReadOnlyCollection<ThingyMessage>>
     {
-        private readonly IElasticClient _elasticClient;
+        private readonly ElasticsearchClient _elasticClient;
         private readonly IReadModelDescriptionProvider _readModelDescriptionProvider;
 
         public ElasticsearchThingyGetMessagesQueryHandler(
-            IElasticClient elasticClient,
+            ElasticsearchClient elasticClient,
             IReadModelDescriptionProvider readModelDescriptionProvider)
         {
             _elasticClient = elasticClient;
@@ -51,19 +51,18 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests.QueryHandlers
         public async Task<IReadOnlyCollection<ThingyMessage>> ExecuteQueryAsync(ThingyGetMessagesQuery query, CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<ElasticsearchThingyMessageReadModel>();
-            var indexName = readModelDescription.IndexName.Value;
+            var indexName = readModelDescription.IndexName;
 
             // Never do this
             await _elasticClient.Indices.FlushAsync(
-                indexName,
-                d => d
+                
+                d => d.Indices(Indices.Index(indexName))
                     .RequestConfiguration(c => c
                         .AllowedStatusCodes((int)HttpStatusCode.NotFound)), 
                             cancellationToken)
                 .ConfigureAwait(false);
             await _elasticClient.Indices.RefreshAsync(
-                indexName,
-                d => d
+                d => d.Indices(Indices.Index(indexName))
                     .RequestConfiguration(c => c
                         .AllowedStatusCodes((int)HttpStatusCode.NotFound)), 
                             cancellationToken)

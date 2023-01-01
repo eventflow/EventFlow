@@ -24,21 +24,21 @@
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Elastic.Clients.Elasticsearch;
 using EventFlow.Elasticsearch.ReadStores;
 using EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels;
 using EventFlow.Queries;
 using EventFlow.TestHelpers.Aggregates.Queries;
-using Nest;
 
 namespace EventFlow.Elasticsearch.Tests.IntegrationTests.QueryHandlers
 {
     public class ElasticsearchThingyGetVersionQueryHandler : IQueryHandler<ThingyGetVersionQuery, long?>
     {
-        private readonly IElasticClient _elasticClient;
+        private readonly ElasticsearchClient _elasticClient;
         private readonly IReadModelDescriptionProvider _readModelDescriptionProvider;
 
         public ElasticsearchThingyGetVersionQueryHandler(
-            IElasticClient elasticClient,
+            ElasticsearchClient elasticClient,
             IReadModelDescriptionProvider readModelDescriptionProvider)
         {
             _elasticClient = elasticClient;
@@ -53,11 +53,11 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests.QueryHandlers
                 d => d
                     .RequestConfiguration(c => c
                         .AllowedStatusCodes((int)HttpStatusCode.NotFound))
-                        .Index(readModelDescription.IndexName.Value), 
+                        .Index(readModelDescription.IndexName), 
                             cancellationToken)
                 .ConfigureAwait(false);
 
-            return getResponse != null && getResponse.Found
+            return getResponse is {Found: true}
                 ? getResponse.Version
                 : null as long?;
         }

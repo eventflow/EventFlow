@@ -21,51 +21,58 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Text.Json.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
+using Elastic.Clients.Elasticsearch.Mapping;
 using EventFlow.Aggregates;
+using EventFlow.Elasticsearch.ReadStores;
+using EventFlow.Elasticsearch.ReadStores.Attributes;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
-using Nest;
 
 namespace EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels
 {
-    [ElasticsearchType(IdProperty = "Id", RelationName = "thingy")]
+    [ElasticsearchIndex("thingy")]
     public class ElasticsearchThingyReadModel : IReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDeletedEvent>
     {
-        [Keyword(
-            Index = true)]
         public string Id { get; set; }
 
-        [Boolean(
-            Name = "DomainErrorAfterFirstReceived",
-            Index = false)]
+
         public bool DomainErrorAfterFirstReceived { get; set; }
 
-        [Number(
-            NumberType.Integer,
-            Name = "PingsReceived",
-            Index = false)]
-        public int PingsReceived { get; set; }
+        [JsonPropertyName("PingReceived")] public int PingsReceived { get; set; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent)
+        public Task ApplyAsync(IReadModelContext context,
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyDeletedEvent> domainEvent,
+            CancellationToken cancellationToken)
+        {
+            context.MarkForDeletion();
+            return Task.CompletedTask;
+        }
+
+        public Task ApplyAsync(IReadModelContext context,
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent,
+            CancellationToken cancellationToken)
         {
             Id = domainEvent.AggregateIdentity.Value;
             DomainErrorAfterFirstReceived = true;
+            return Task.CompletedTask;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent)
+        public Task ApplyAsync(IReadModelContext context,
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent, CancellationToken cancellationToken)
         {
             Id = domainEvent.AggregateIdentity.Value;
             PingsReceived++;
+            return Task.CompletedTask;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDeletedEvent> domainEvent)
-        {
-            context.MarkForDeletion();
-        }
+      
 
         public Thingy ToThingy()
         {

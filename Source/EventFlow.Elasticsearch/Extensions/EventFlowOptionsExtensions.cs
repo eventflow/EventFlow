@@ -23,14 +23,15 @@
 
 using System;
 using System.Linq;
-using Elasticsearch.Net;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Elasticsearch.ReadStores;
 using EventFlow.Extensions;
 using EventFlow.ReadStores;
-using Nest;
+using Elastic.Clients.Elasticsearch;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow.Elasticsearch.Extensions
 {
@@ -38,17 +39,20 @@ namespace EventFlow.Elasticsearch.Extensions
     {
         public static IEventFlowOptions ConfigureElasticsearch(
             this IEventFlowOptions eventFlowOptions,
-            params string[] uris)
+            string uri)
         {
             return eventFlowOptions
-                .ConfigureElasticsearch(uris.Select(u => new Uri(u, UriKind.Absolute)).ToArray());
+                .ConfigureElasticsearch( new Uri(uri, UriKind.Absolute));
         }
 
         public static IEventFlowOptions ConfigureElasticsearch(
             this IEventFlowOptions eventFlowOptions,
-            params Uri[] uris)
+            Uri uri)
         {
-            var connectionSettings = new ConnectionSettings(new SniffingConnectionPool(uris))
+            
+            
+            
+            var connectionSettings = new ElasticsearchClientSettings(uri)
                 .ThrowExceptions()
                 .SniffLifeSpan(TimeSpan.FromMinutes(5))
                 .DisablePing();
@@ -59,20 +63,20 @@ namespace EventFlow.Elasticsearch.Extensions
 
         public static IEventFlowOptions ConfigureElasticsearch(
             this IEventFlowOptions eventFlowOptions,
-            IConnectionSettingsValues connectionSettings)
+            ElasticsearchClientSettings connectionSettings)
         {
-            var elasticClient = new ElasticClient(connectionSettings);
+            var elasticClient = new ElasticsearchClient(connectionSettings);
             return eventFlowOptions.ConfigureElasticsearch(() => elasticClient);
         }
 
         public static IEventFlowOptions ConfigureElasticsearch(
             this IEventFlowOptions eventFlowOptions,
-            Func<IElasticClient> elasticClientFactory)
+            Func<ElasticsearchClient> elasticClientFactory)
         {
             return eventFlowOptions.RegisterServices(sr =>
                 {
-                    sr.Register(f => elasticClientFactory(), Lifetime.Singleton);
-                    sr.Register<IReadModelDescriptionProvider, ReadModelDescriptionProvider>(Lifetime.Singleton, true);
+                    sr.TryAddSingleton(f => elasticClientFactory());
+                    sr.TryAddSingleton<IReadModelDescriptionProvider, ReadModelDescriptionProvider>();
                 });
         }
 
@@ -100,7 +104,7 @@ namespace EventFlow.Elasticsearch.Extensions
             this IEventFlowOptions eventFlowOptions)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TReadModel : class, IReadModel
+            where TReadModel : class,IReadModel
         {
             return eventFlowOptions
                 .RegisterServices(RegisterElasticsearchReadStore<TReadModel>)
@@ -108,11 +112,11 @@ namespace EventFlow.Elasticsearch.Extensions
         }
 
         private static void RegisterElasticsearchReadStore<TReadModel>(
-            IServiceRegistration serviceRegistration)
+            IServiceCollection serviceRegistration)
             where TReadModel : class, IReadModel
         {
-            serviceRegistration.Register<IElasticsearchReadModelStore<TReadModel>, ElasticsearchReadModelStore<TReadModel>>();
-            serviceRegistration.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<IElasticsearchReadModelStore<TReadModel>>());
+            serviceRegistration.TryAddTransient<IElasticsearchReadModelStore<TReadModel>, ElasticsearchReadModelStore<TReadModel>>();
+            serviceRegistration.TryAddTransient<IReadModelStore<TReadModel>>(r => r.GetService<IElasticsearchReadModelStore<TReadModel>>()!);
         }
     }
 }

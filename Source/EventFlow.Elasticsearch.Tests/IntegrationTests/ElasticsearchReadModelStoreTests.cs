@@ -26,109 +26,75 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using EventFlow.Configuration;
+using Elastic.Clients.Elasticsearch;
 using EventFlow.Elasticsearch.Extensions;
-using EventFlow.Elasticsearch.ReadStores;
+using EventFlow.Elasticsearch.ReadStores.Attributes;
 using EventFlow.Elasticsearch.Tests.IntegrationTests.QueryHandlers;
 using EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels;
-using EventFlow.Elasticsearch.ValueObjects;
 using EventFlow.Extensions;
-using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
-using Nest;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using NUnit.Framework;
-using IndexName = EventFlow.Elasticsearch.ValueObjects.IndexName;
 
 namespace EventFlow.Elasticsearch.Tests.IntegrationTests
 {
     [Category(Categories.Integration)]
     public class ElasticsearchReadModelStoreTests : TestSuiteForReadModelStore
     {
-        protected override Type ReadModelType { get; } = typeof(ElasticsearchThingyReadModel);
-
-        private IElasticClient _elasticClient;
-
         private readonly List<string> _indexes = new List<string>();
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        private ElasticsearchClient _elasticClient;
+        protected override Type ReadModelType { get; } = typeof(ElasticsearchThingyReadModel);
+
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
             var elasticsearchUrl = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL") ?? "http://localhost:9200";
 
             // Setup connection settings separateley as by default EventFlow uses SniffingConnectionPool
             // which is not working well with elasticserch hosted in local docker
-            var connectionSettings = new ConnectionSettings(new Uri(elasticsearchUrl))
+            var connectionSettings = new ElasticsearchClientSettings(new Uri(elasticsearchUrl))
                 .ThrowExceptions()
                 .SniffLifeSpan(TimeSpan.FromMinutes(5))
                 .DisablePing();
-           
-            var resolver = eventFlowOptions
-                .RegisterServices(sr => { sr.RegisterType(typeof(ThingyMessageLocator)); })
+
+            var options = eventFlowOptions
+                .RegisterServices(sr => { sr.TryAddSingleton(typeof(ThingyMessageLocator)); })
                 .ConfigureElasticsearch(connectionSettings)
                 .UseElasticsearchReadModel<ElasticsearchThingyReadModel>()
                 .UseElasticsearchReadModel<ElasticsearchThingyMessageReadModel, ThingyMessageLocator>()
                 .AddQueryHandlers(
                     typeof(ElasticsearchThingyGetQueryHandler),
                     typeof(ElasticsearchThingyGetVersionQueryHandler),
-                    typeof(ElasticsearchThingyGetMessagesQueryHandler))
-                .CreateResolver();
+                    typeof(ElasticsearchThingyGetMessagesQueryHandler));
+
+            var resolver = base.Configure(options);
+
 
             PrepareIndexes(resolver);
 
             return resolver;
         }
 
-        private void PrepareIndexes(IRootResolver resolver)
+        private void PrepareIndexes(IServiceProvider resolver)
         {
-            _elasticClient = resolver.Resolve<IElasticClient>();
+            _elasticClient = resolver.GetService<ElasticsearchClient>();
 
             var readModelTypes =
-                GetLoadableTypes<ElasticsearchTypeAttribute>(typeof(ElasticsearchThingyReadModel).Assembly);
+                GetLoadableTypes<ElasticsearchIndexAttribute>(typeof(ElasticsearchThingyReadModel).Assembly);
 
             foreach (var readModelType in readModelTypes)
             {
-                var esType = readModelType.GetTypeInfo()
-                    .GetCustomAttribute<ElasticsearchTypeAttribute>();
-
-                //var indexName = GetIndexName(esType.RelationName);
-                var aliasResponse = _elasticClient.Indices.GetAlias(esType.RelationName);
-                var alias2Response = _elasticClient.GetAliasesPointingToIndex(esType.RelationName);
-                var indexResponse = _elasticClient.Indices.Get(esType.RelationName);
-
-                if (aliasResponse.ApiCall.Success)
-                {
-                    if (aliasResponse.Indices != null)
-                    {
-                        foreach (var indice in aliasResponse?.Indices)
-                        {
-                            _elasticClient.Indices.DeleteAlias(
-                                indice.Key, 
-                                esType.RelationName
-                            );
-
-                            _elasticClient.Indices.Delete(
-                                indice.Key,
-                                d => d.RequestConfiguration(c => c.AllowedStatusCodes((int)HttpStatusCode.NotFound))
-                            );
-                        }
-
-                        _elasticClient.Indices.Delete(
-                            esType.RelationName,
-                            d => d.RequestConfiguration(c => c.AllowedStatusCodes((int)HttpStatusCode.NotFound))
-                        );
-                    }
-                }
-                var indexName = GetIndexName(esType.RelationName);
+                var indexName = readModelType.GetCustomAttribute<ElasticsearchIndexAttribute>()?.IndexName;
 
                 _indexes.Add(indexName);
 
                 _elasticClient.Indices.Create(indexName, c => c
                     .Settings(s => s
                         .NumberOfShards(1)
-                        .NumberOfReplicas(0))
-                    .Aliases(a => a.Alias(esType.RelationName)));
+                        .NumberOfReplicas(0)));
             }
         }
 
@@ -151,13 +117,9 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
                 availableTypes = e.Types.Where(t => t != null);
             }
 
-            foreach (Type type in availableTypes)
-            {
+            foreach (var type in availableTypes)
                 if (type.GetCustomAttributes(typeof(T), true).Length > 0)
-                {
                     yield return type;
-                }
-            }
         }
 
 
@@ -172,11 +134,11 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
                     _elasticClient.Indices.DeleteAlias(
                         index,
                         "_all",
-                        r => r.RequestConfiguration(c => c.AllowedStatusCodes((int)HttpStatusCode.NotFound)));
+                        r => r.RequestConfiguration(c => c.AllowedStatusCodes((int) HttpStatusCode.NotFound)));
 
                     _elasticClient.Indices.Delete(
                         index,
-                        r => r.RequestConfiguration(c => c.AllowedStatusCodes((int)HttpStatusCode.NotFound)));
+                        r => r.RequestConfiguration(c => c.AllowedStatusCodes((int) HttpStatusCode.NotFound)));
                 }
             }
             catch (Exception e)
