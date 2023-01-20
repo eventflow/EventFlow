@@ -61,6 +61,7 @@ jobs:
         dotnet-version: |
           3.0.x
           3.1.x
+          6.0.x
 
     # Yes, EventFlow has a custom built build tool. If you are reading this
     # you might have a better idea of how to do it alternatively, if so,
