@@ -73,7 +73,7 @@ jobs:
 
     - name: Run Bake
       run: |
-        bake run --build-version 0.84.$REVISION
+        bake run --build-version 0.${{ github.run_number }}.${{ github.run_attempt }}
 
     - name: Upload NuGet packages
       uses: actions/upload-artifact@v2
