@@ -15,43 +15,43 @@ jobs:
       EVENTFLOW_MSSQL_USER: sa
       EVENTFLOW_MSSQL_PASS: Password12!      
 
-    services:
-      rabbitmq:
-        image: rabbitmq:3-management-alpine
-        env:
-          RABBITMQ_DEFAULT_USER: guest
-          RABBITMQ_DEFAULT_PASS: guest
-        ports:
-          - 5672:5672
-          - 15672:15672
+    # services:
+    #   rabbitmq:
+    #     image: rabbitmq:3-management-alpine
+    #     env:
+    #       RABBITMQ_DEFAULT_USER: guest
+    #       RABBITMQ_DEFAULT_PASS: guest
+    #     ports:
+    #       - 5672:5672
+    #       - 15672:15672
 
-      eventstore:
-        image: eventstore/eventstore:release-4.1.3
-        ports:
-          - "1113:1113"
-          - "2113:2113"
+    #   eventstore:
+    #     image: eventstore/eventstore:release-4.1.3
+    #     ports:
+    #       - "1113:1113"
+    #       - "2113:2113"
 
-      postgres:
-        image: postgres:10
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: Password12!
-        ports:
-          - "5432:5432"
+    #   postgres:
+    #     image: postgres:10
+    #     env:
+    #       POSTGRES_USER: postgres
+    #       POSTGRES_PASSWORD: Password12!
+    #     ports:
+    #       - "5432:5432"
 
-      mssql:
-        image: mcr.microsoft.com/mssql/server:2017-latest
-        env:
-          ACCEPT_EULA: Y
-          SA_PASSWORD: Password12!
-        ports:
-          - "1433:1433"
+    #   mssql:
+    #     image: mcr.microsoft.com/mssql/server:2017-latest
+    #     env:
+    #       ACCEPT_EULA: Y
+    #       SA_PASSWORD: Password12!
+    #     ports:
+    #       - "1433:1433"
 
     steps:
-    - name: Run Elasticsearch
-      uses: elastic/elastic-github-actions/elasticsearch@master
-      with:
-        stack-version: 6.8.3
+    # - name: Run Elasticsearch
+    #   uses: elastic/elastic-github-actions/elasticsearch@master
+    #   with:
+    #     stack-version: 6.8.3
 
     - uses: actions/checkout@v2
 
