@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2023 Rasmus Mikkelsen
 // Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
@@ -99,7 +99,7 @@ namespace EventFlow.EntityFramework.Tests.MsSql
                     CancellationToken.None)
                 .ConfigureAwait(false);
 
-            var address2 = new Address(AddressId.New, "Musterstraße 42.", "6541", "Berlin", "DE");
+            var address2 = new Address(AddressId.New, "Musterstraï¿½e 42.", "6541", "Berlin", "DE");
             await CommandBus
                 .PublishAsync(new AddAddressCommand(id, 
                         address2), 
