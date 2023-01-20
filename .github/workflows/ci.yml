@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [ develop-v0 ]
+  pull_request:
+    branches: [ develop-v0 ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      HELPZ_POSTGRESQL_PASS: Password12!
+      EVENTFLOW_MSSQL_SERVER: 127.0.0.1,1433
+      EVENTFLOW_MSSQL_USER: sa
+      EVENTFLOW_MSSQL_PASS: Password12!      
+
+    services:
+      rabbitmq:
+        image: rabbitmq:3-management-alpine
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
+        ports:
+          - 5672:5672
+          - 15672:15672
+
+      eventstore:
+        image: eventstore/eventstore:release-4.1.3
+        ports:
+          - "1113:1113"
+          - "2113:2113"
+
+      postgres:
+        image: postgres:10
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: Password12!
+        ports:
+          - "5432:5432"
+
+      mssql:
+        image: mcr.microsoft.com/mssql/server:2017-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: Password12!
+        ports:
+          - "1433:1433"
+
+    steps:
+    - name: Run Elasticsearch
+      uses: elastic/elastic-github-actions/elasticsearch@master
+      with:
+        stack-version: 6.8.3
+
+    - uses: actions/checkout@v2
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version:
+          3.0.x
+          3.1.x
+
+    # Yes, EventFlow has a custom built build tool. If you are reading this
+    # you might have a better idea of how to do it alternatively, if so,
+    # create a PR for EventFlow.
+
+    # https://github.com/rasmus/Bake
+    - name: Install Bake 
+      run: dotnet tool install -g --version 0.12.24-beta Bake
+
+    - name: Run Bake
+      run: |
+        bake run --build-version 0.84.$REVISION
+
+    - name: Upload NuGet packages
+      uses: actions/upload-artifact@v2
+      if: success() || failure()
+      with:
+        name: packages
+        path: "**/*nupkg"
+        if-no-files-found: error
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v2
+      if: success() || failure()
+      with:
+        name: test-results
+        path: "**/*.trx"
+        if-no-files-found: error
