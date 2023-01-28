@@ -10,9 +10,7 @@ services:
       - "15672:15672"
 
   postgresql:
-    build:
-      context: "."
-      dockerfile: Dockerfile.windows.postgresql.yml
+    image: kiazhi/nanoserver.postgresql
     ports:
       - "5432:5432"
 
