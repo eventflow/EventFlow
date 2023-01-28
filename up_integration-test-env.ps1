@@ -1,6 +1,6 @@
 # Up containers
-docker-compose --compatibility -f docker-compose.ci.yml pull
-docker-compose --compatibility -f docker-compose.ci.yml up -d
+docker-compose --compatibility -f Scripts/docker-compose.windows.yml pull
+docker-compose --compatibility -f Scripts/docker-compose.windows.yml up -d
 
 # Install curl
 cinst curl -y --no-progress
@@ -15,9 +15,9 @@ $env:ELASTICSEARCH_URL = "http://localhost:9200"
 $env:EVENTSTORE_URL = "tcp://admin:changeit@localhost:1113"
 
 # Health checks
-# Event Store
-curl --connect-timeout 60 --retry 5 -sL "http://localhost:2113"
-# Elasticsearch
-curl --connect-timeout 60 --retry 5 -sL "http://localhost:9200"
 # RabbitMQ
-curl --connect-timeout 60 --retry 5 -sL "http://localhost:15672"
+curl --connect-timeout 360 --retry 5 -sL "http://localhost:15672"
+# Event Store
+curl --connect-timeout 360 --retry 5 -sL "http://localhost:2113"
+# Elasticsearch
+curl --connect-timeout 360 --retry 5 -sL "http://localhost:9200"

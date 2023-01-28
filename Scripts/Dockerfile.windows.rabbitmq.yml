@@ -1,0 +1,50 @@
+# Original file from https://github.com/micdenny/docker-samples
+
+# MIT License
+# 
+# Copyright (c) 2016 Michael Denny
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+ARG WINDOWS_VERSION='ltsc2022'  
+
+FROM mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2022
+
+ENV ERLANG_HOME="c:\\erlang" \
+    RABBITMQ_VERSION="3.6.12" \
+    RABBITMQ_CONFIG_FILE="c:\\rabbitmq"
+
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+
+RUN Invoke-WebRequest -Uri "http://erlang.org/download/otp_win64_19.3.exe" -OutFile "c:\\erlang_install.exe" ; \
+        Start-Process -Wait -FilePath "c:\\erlang_install.exe" -ArgumentList /S, /D=$env:ERLANG_HOME ; \
+        Remove-Item -Force -Path "C:\\erlang_install.exe"
+RUN \
+    Invoke-WebRequest -Uri "https://github.com/rabbitmq/rabbitmq-server/releases/download/rabbitmq_v3_6_12/rabbitmq-server-windows-3.6.12.zip" -OutFile "c:\\rabbitmq.zip" ; \
+        Expand-Archive -Path "c:\\rabbitmq.zip" -DestinationPath "c:\\" ; \
+        Remove-Item -Force -Path "c:\\rabbitmq.zip" ; \
+    Rename-Item -Path "c:\\rabbitmq_server-$env:RABBITMQ_VERSION" -NewName "c:\\rabbitmq"
+
+EXPOSE 5672 15672
+
+RUN ["cmd", "/C", "echo [{rabbit, [{loopback_users, []}]}].> c:\\rabbitmq.config"]
+
+RUN c:\rabbitmq\sbin\rabbitmq-plugins.bat enable rabbitmq_management --offline
+
+CMD c:\rabbitmq\sbin\rabbitmq-server.bat
