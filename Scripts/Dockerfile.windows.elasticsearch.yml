@@ -18,7 +18,7 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop';"]
 
 ENV ES_VERSION="7.17.8" `
     ES_HOME="C:\elasticsearch" `
-    ES_JAVA_OPTS="-Xms512m -Xmx512m"
+    ES_JAVA_OPTS="-Xms256m -Xmx256m"
 
 # Volume and drive mount
 RUN Set-ItemProperty -path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\DOS Devices' -Name 'G:' -Value '\??\C:\data' -Type String    

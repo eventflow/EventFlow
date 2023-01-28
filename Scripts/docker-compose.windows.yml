@@ -11,6 +11,7 @@ services:
 
   postgresql:
     image: kiazhi/nanoserver.postgresql
+    command: ["powershell", "Start-Sleep", "-s", "3600"]
     ports:
       - "5432:5432"
 

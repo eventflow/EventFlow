@@ -10,10 +10,10 @@ jobs:
   build:
     runs-on: windows-latest
     env:
-      HELPZ_POSTGRESQL_PASS: Password12!
+      HELPZ_POSTGRESQL_PASS: postgres
       EVENTFLOW_MSSQL_SERVER: 127.0.0.1,1433
       EVENTFLOW_MSSQL_USER: sa
-      EVENTFLOW_MSSQL_PASS: Password12!      
+      EVENTFLOW_MSSQL_PASS: Password12!
 
     # services:
     #   rabbitmq:
