@@ -16,8 +16,16 @@ $env:EVENTSTORE_URL = "tcp://admin:changeit@localhost:1113"
 
 # Health checks
 # RabbitMQ
+echo "Checking connection to RabbitMQ"
 curl --connect-timeout 360 --retry 5 -sL "http://localhost:15672"
-# Event Store
+echo "RabbitMQ running"
+
+# EventStore
+echo "Checking connection to EventStore"
 curl --connect-timeout 360 --retry 5 -sL "http://localhost:2113"
+echo "EventStore running"
+
 # Elasticsearch
+echo "Checking connection to Elasticsearch"
 curl --connect-timeout 360 --retry 5 -sL "http://localhost:9200"
+echo "Elasticsearch running"
