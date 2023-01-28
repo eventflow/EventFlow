@@ -23,3 +23,10 @@ services:
     ports:
       - "9200:9200"
       - "9300:9300"
+
+  mssql:
+    build:
+      context: "."
+      dockerfile: Dockerfile.windows.mssql.yml
+    ports:
+      - "1433:1433"
