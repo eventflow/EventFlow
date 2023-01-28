@@ -15,3 +15,11 @@ services:
       dockerfile: Dockerfile.windows.postgresql.yml
     ports:
       - "5432:5432"
+
+  elasticsearch:
+    build:
+      context: "."
+      dockerfile: Dockerfile.windows.elasticsearch.yml
+    ports:
+      - "9200:9200"
+      - "9300:9300"

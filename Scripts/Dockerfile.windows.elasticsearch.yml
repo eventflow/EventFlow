@@ -1,0 +1,41 @@
+# escape=`
+
+# Based on https://github.com/dockersamples/elastic-windows
+
+FROM mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2022 AS downloader
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+
+ENV ES_VERSION="7.17.8" `
+    ES_HOME="C:\elasticsearch"
+
+RUN Invoke-WebRequest "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$($env:ES_VERSION)-windows-x86_64.zip" -OutFile 'elasticsearch.zip' -UseBasicParsing; `
+    Expand-Archive elasticsearch.zip -DestinationPath C:\ ; `
+    Move-Item c:/elasticsearch-$($env:ES_VERSION) $env:ES_HOME;
+
+# Elasticsearch
+FROM openjdk:8-nanoserver-sac2016
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop';"]
+
+ENV ES_VERSION="7.17.8" `
+    ES_HOME="C:\elasticsearch" `
+    ES_JAVA_OPTS="-Xms512m -Xmx512m"
+
+# Volume and drive mount
+RUN Set-ItemProperty -path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\DOS Devices' -Name 'G:' -Value '\??\C:\data' -Type String    
+   
+EXPOSE 9200 9300
+SHELL ["cmd", "/S", "/C"]
+CMD ".\bin\elasticsearch.bat"
+
+WORKDIR $ES_HOME
+COPY --from=downloader C:\elasticsearch\ .
+COPY elasticsearch-windows/* ./config/
+
+HEALTHCHECK --interval=5s `
+ CMD powershell -command `
+    try { `
+     $content = (iwr -useb http://localhost:9200/_cat/health).Content; `
+     $health = $content.Split(' ')[3]; `
+     if ($health -eq 'green' -or $health -eq 'yellow') { return 0 } `
+     else { return 1 }; `
+    } catch { return 1 }
