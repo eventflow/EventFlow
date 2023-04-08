@@ -25,6 +25,21 @@ releases. However, it _might_ not be possible to do a rollback from 1.x to 0.x.
 
 
 <!-- =========================================================================== -->
+# Recommended strategy for migrating 0.x to 1.x
+
+Here is a few recommendations that might be useful when planning the migration
+of EventFlow from 0.x to 1.x. 
+
+- Since there is no change to the underlying storage, creating a release that
+  only has EventFlow upgraded is highly recommended. This enables easy rollback
+  if you encounter unexpected problems
+- Since the `IEventUpgrader<,>` has changed significantly, consider using the new
+  base class `EventUpgraderNonAsync` in any existing upgraders. It provides an
+  `abstract` method with the same signature as the old interface that can be
+  overridden, making the switch significantly easier
+
+
+<!-- =========================================================================== -->
 # Notable new features in version 1
 
 While the main focus of version 1 is to bring EventFlow up to speed with the latest
@@ -181,18 +196,3 @@ Its basically a shorthand for
 ```csharp
 var eventFlowOptions = EventFlowOptions.New(new ServiceCollection())
 ```
-
-
-<!-- =========================================================================== -->
-# Recommended strategy for migrating 0.x to 1.x
-
-Here is a few recommendations that might be useful when planning the migration
-of EventFlow from 0.x to 1.x. 
-
-- Since there is no change to the underlying storage, creating a release that
-  only has EventFlow upgraded is highly recommended. This enables easy rollback
-  if you encounter unexpected problems
-- Since the `IEventUpgrader<,>` has changed significantly, consider using the new
-  base class `EventUpgraderNonAsync` in any existing upgraders. It provides an
-  `abstract` method with the same signature as the old interface that can be
-  overridden, making the switch significantly easier
