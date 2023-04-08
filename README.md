@@ -34,18 +34,18 @@ mainly `IServiceProvider` and `ILogger<>`.
 The following list key characteristics of each version as well as its related branches
 (not properly configured yet).
 
-* `1.x` (under development, not all projects compile yet)
-  
+* `1.x`
+
   Represents the next iteration of EventFlow that aligns EventFlow with the standard
   packages for .NET (Core). Releases here will only support .NET Standard, .NET Core
   and .NET versions going forward.
 
+  - Released
+  - Still development
+  - Not all projects migrated yet
+  
   Read the [migration guide](./MIGRATION_GUIDE.md) to view the full list of breaking
   changes as well as recommendations on how to migrate.
-
-  **NOTE:** This version is under heavy development and NO stable version has yet
-  been releases. It will take a few alpha/beta/rc releases to get this right. These
-  will be released as soon as any significant changes have been made.
 
   ### Documentation (not complete)
   Version 1.x documentation has been pulled into this repository in order to have
@@ -80,7 +80,7 @@ The following list key characteristics of each version as well as its related br
   - `release-v1`: Release branch, merge commits are done to this branch from
     `develop-v1` to create releases. Typically each commit represents a release
 
-* `0.x` (API stable)
+* `0.x` (legacy)
 
   The current stable version of EventFlow and has been the version of EventFlow
   for almost six years. 0.x versions have .NET Framework support and limited
@@ -97,6 +97,7 @@ The following list key characteristics of each version as well as its related br
   ### Documentation
   Version 0.x documentation is (although a bit outdated) is live at
   https://docs.geteventflow.net/.
+
 
 ## Talks directly related to EventFlow
 
