@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       HELPZ_POSTGRESQL_PASS: Password12!
       EVENTFLOW_MSSQL_SERVER: 127.0.0.1,1433
@@ -62,15 +62,12 @@ jobs:
 
     - uses: actions/checkout@v2
 
-    - name: Setup .NET Core 3.1.x
-      uses: actions/setup-dotnet@v1
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: "3.1.x"
-        
-    - name: Setup .NET Core 6.0.x
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: "6.0.x"
+        dotnet-version:
+          3.1.x
+          6.0.x
 
     # Yes, EventFlow has a custom built build tool. If you are reading this
     # you might have a better idea of how to do it alternatively, if so,
