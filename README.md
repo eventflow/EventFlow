@@ -1,33 +1,10 @@
 # EventFlow
 
-<table border="0" cellpadding="0" cellspacing="0">
-  <tr>
-    <td width="25%">
-      <img src="./icon-128.png" />
-    </td>
-    <td  width="25%">
-      <p>
-        <a href="https://www.nuget.org/packages/EventFlow/"><img src="https://img.shields.io/nuget/v/EventFlow.svg?style=flat" /></a>
-      </p>
-      <p>
-        <a href="https://docs.geteventflow.net/?badge=latest"><img src="https://readthedocs.org/projects/eventflow/badge/?version=latest" /></a>
-      </p>
-    </td>
-    <td  width="25%">
-      <p>
-        <a href="https://github.com/eventflow/EventFlow/actions/workflows/ci.yml"><img src="https://github.com/eventflow/EventFlow/actions/workflows/ci.yml/badge.svg" /></a>
-      </p>
-      <p>
-        <a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
-      </p>
-     <!--
-      <p>
-        <a href="https://codecov.io/github/eventflow/EventFlow?branch=develop"><img src="https://codecov.io/github/eventflow/EventFlow/coverage.svg?branch=develop" /></a>
-      </p>
-      -->
-    </td>
-  </tr>
-</table>
+<img src="./icon-128.png" />
+
+<a href="https://www.nuget.org/packages/EventFlow/"><img src="https://img.shields.io/nuget/v/EventFlow.svg?style=flat" /></a>
+<a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
+<a href="https://github.com/eventflow/EventFlow/actions/workflows/ci.yml"><img src="https://github.com/eventflow/EventFlow/actions/workflows/ci.yml/badge.svg" /></a>
 
 NuGet feeds
 - Official releases: https://www.nuget.org/packages/EventFlow/
