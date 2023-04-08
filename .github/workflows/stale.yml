@@ -1,0 +1,73 @@
+name: 'Close stale issues and PRs'
+
+on:
+  schedule:
+    - cron: '0 14 * * *'
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v8
+        with:
+            Hello there! 
+
+            We hope you are doing well. We noticed that this issue has not seen any activity in the past 90 days.
+            We consider this issue to be stale and will be closing it within the next seven days. 
+
+            If you still require assistance with this issue, please feel free to reopen it or create a new issue. 
+
+            Thank you for your understanding and cooperation. 
+
+            Best regards, 
+            EventFlow
+
+          close-issue-message: |
+            Hello there! 
+
+            This issue has been closed due to inactivity for seven days. If you believe this issue still
+            needs attention, please feel free to open a new issue or comment on this one to request its
+            reopening. 
+
+            Thank you for your contribution to this repository. 
+
+            Best regards, 
+            EventFlow
+
+          stale-pr-message: |
+            Hello there! 
+
+            We hope this message finds you well. We wanted to let you know that we have noticed that there has been
+            no activity on this pull request for the past 90 days, which makes it a stale pull request. 
+
+            As a result, we will be closing this pull request within the next seven days. If you still
+            think this pull request is necessary or relevant, please feel free to update it or leave a
+            comment within the next seven days. 
+
+            Thank you for your contributions and understanding.
+
+            Best regards,
+            EventFlow
+
+          close-pr-message:
+            Hello there! 
+
+            I'm a bot and I wanted to let you know that your pull request has been closed due to inactivity
+            after being marked as stale for seven days. 
+
+            If you believe this was done in error, or if you still plan to work on this pull request,
+            please don't hesitate to reopen it and let us know. We're always happy to review and
+            merge high-quality contributions. 
+
+            Thank you for your interest in our project!
+
+            Best regards,
+            EventFlow
+
+          days-before-stale: 90
+          days-before-close: 7
