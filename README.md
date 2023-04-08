@@ -53,29 +53,28 @@ The following list key characteristics of each version as well as its related br
   updated in the same pull-requests as any code changes.
 
   ### NuGet package status
-  - 🟢 compiles and pushed in `-alpha` releases
-  - 🔴 not yet ported to 1.0
-  - 💀 for packages that are removed as part of 1.0, see the
-    [migration guide](./MIGRATION_GUIDE.md) for details)
+  - 🟢 released
+  - 🟠 not yet ported to 1.0
+  - 💀 for packages that are removed as part of 1.0 (see the [migration guide](./MIGRATION_GUIDE.md) for details)
 
   Projects
     - 🟢 `EventFlow`
-    - 🔴 `EventFlow.AspNetCore`
+    - 🟠 `EventFlow.AspNetCore`
     - 💀 `EventFlow.Autofac`
     - 💀 `EventFlow.DependencyInjection`
-    - 🔴 `EventFlow.Elasticsearch`
-    - 🔴 `EventFlow.EntityFramework`
-    - 🔴 `EventFlow.EventStores.EventStore`
-    - 🔴 `EventFlow.Hangfire`
+    - 🟠 `EventFlow.Elasticsearch`
+    - 🟠 `EventFlow.EntityFramework`
+    - 🟠 `EventFlow.EventStores.EventStore`
+    - 🟠 `EventFlow.Hangfire`
     - 🟢 `EventFlow.MongoDB`
     - 🟢 `EventFlow.MsSql`
     - 💀 `EventFlow.Owin`
     - 🟢 `EventFlow.PostgreSql`
-    - 🔴 `EventFlow.RabbitMQ`
+    - 🟠 `EventFlow.RabbitMQ`
     - 🟢 `EventFlow.Sql`
-    - 🔴 `EventFlow.SQLite`
+    - 🟠 `EventFlow.SQLite`
     - 🟢 `EventFlow.TestHelpers`
-    
+
   ### Branches
   - `develop-v1`: Development branch, pull requests should be done here
   - `release-v1`: Release branch, merge commits are done to this branch from
