@@ -71,3 +71,7 @@ jobs:
 
           days-before-stale: 90
           days-before-close: 7
+          stale-pr-label: stale
+          stale-issue-label: stale
+          exempt-pr-labels: stale-exempt
+          operations-per-run: 1000
