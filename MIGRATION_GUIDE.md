@@ -32,7 +32,9 @@ of EventFlow from 0.x to 1.x.
 
 - Since there is no change to the underlying storage, creating a release that
   only has EventFlow upgraded is highly recommended. This enables easy rollback
-  if you encounter unexpected problems
+  if you encounter unexpected problems. Do note that rollback is not guaranteed
+  to work safely, but *should* work. Please test it before proceeding with an
+  upgrade
 - Since the `IEventUpgrader<,>` has changed significantly, consider using the new
   base class `EventUpgraderNonAsync` in any existing upgraders. It provides an
   `abstract` method with the same signature as the old interface that can be
