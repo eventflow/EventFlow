@@ -161,9 +161,10 @@ environments.
 - `IReadModelPopulator.Populate`
 - `IReadModelPopulator.Purge`
 
+
 ## Initializing EventFlow
 
-Starting 1.0, there are a few ways you can initialize EventFlow.
+Starting version 1, there are a few ways you can initialize EventFlow.
 
 
 ### Fluent as `IServiceCollection` extension
@@ -185,16 +186,12 @@ var eventFlowOptions = EventFlowOptions.New(serviceCollection)
 
 ### Let EventFlow create the `IServiceCollection`
 
-Useful in small tests, but should NOT be used in production setups.
+Useful in small tests, but should **NOT** be used in production setups.
 
 ```csharp
 var eventFlowOptions = EventFlowOptions.New()
+// its a short hand for
+// var eventFlowOptions = EventFlowOptions.New(new ServiceCollection())
 
 // Set up EventFlow here
-```
-
-Its basically a shorthand for
-
-```csharp
-var eventFlowOptions = EventFlowOptions.New(new ServiceCollection())
 ```
