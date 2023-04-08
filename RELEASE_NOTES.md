@@ -8,6 +8,11 @@ as recommendations on how to do the migration.
 
 https://github.com/eventflow/EventFlow/blob/develop-v1/MIGRATION_GUIDE.md
 
+Changes since last 1.x pre-release, `1.0.5002-alpha`
+
+* Breaking: Removed old `EventFlow.Shims.Tasks` class that provided a wrapper for `Task.CompletedTask`
+  in frameworks that did not have it
+
 Changes since last 1.x pre-release, `1.0.5001-alpha`
 
 * New/breaking: `IEventUpgrader<,>` are now (finally) async. For an easy upgrade experience,
