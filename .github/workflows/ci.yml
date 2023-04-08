@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       HELPZ_POSTGRESQL_PASS: Password12!
       EVENTFLOW_MSSQL_SERVER: 127.0.0.1,1433
@@ -68,11 +68,6 @@ jobs:
         dotnet-version:
           3.1.x
           6.0.x
-
-    - name: Fix
-      run: |
-        echo "Trying to fix https://github.com/actions/runner/issues/2364"
-        sudo chown ubuntu -R /home/runneradmin
 
     # Yes, EventFlow has a custom built build tool. If you are reading this
     # you might have a better idea of how to do it alternatively, if so,
