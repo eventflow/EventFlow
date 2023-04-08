@@ -15,6 +15,7 @@ jobs:
     steps:
       - uses: actions/stale@v8
         with:
+          stale-issue-message: |
             Hello there! 
 
             We hope you are doing well. We noticed that this issue has not seen any activity in the past 90 days.
