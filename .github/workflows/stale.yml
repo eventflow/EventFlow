@@ -1,8 +1,10 @@
 name: 'Close stale issues and PRs'
 
 on:
+  push:
+    branches: [ develop-v1 ]
   schedule:
-    - cron: '0 16 * * *'
+    - cron: '0 9 * * *'
 
 permissions:
   contents: write
