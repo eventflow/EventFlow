@@ -72,7 +72,7 @@ jobs:
     - name: Fix
       run: |
         echo "Trying to fix https://github.com/actions/runner/issues/2364"
-        sudo chown ubuntu:ubuntu -R /home/runneradmin
+        sudo chown ubuntu -R /home/runneradmin
 
     # Yes, EventFlow has a custom built build tool. If you are reading this
     # you might have a better idea of how to do it alternatively, if so,
