@@ -84,7 +84,7 @@ jobs:
         bake run --convention=Release --build-version 1.0.$REVISION --destination="nuget>github,nuget,release>github"
 
     - name: Upload test results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       if: success() || failure()
       with:
         name: test-results

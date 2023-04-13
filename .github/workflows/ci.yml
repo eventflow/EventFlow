@@ -84,7 +84,7 @@ jobs:
         bake run --build-version 1.0.$REVISION
 
     - name: Upload NuGet packages
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       if: success() || failure()
       with:
         name: packages
@@ -92,7 +92,7 @@ jobs:
         if-no-files-found: error
 
     - name: Upload test results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       if: success() || failure()
       with:
         name: test-results
