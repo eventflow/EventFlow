@@ -21,17 +21,16 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Core;
-using EventFlow.ValueObjects;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel
+namespace EventFlow.Newtonsoft.Configuration
 {
-    [JsonConverter(typeof(SingleValueObjectConverter<CargoId, string>))]
-    public class CargoId : Identity<CargoId>
+    public class JsonOptions : IJsonOptions
     {
-        public CargoId(string value) : base(value)
+        public void Apply(JsonSerializerSettings settings)
         {
         }
+
+        public static JsonOptions New => new JsonOptions();
     }
 }

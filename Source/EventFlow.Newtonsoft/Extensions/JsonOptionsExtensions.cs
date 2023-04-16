@@ -23,11 +23,11 @@
 
 using System;
 using System.Linq;
-using EventFlow.Configuration.Serialization;
+using EventFlow.Newtonsoft.Configuration;
 using EventFlow.ValueObjects;
 using Newtonsoft.Json;
 
-namespace EventFlow.Extensions
+namespace EventFlow.Newtonsoft.Extensions
 {
     public static class JsonOptionsExtensions
     {
@@ -48,7 +48,7 @@ namespace EventFlow.Extensions
 
         public static IJsonOptions AddSingleValueObjects(this IJsonOptions options)
         {
-            return options.AddConverter<SingleValueObjectConverter>();
+            return options.AddConverter<NewtonsoftSingleValueObjectConverter>();
         }
 
         public static IJsonOptions AddConverter<T>(this IJsonOptions options)

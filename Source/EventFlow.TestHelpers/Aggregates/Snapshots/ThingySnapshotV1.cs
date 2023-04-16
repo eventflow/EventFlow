@@ -32,7 +32,7 @@ namespace EventFlow.TestHelpers.Aggregates.Snapshots
     public class ThingySnapshotV1 : ISnapshot
     {
         public ThingySnapshotV1(
-            IEnumerable<PingId> pingsReceived)
+            IReadOnlyCollection<PingId> pingsReceived)
         {
             PingsReceived = (pingsReceived ?? Enumerable.Empty<PingId>()).ToList();
         }

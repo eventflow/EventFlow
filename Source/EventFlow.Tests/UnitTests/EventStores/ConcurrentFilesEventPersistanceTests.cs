@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -67,7 +68,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 Mock<ILoadedVersionedTypes>());
             definitionService.Load(typeof(ThingyPingEvent));
 
-            _serializer = new EventJsonSerializer(new JsonSerializer(), definitionService, factory);
+            _serializer = new EventJsonSerializer(new DefaultJsonSerializer(), definitionService, factory);
         }
 
         [SetUp]
@@ -147,7 +148,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
 
         private FilesEventPersistence CreatePersistence(string storePath = "")
         {
-            var serializer = new JsonSerializer();
+            var serializer = new DefaultJsonSerializer();
             var config = ConfigurePath(storePath);
             var locator = new FilesEventLocator(config);
             return new FilesEventPersistence(

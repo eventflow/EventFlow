@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -89,7 +90,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             var upgradeManager = new EventUpgradeManager(Logger<EventUpgradeManager>(), serviceProvider, new EventUpgradeContextFactory());
             var definitionService = new EventDefinitionService(Logger<EventDefinitionService>(), Mock<ILoadedVersionedTypes>());
             definitionService.Load(typeof(ThingyPingEvent));
-            var serializer = new EventJsonSerializer(new JsonSerializer(), definitionService, factory);
+            var serializer = new EventJsonSerializer(new DefaultJsonSerializer(), definitionService, factory);
 
             var store = new EventStoreBase(
                 Logger<EventStoreBase>(),

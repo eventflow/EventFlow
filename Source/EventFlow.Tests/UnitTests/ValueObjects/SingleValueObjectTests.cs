@@ -23,10 +23,11 @@
 
 using System;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using EventFlow.TestHelpers;
 using EventFlow.ValueObjects;
 using FluentAssertions;
-using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.ValueObjects
@@ -166,13 +167,13 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             obj1.Equals(obj2).Should().BeFalse();
         }
 
-        private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
-            {
-                DefaultValueHandling = DefaultValueHandling.Ignore,
-                NullValueHandling = NullValueHandling.Ignore
-            };
+        private static readonly JsonSerializerOptions Settings = new JsonSerializerOptions()
+        {
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            PropertyNameCaseInsensitive = true
+        };
 
-        [JsonConverter(typeof(SingleValueObjectConverter))]
+        [JsonConverter(typeof(SingleValueObjectConverter<IntSingleValue, int>))]
         public class IntSingleValue : SingleValueObject<int>
         {
             public IntSingleValue(int value) : base(value) { }
@@ -193,10 +194,10 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
         public void DeserializeNullableIntWithoutValue()
         {
             // Arrange
-            var json = JsonConvert.SerializeObject(new { });
+            var json = JsonSerializer.Serialize(new { });
 
             // Act
-            var with = JsonConvert.DeserializeObject<WithNullableIntSingleValue>(json);
+            var with = JsonSerializer.Deserialize<WithNullableIntSingleValue>(json);
 
             // Assert
             with.Should().NotBeNull();
@@ -210,7 +211,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var json = "{\"i\":null}";
 
             // Act
-            var with = JsonConvert.DeserializeObject<WithNullableIntSingleValue>(json);
+            var with = JsonSerializer.Deserialize<WithNullableIntSingleValue>(json);
 
             // Assert
             with.Should().NotBeNull();
@@ -222,10 +223,10 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
         {
             // Arrange
             var i = A<int>();
-            var json = JsonConvert.SerializeObject(new { i });
+            var json = JsonSerializer.Serialize(new { i }, Settings);
 
             // Act
-            var with = JsonConvert.DeserializeObject<WithNullableIntSingleValue>(json);
+            var with = JsonSerializer.Deserialize<WithNullableIntSingleValue>(json, Settings);
 
             // Assert
             with.Should().NotBeNull();
@@ -239,7 +240,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var with = new WithNullableIntSingleValue(null);
 
             // Act
-            var json = JsonConvert.SerializeObject(with, Settings);
+            var json = JsonSerializer.Serialize(with, Settings);
 
             // Assert
             json.Should().Be("{}");
@@ -252,7 +253,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var with = new WithNullableIntSingleValue(new IntSingleValue(42));
 
             // Act
-            var json = JsonConvert.SerializeObject(with, Settings);
+            var json = JsonSerializer.Serialize(with, Settings);
 
             // Assert
             json.Should().Be("{\"I\":42}");

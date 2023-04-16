@@ -22,12 +22,12 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Linq;
+using System.Text.Json;
 using EventFlow.Core;
 using EventFlow.Snapshots;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Extensions;
 using FluentAssertions;
-using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Snapshots
@@ -50,7 +50,7 @@ namespace EventFlow.Tests.UnitTests.Snapshots
                 }.ToJson();
 
             // Act
-            var snapshotMetadata = JsonConvert.DeserializeObject<SnapshotMetadata>(json);
+            var snapshotMetadata = JsonSerializer.Deserialize<SnapshotMetadata>(json);
 
             // Assert
             snapshotMetadata.AggregateId.Should().Be("thingy-42");
@@ -80,8 +80,8 @@ namespace EventFlow.Tests.UnitTests.Snapshots
                 };
 
             // Act
-            var json = JsonConvert.SerializeObject(snapshotMetadata);
-            var deserializedSnapshotMetadata = JsonConvert.DeserializeObject<SnapshotMetadata>(json);
+            var json = JsonSerializer.Serialize(snapshotMetadata);
+            var deserializedSnapshotMetadata = JsonSerializer.Deserialize<SnapshotMetadata>(json);
 
             // Assert
             deserializedSnapshotMetadata.AggregateId.Should().Be("thingy-42");

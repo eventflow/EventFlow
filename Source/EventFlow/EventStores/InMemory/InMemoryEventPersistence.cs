@@ -27,6 +27,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -34,7 +36,6 @@ using EventFlow.Core;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace EventFlow.EventStores.InMemory
 {
@@ -72,8 +73,8 @@ namespace EventFlow.EventStores.InMemory
             {
                 try
                 {
-                    var obj = JsonConvert.DeserializeObject(json);
-                    var prettyJson = JsonConvert.SerializeObject(obj, Formatting.Indented);
+                    var obj = JsonDocument.Parse(json);
+                    var prettyJson = JsonSerializer.Serialize(obj, new JsonSerializerOptions { WriteIndented = true });
                     return prettyJson;
                 }
                 catch (Exception)

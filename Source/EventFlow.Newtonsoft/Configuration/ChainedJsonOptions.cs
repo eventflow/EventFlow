@@ -22,25 +22,25 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Configuration.Serialization;
-using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 
-namespace EventFlow.Extensions
+namespace EventFlow.Newtonsoft.Configuration
 {
-    public static class EventFlowOptionsJsonConfigurationExtensions
+    public class ChainedJsonOptions : IJsonOptions
     {
-        public static IEventFlowOptions ConfigureJson(
-            this IEventFlowOptions eventFlowOptions,
-            Func<IJsonOptions, IJsonOptions> configure)
+        private readonly Action<JsonSerializerSettings> _action;
+        private readonly IJsonOptions _parent;
+
+        public ChainedJsonOptions(IJsonOptions parent, Action<JsonSerializerSettings> action)
         {
-            if (configure == null)
-            {
-                throw new ArgumentNullException(nameof(configure));
-            }
-            
-            var config = configure(JsonOptions.New);
-            eventFlowOptions.ServiceCollection.AddTransient(_ => config);
-            return eventFlowOptions;
+            _parent = parent;
+            _action = action;
+        }
+
+        void IJsonOptions.Apply(JsonSerializerSettings settings)
+        {
+            _parent.Apply(settings);
+            _action.Invoke(settings);
         }
     }
 }

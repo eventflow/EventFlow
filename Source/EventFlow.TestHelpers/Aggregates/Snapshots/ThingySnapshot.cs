@@ -32,8 +32,8 @@ namespace EventFlow.TestHelpers.Aggregates.Snapshots
     public class ThingySnapshot : ISnapshot
     {
         public ThingySnapshot(
-            IEnumerable<PingId> pingsReceived,
-            IEnumerable<ThingySnapshotVersion> previousVersions)
+            IReadOnlyCollection<PingId> pingsReceived,
+            IReadOnlyCollection<ThingySnapshotVersion> previousVersions)
         {
             PingsReceived = (pingsReceived ?? Enumerable.Empty<PingId>()).ToList();
             PreviousVersions = (previousVersions ?? Enumerable.Empty<ThingySnapshotVersion>()).ToList();

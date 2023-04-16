@@ -31,7 +31,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     <PackageReference Include="JetBrains.Annotations" Version="2021.1.0">
       <PrivateAssets>All</PrivateAssets>
@@ -43,6 +42,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.10" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.10" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.10" />
+    <PackageReference Include="System.Text.Json" Version="5.0.2" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
@@ -50,6 +50,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.10" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.10" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.10" />
+	<PackageReference Include="System.Text.Json" Version="5.0.2" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">

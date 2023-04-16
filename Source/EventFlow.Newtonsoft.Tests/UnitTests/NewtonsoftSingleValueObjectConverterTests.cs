@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2020 Rasmus Mikkelsen
-// Copyright (c) 2015-2020 eBay Software Foundation
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,14 +24,13 @@
 using EventFlow.TestHelpers;
 using EventFlow.ValueObjects;
 using FluentAssertions;
+using Newtonsoft.Json;
 using NUnit.Framework;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace EventFlow.Tests.UnitTests.ValueObjects
 {
     [Category(Categories.Unit)]
-    public class SingleValueObjectConverterTests
+    public class NewtonsoftSingleValueObjectConverterTests
     {
         public enum MagicEnum
         {
@@ -40,7 +39,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             Three = 3,
             One = 1
         }
-
+        
         [TestCase("test  test", "\"test  test\"")]
         [TestCase("42", "\"42\"")]
         [TestCase("", "\"\"")]
@@ -51,10 +50,20 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var stringSvo = new StringSVO(value);
 
             // Act
-            var json = JsonSerializer.Serialize(stringSvo);
+            var json = JsonConvert.SerializeObject(stringSvo);
 
             // Assert
             json.Should().Be(expectedJson);
+        }
+
+        [Test]
+        public void StringDeserializationEmptyShouldResultInNull()
+        {
+            // Act
+            var stringSvo = JsonConvert.DeserializeObject<StringSVO>(string.Empty);
+
+            // Assert
+            stringSvo.Should().BeNull();
         }
 
         [TestCase("\"\"", "")]
@@ -62,7 +71,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
         public void StringDeserialization(string json, string expectedValue)
         {
             // Act
-            var stringSvo = JsonSerializer.Deserialize<StringSVO>(json);
+            var stringSvo = JsonConvert.DeserializeObject<StringSVO>(json);
 
             // Assert
             stringSvo.Value.Should().Be(expectedValue);
@@ -77,7 +86,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var intSvo = new IntSVO(value);
 
             // Act
-            var json = JsonSerializer.Serialize(intSvo);
+            var json = JsonConvert.SerializeObject(intSvo);
 
             // Assert
             json.Should().Be(expectedJson);
@@ -89,18 +98,19 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
         public void IntDeserialization(string json, int expectedValue)
         {
             // Act
-            var intSvo = JsonSerializer.Deserialize<IntSVO>(json);
+            var intSvo = JsonConvert.DeserializeObject<IntSVO>(json);
 
             // Assert
             intSvo.Value.Should().Be(expectedValue);
         }
-
+        
+        [TestCase("\"One\"", MagicEnum.One)]
         [TestCase("1", MagicEnum.One)]
         [TestCase("2", MagicEnum.Two)]
         public void EnumDeserilization(string json, MagicEnum expectedValue)
         {
             // Act
-            var intSvo = JsonSerializer.Deserialize<EnumSVO>(json);
+            var intSvo = JsonConvert.DeserializeObject<EnumSVO>(json);
 
             // Assert
             intSvo.Value.Should().Be(expectedValue);
@@ -116,25 +126,25 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var intSvo = new IntSVO(value);
 
             // Act
-            var json = JsonSerializer.Serialize(intSvo);
+            var json = JsonConvert.SerializeObject(intSvo);
 
             // Assert
             json.Should().Be(expectedJson);
         }
-
-        [JsonConverter(typeof(SingleValueObjectConverter<StringSVO, string>))]
+       
+        [JsonConverter(typeof(NewtonsoftSingleValueObjectConverter))]
         public class StringSVO : SingleValueObject<string>
         {
             public StringSVO(string value) : base(value) { }
         }
 
-        [JsonConverter(typeof(SingleValueObjectConverter<IntSVO, int>))]
+        [JsonConverter(typeof(NewtonsoftSingleValueObjectConverter))]
         public class IntSVO : SingleValueObject<int>
         {
             public IntSVO(int value) : base(value) { }
         }
-
-        [JsonConverter(typeof(SingleValueObjectConverter<EnumSVO, MagicEnum>))]
+        
+        [JsonConverter(typeof(NewtonsoftSingleValueObjectConverter))]
         public class EnumSVO : SingleValueObject<MagicEnum>
         {
             public EnumSVO(MagicEnum value) : base(value) { }

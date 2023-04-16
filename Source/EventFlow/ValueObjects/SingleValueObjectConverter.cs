@@ -1,7 +1,7 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2021 Rasmus Mikkelsen
-// Copyright (c) 2015-2021 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,48 +25,72 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace EventFlow.ValueObjects
 {
-    public class SingleValueObjectConverter : JsonConverter
+    public class SingleValueObjectConverter<T, TValue> : JsonConverter<T>
+        where T : SingleValueObject<TValue>
+        where TValue : IComparable
     {
-        private static readonly ConcurrentDictionary<Type, Type> ConstructorArgumentTypes = new ConcurrentDictionary<Type, Type>();
+        private static readonly Type UnderlyingType;
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        static SingleValueObjectConverter()
         {
-            if (!(value is ISingleValueObject singleValueObject))
-            {
-                return;
-            }
-
-            serializer.Serialize(writer, singleValueObject.GetValue());
+            var type = typeof(T);
+            var genarg = type.GetGenericArguments();
+            UnderlyingType = typeof(TValue);
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.Value == null)
-            {
-                return null;
-            }
-
-            var parameterType = ConstructorArgumentTypes.GetOrAdd(
-                objectType,
-                t =>
-                    {
-                        var constructorInfo = objectType.GetTypeInfo().GetConstructors(BindingFlags.Public | BindingFlags.Instance).Single();
-                        var parameterInfo = constructorInfo.GetParameters().Single();
-                        return parameterInfo.ParameterType;
-                    });
-
-            var value = serializer.Deserialize(reader, parameterType);
-
-            return Activator.CreateInstance(objectType, value);
-        }
 
         public override bool CanConvert(Type objectType)
         {
-            return typeof(ISingleValueObject).GetTypeInfo().IsAssignableFrom(objectType);
+            var canConvert = typeof(ISingleValueObject).GetTypeInfo().IsAssignableFrom(objectType);
+            return canConvert;
+        }
+
+        public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.Null)
+            {
+                return default;
+            }
+
+            var value = JsonSerializer.Deserialize(ref reader, UnderlyingType, options);
+
+            return (T)Activator.CreateInstance(typeToConvert, value);
+        }
+
+        public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
+        {
+            JsonSerializer.Serialize(writer, value.GetValue(), options);
+        }
+    }
+
+    public class SystemTextJsonSingleValueObjectConverterFactory : JsonConverterFactory
+    {
+        private static readonly Type ConverterGenericType = typeof(SingleValueObjectConverter<,>);
+        private static readonly ConcurrentDictionary<Type, JsonConverter> Converters = new ConcurrentDictionary<Type, JsonConverter>();
+
+        public override bool CanConvert(Type typeToConvert)
+        {
+            return typeof(ISingleValueObject).GetTypeInfo().IsAssignableFrom(typeToConvert);
+        }
+
+        public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
+        {
+            var singleValueObject = typeToConvert.IsConstructedGenericType? typeToConvert : typeToConvert.BaseType;
+            var singleValueObjectType = singleValueObject.GetGenericArguments().First();
+            var converter = Converters.GetOrAdd(
+                typeToConvert,
+                t =>
+                {
+                    var constructedType = ConverterGenericType.MakeGenericType(typeToConvert, singleValueObjectType);
+                    return Activator.CreateInstance(constructedType) as JsonConverter;
+                });
+
+            return converter;
         }
     }
 }

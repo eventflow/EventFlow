@@ -22,13 +22,13 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Text.Json.Serialization;
 using EventFlow.Extensions;
 using EventFlow.ValueObjects;
-using Newtonsoft.Json;
 
 namespace EventFlow.Core.Caching
 {
-    [JsonConverter(typeof(SingleValueObjectConverter))]
+    [JsonConverter(typeof(SingleValueObjectConverter<CacheKey, string>))]
     public class CacheKey : SingleValueObject<string>
     {
         public const int MaxLength = 256;

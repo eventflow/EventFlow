@@ -1,7 +1,7 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2021 Rasmus Mikkelsen
-// Copyright (c) 2015-2021 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,16 +21,24 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using Newtonsoft.Json;
+using EventFlow.Aggregates;
+using EventFlow.Core;
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
-namespace EventFlow.Configuration.Serialization
+namespace EventFlow.ValueObjects
 {
-    public class JsonOptions : IJsonOptions
+    public class SourceIdInterfaceConverter : JsonConverter<ISourceId>
     {
-        public void Apply(JsonSerializerSettings settings)
+        public override ISourceId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
+            return JsonSerializer.Deserialize<SourceId>(ref reader, options);
         }
 
-        public static JsonOptions New => new JsonOptions();
+        public override void Write(Utf8JsonWriter writer, ISourceId value, JsonSerializerOptions options)
+        {
+            JsonSerializer.Serialize(writer, new SourceId(value.Value), options); 
+        }
     }
 }

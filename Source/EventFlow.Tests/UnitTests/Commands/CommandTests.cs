@@ -24,11 +24,14 @@
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
+using EventFlow.Core;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
+using EventFlow.ValueObjects;
 using FluentAssertions;
-using Newtonsoft.Json;
 using NUnit.Framework;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace EventFlow.Tests.UnitTests.Commands
 {
@@ -39,7 +42,7 @@ namespace EventFlow.Tests.UnitTests.Commands
         {
             public string CriticalData { get; }
 
-            public CriticalCommand(ThingyId aggregateId, EventId sourceId, string criticalData) : base(aggregateId, sourceId)
+            public CriticalCommand(ThingyId aggregateId, ISourceId sourceId, string criticalData) : base(aggregateId, sourceId)
             {
                 CriticalData = criticalData;
             }
@@ -49,15 +52,16 @@ namespace EventFlow.Tests.UnitTests.Commands
         public void SerializeDeserialize()
         {
             // Arrange
+            var jsonSerializer = new DefaultJsonSerializer();
             var criticalCommand = A<CriticalCommand>();
 
             // Act
-            var json = JsonConvert.SerializeObject(criticalCommand);
-            var deserialized = JsonConvert.DeserializeObject<CriticalCommand>(json);
+            var json = jsonSerializer.Serialize(criticalCommand);
+            var deserialized = jsonSerializer.Deserialize<CriticalCommand>(json);
 
             // Assert
             deserialized.CriticalData.Should().Be(criticalCommand.CriticalData);
-            deserialized.SourceId.Should().Be(criticalCommand.SourceId);
+            deserialized.SourceId.Value.Should().Be(criticalCommand.SourceId.Value);
             deserialized.AggregateId.Should().Be(criticalCommand.AggregateId);
         }
     }

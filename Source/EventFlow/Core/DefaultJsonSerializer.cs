@@ -21,40 +21,52 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.Commands;
+using EventFlow.ValueObjects;
 using System;
-using EventFlow.Configuration.Serialization;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace EventFlow.Core
 {
-    public class JsonSerializer : IJsonSerializer
+    public class DefaultJsonSerializer : IJsonSerializer
     {
-        private readonly JsonSerializerSettings _settingsNotIndented = new JsonSerializerSettings();
-        private readonly JsonSerializerSettings _settingsIndented = new JsonSerializerSettings();
+        private readonly JsonSerializerOptions _settingsNotIndented = new JsonSerializerOptions();
+        private readonly JsonSerializerOptions _settingsIndented = new JsonSerializerOptions();
+        
+        public DefaultJsonSerializer()
+            : this(new JsonSerializerOptions())
+        { }
 
-        public JsonSerializer(IJsonOptions options = null)
+        public DefaultJsonSerializer(JsonSerializerOptions options)
         {
-            options?.Apply(_settingsIndented);
-            options?.Apply(_settingsNotIndented);
+            var baseSettings = new JsonSerializerOptions();
+            baseSettings.Converters.Add(new SourceIdInterfaceConverter());
 
-            _settingsIndented.Formatting = Formatting.Indented;
-            _settingsNotIndented.Formatting = Formatting.None;
+            var indentedSettings = new JsonSerializerOptions(baseSettings);
+            indentedSettings.WriteIndented = true;
+
+            options.PropertyNameCaseInsensitive = true;
+            _settingsIndented = indentedSettings;
+
+            var nonIndentedSettings = new JsonSerializerOptions(baseSettings);
+            nonIndentedSettings.WriteIndented = false;
+            _settingsNotIndented = nonIndentedSettings;
         }
 
         public string Serialize(object obj, bool indented = false)
         {
             var settings = indented ? _settingsIndented : _settingsNotIndented;
-            return JsonConvert.SerializeObject(obj, settings);
+            return JsonSerializer.Serialize(obj, settings);
         }
 
         public object Deserialize(string json, Type type)
         {
-            return JsonConvert.DeserializeObject(json, type, _settingsNotIndented);
+            return JsonSerializer.Deserialize(json, type, _settingsNotIndented);
         }
 
         public T Deserialize<T>(string json)
         {
-            return JsonConvert.DeserializeObject<T>(json, _settingsNotIndented);
+            return JsonSerializer.Deserialize<T>(json, _settingsNotIndented);
         }
     }
 }

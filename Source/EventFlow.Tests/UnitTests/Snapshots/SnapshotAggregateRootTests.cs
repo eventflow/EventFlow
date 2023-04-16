@@ -77,7 +77,7 @@ namespace EventFlow.Tests.UnitTests.Snapshots
             // Arrange
             var thingySnapshot = new ThingySnapshot(
                 Many<PingId>(ThingyAggregate.SnapshotEveryVersion),
-                Enumerable.Empty<ThingySnapshotVersion>());
+                Enumerable.Empty<ThingySnapshotVersion>().ToList());
             Arrange_Snapshot(thingySnapshot);
             Arrange_EventStore(ManyDomainEvents<ThingyPingEvent>(eventsInStore));
 

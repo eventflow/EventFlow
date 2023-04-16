@@ -23,7 +23,7 @@
 
 using Newtonsoft.Json;
 
-namespace EventFlow.Configuration.Serialization
+namespace EventFlow.Newtonsoft.Configuration
 {
     public interface IJsonOptions
     {

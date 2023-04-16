@@ -23,11 +23,11 @@
 
 using EventFlow.Core;
 using EventFlow.ValueObjects;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel
 {
-    [JsonConverter(typeof(SingleValueObjectConverter))]
+    [JsonConverter(typeof(SingleValueObjectConverter<VoyageId, string>))]
     public class VoyageId : SingleValueObject<string>, IIdentity
     {
         public VoyageId(string value) : base(value)

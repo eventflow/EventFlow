@@ -22,14 +22,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using EventFlow.Core;
 using EventFlow.ValueObjects;
-using Newtonsoft.Json;
 
 namespace EventFlow.Examples.Shipping.Domain.Model.LocationModel
 {
-    [JsonConverter(typeof(SingleValueObjectConverter))]
+    [JsonConverter(typeof(SingleValueObjectConverter<LocationId, string>))]
     public class LocationId : SingleValueObject<string>, IIdentity
     {
         private static readonly Regex ValidValues = new Regex("[a-zA-Z]{2}[a-zA-Z2-9]{3}", RegexOptions.Compiled);

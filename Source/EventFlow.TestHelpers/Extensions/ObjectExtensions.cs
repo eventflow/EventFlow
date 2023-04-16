@@ -21,7 +21,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using Newtonsoft.Json;
+
+using System.Text.Json;
 
 namespace EventFlow.TestHelpers.Extensions
 {
@@ -29,9 +30,11 @@ namespace EventFlow.TestHelpers.Extensions
     {
         public static string ToJson<T>(this T obj, bool indented = false)
         {
-            return JsonConvert.SerializeObject(
-                obj,
-                indented ? Formatting.Indented : Formatting.None);
+            var settings = new JsonSerializerOptions();
+            settings.WriteIndented = indented;
+
+            return JsonSerializer.Serialize(
+                obj, settings);
         }
     }
 }

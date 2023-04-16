@@ -185,7 +185,7 @@ namespace EventFlow.TestHelpers.Aggregates
         {
             return Task.FromResult(new ThingySnapshot(
                 PingsReceived,
-                Enumerable.Empty<ThingySnapshotVersion>()));
+                Enumerable.Empty<ThingySnapshotVersion>().ToList()));
         }
 
         protected override Task LoadSnapshotAsync(ThingySnapshot snapshot, ISnapshotMetadata metadata, CancellationToken cancellationToken)

@@ -26,10 +26,11 @@ using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.ValueObjects;
 using FluentAssertions;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace EventFlow.Tests.UnitTests.Extensions
 {
@@ -43,14 +44,14 @@ namespace EventFlow.Tests.UnitTests.Extensions
 
         private class MyClassConverter : JsonConverter<MyClass>
         {
-            public override MyClass ReadJson(JsonReader reader, Type objectType, MyClass existingValue, bool hasExistingValue, Newtonsoft.Json.JsonSerializer serializer)
+            public override MyClass Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
-                return new MyClass() { DateTime = new DateTime((long)reader.Value) };
+                return new MyClass() { DateTime = new DateTime((long)reader.GetDecimal()) };
             }
 
-            public override void WriteJson(JsonWriter writer, MyClass value, Newtonsoft.Json.JsonSerializer serializer)
+            public override void Write(Utf8JsonWriter writer, MyClass value, JsonSerializerOptions options)
             {
-                serializer.Serialize(writer, value.DateTime.Ticks);
+                JsonSerializer.Serialize(writer, value.DateTime.Ticks);
             }
         }
 
@@ -66,7 +67,7 @@ namespace EventFlow.Tests.UnitTests.Extensions
             using (var serviceProvider = EventFlowOptions.New()
                 .ConfigureJson(json => json
                     .AddSingleValueObjects()
-                    .AddConverter<MyClassConverter>()
+                    .Converters.Add(new MyClassConverter())
                 )
                 .ServiceCollection.BuildServiceProvider())
             {

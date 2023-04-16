@@ -24,7 +24,6 @@
 using EventFlow.ValueObjects;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using Newtonsoft.Json;
 
 namespace EventFlow.MongoDB.ValueObjects
 {
@@ -33,15 +32,15 @@ namespace EventFlow.MongoDB.ValueObjects
         [BsonElement("_id")]
         public ObjectId _id { get; set; }
         long? _version { get; set; }
-        [JsonProperty("aggregateId")]
+        [BsonElement("aggregateId")] 
         public string AggregateId { get; set; }
-        [JsonProperty("aggregateName")]
+        [BsonElement("aggregateName")]
         public string AggregateName { get; set; }
-        [JsonProperty("aggregateSequenceNumber")]
+        [BsonElement("aggregateSequenceNumber")]        
         public int AggregateSequenceNumber { get; set; }
-        [JsonProperty("data")]
+        [BsonElement("data")]
         public string Data { get; set; }
-        [JsonProperty("metaData")]
+        [BsonElement("metaData")] 
         public string Metadata { get; set; }
     }
 }

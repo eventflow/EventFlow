@@ -29,7 +29,6 @@ using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Cancellation;
-using EventFlow.Configuration.Serialization;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
@@ -193,8 +192,7 @@ namespace EventFlow
             serviceCollection.TryAddTransient<IReadModelPopulator, ReadModelPopulator>();
             serviceCollection.TryAddTransient<IEventJsonSerializer, EventJsonSerializer>();
             serviceCollection.TryAddTransient<IQueryProcessor, QueryProcessor>();
-            serviceCollection.TryAddSingleton<IJsonSerializer, JsonSerializer>();
-            serviceCollection.TryAddTransient<IJsonOptions, JsonOptions>();
+            serviceCollection.TryAddSingleton<IJsonSerializer, DefaultJsonSerializer>();
             serviceCollection.TryAddTransient<IJobScheduler, InstantJobScheduler>();
             serviceCollection.TryAddTransient<IJobRunner, JobRunner>();
             serviceCollection.TryAddTransient<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>();

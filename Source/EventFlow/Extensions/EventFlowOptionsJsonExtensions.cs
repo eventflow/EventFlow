@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2021 Rasmus Mikkelsen
-// Copyright (c) 2015-2021 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,17 +21,30 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using System.Text.Json;
 using EventFlow.Core;
-using EventFlow.ValueObjects;
-using System.Text.Json.Serialization;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel
+namespace EventFlow.Extensions
 {
-    [JsonConverter(typeof(SingleValueObjectConverter<CargoId, string>))]
-    public class CargoId : Identity<CargoId>
+    public static class EventFlowOptionsJsonConfigurationExtensions
     {
-        public CargoId(string value) : base(value)
+        public static IEventFlowOptions ConfigureJson(
+            this IEventFlowOptions eventFlowOptions,
+            Action<JsonSerializerOptions> configure = default)
         {
+            eventFlowOptions.ServiceCollection.AddSingleton<IJsonSerializer>(new SystemTextJsonSerializer(configure));
+            return eventFlowOptions;
+        }
+
+        public static IEventFlowOptions ConfigureJson(
+            this IEventFlowOptions eventFlowOptions,
+            JsonSerializerOptions options = default)
+        {
+            eventFlowOptions.ServiceCollection.AddSingleton(options ?? new JsonSerializerOptions());
+            eventFlowOptions.ServiceCollection.AddSingleton<IJsonSerializer>(new SystemTextJsonSerializer(null));
+            return eventFlowOptions;
         }
     }
 }

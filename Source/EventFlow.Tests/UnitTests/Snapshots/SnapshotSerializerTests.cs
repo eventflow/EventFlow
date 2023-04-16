@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
@@ -32,7 +33,6 @@ using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Snapshots;
 using FluentAssertions;
 using Moq;
-using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Snapshots
@@ -95,10 +95,10 @@ namespace EventFlow.Tests.UnitTests.Snapshots
 
             _jsonSerializer
                 .Setup(s => s.Serialize(It.IsAny<object>(), It.IsAny<bool>()))
-                .Returns<object, bool>((o, b) => JsonConvert.SerializeObject(o));
+                .Returns<object, bool>((o, b) => JsonSerializer.Serialize(o));
             _jsonSerializer
                 .Setup(s => s.Deserialize<SnapshotMetadata>(It.IsAny<string>()))
-                .Returns<string>(JsonConvert.DeserializeObject<SnapshotMetadata>);
+                .Returns<string>(s => JsonSerializer.Deserialize<SnapshotMetadata>(s));
             _snapshotUpgradeServiceMock
                 .Setup(s => s.UpgradeAsync(It.IsAny<ISnapshot>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(A<ThingySnapshot>());
@@ -118,13 +118,13 @@ namespace EventFlow.Tests.UnitTests.Snapshots
         private CommittedSnapshot CreateCommittedSnapshot(ISnapshot snapshot)
         {
             return new CommittedSnapshot(
-                JsonConvert.SerializeObject(new SnapshotMetadata(new Dictionary<string, string>
+                JsonSerializer.Serialize(new SnapshotMetadata(new Dictionary<string, string>
                     {
                         {SnapshotMetadataKeys.SnapshotName, A<string>()},
                         {SnapshotMetadataKeys.SnapshotVersion, A<int>().ToString()},
                         {SnapshotMetadataKeys.AggregateSequenceNumber, A<int>().ToString()}
                     })),
-                JsonConvert.SerializeObject(snapshot));
+                JsonSerializer.Serialize(snapshot));
         }
 
         private static SnapshotContainer CreateSnapshotContainer(ISnapshot snapshot)

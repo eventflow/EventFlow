@@ -23,9 +23,9 @@
 
 using System;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace EventFlow.TestHelpers
 {
@@ -68,7 +68,7 @@ namespace EventFlow.TestHelpers
         public static async Task<T> GetAsAsync<T>(Uri uri)
         {
             var json = await GetAsync(uri).ConfigureAwait(false);
-            return JsonConvert.DeserializeObject<T>(json);
+            return JsonSerializer.Deserialize<T>(json);
         }
     }
 }

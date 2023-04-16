@@ -1,7 +1,7 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2021 Rasmus Mikkelsen
-// Copyright (c) 2015-2021 eBay Software Foundation
+// Copyright (c) 2015-2020 Rasmus Mikkelsen
+// Copyright (c) 2015-2020 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,26 +21,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using Newtonsoft.Json;
+using EventFlow.ValueObjects;
+using System.Text.Json;
 
-namespace EventFlow.Configuration.Serialization
+namespace EventFlow.Extensions
 {
-    public class ChainedJsonOptions : IJsonOptions
+    public static class SystemTextJsonSerializerOptionsExtensions
     {
-        private readonly Action<JsonSerializerSettings> _action;
-        private readonly IJsonOptions _parent;
-
-        public ChainedJsonOptions(IJsonOptions parent, Action<JsonSerializerSettings> action)
+        public static JsonSerializerOptions AddSingleValueObjects(this JsonSerializerOptions options)
         {
-            _parent = parent;
-            _action = action;
-        }
-
-        void IJsonOptions.Apply(JsonSerializerSettings settings)
-        {
-            _parent.Apply(settings);
-            _action.Invoke(settings);
+            options.Converters.Add(new SystemTextJsonSingleValueObjectConverterFactory());
+            return options;
         }
     }
 }

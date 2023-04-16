@@ -23,6 +23,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
@@ -34,7 +35,6 @@ using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Snapshots;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
-using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace EventFlow.TestHelpers.Suites
@@ -254,8 +254,8 @@ namespace EventFlow.TestHelpers.Suites
                 typeof(ThingyAggregate),
                 thingyId,
                 new SerializedSnapshot(
-                    JsonConvert.SerializeObject(snapshotMetadata),
-                    JsonConvert.SerializeObject(snapshot),
+                    JsonSerializer.Serialize(snapshotMetadata),
+                    JsonSerializer.Serialize(snapshot),
                     snapshotMetadata),
                 CancellationToken.None);
         }

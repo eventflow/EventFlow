@@ -23,10 +23,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using EventFlow.Aggregates;
 using EventFlow.TestHelpers;
 using FluentAssertions;
-using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Aggregates
@@ -135,8 +135,8 @@ namespace EventFlow.Tests.UnitTests.Aggregates
                 };
 
             // Act
-            var json = JsonConvert.SerializeObject(sut);
-            var metadata = JsonConvert.DeserializeObject<Metadata>(json);
+            var json = JsonSerializer.Serialize(sut);
+            var metadata = JsonSerializer.Deserialize<Metadata>(json);
 
             // Assert
             metadata.Count.Should().Be(3);
@@ -152,8 +152,8 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var sut = new Metadata();
 
             // Act
-            var json = JsonConvert.SerializeObject(sut);
-            var metadata = JsonConvert.DeserializeObject<Metadata>(json);
+            var json = JsonSerializer.Serialize(sut);
+            var metadata = JsonSerializer.Deserialize<Metadata>(json);
 
             // Assert
             json.Should().Be("{}");
