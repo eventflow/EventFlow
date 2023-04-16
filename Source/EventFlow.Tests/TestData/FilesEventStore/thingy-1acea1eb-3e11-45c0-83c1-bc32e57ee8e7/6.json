@@ -1,7 +1,0 @@
-{
-  "GlobalSequenceNumber": 4,
-  "AggregateId": "thingy-1acea1eb-3e11-45c0-83c1-bc32e57ee8e7",
-  "Data": "{\u0022PingId\u0022:{\u0022Value\u0022:\u002234a9e544-2987-432c-9a13-5e3fe2f3217e\u0022}}",
-  "Metadata": "{\u0022timestamp\u0022:\u00222023-04-16T12:04:22.8714516\\u002B02:00\u0022,\u0022aggregate_sequence_number\u0022:\u00226\u0022,\u0022aggregate_name\u0022:\u0022Thingy\u0022,\u0022aggregate_id\u0022:\u0022thingy-1acea1eb-3e11-45c0-83c1-bc32e57ee8e7\u0022,\u0022event_id\u0022:\u0022event-70cec3d2-134d-5649-82d9-3dca942e2a4c\u0022,\u0022timestamp_epoch\u0022:\u00221681639463\u0022,\u0022batch_id\u0022:\u002240c4c9d7-4d69-47d5-ae41-ea9fb9a38be9\u0022,\u0022source_id\u0022:\u0022command-41572db4-a67d-4f10-aa7c-b73ce781d57b\u0022,\u0022event_name\u0022:\u0022ThingyPing\u0022,\u0022event_version\u0022:\u00221\u0022}",
-  "AggregateSequenceNumber": 6
-}
