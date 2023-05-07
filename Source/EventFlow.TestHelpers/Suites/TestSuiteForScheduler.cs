@@ -82,7 +82,7 @@ namespace EventFlow.TestHelpers.Suites
 
                 // Assert
                 var receivedPingId = await Task.Run(() => _testAsynchronousSubscriber.PingIds.Take(), cts.Token).ConfigureAwait(false);
-                receivedPingId.Should().IsSameOrEqualTo(pingId);
+                receivedPingId.Should().Be(pingId);
             }
         }
 

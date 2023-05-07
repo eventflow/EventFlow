@@ -30,16 +30,15 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Exceptions;
-using EventFlow.Logs;
-using EventStore.ClientAPI;
-using EventStore.ClientAPI.Exceptions;
+using EventStore.Client;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.EventStores.EventStore
 {
     public class EventStoreEventPersistence : IEventPersistence
     {
-        private readonly ILog _log;
-        private readonly IEventStoreConnection _connection;
+        private readonly ILogger<EventStoreEventPersistence> _logger;
+        private readonly EventStoreClient _client;
 
         private class EventStoreEvent : ICommittedDomainEvent
         {
@@ -50,11 +49,11 @@ namespace EventFlow.EventStores.EventStore
         }
 
         public EventStoreEventPersistence(
-            ILog log,
-            IEventStoreConnection connection)
+            ILogger<EventStoreEventPersistence> log,
+            EventStoreClient client)
         {
-            _log = log;
-            _connection = connection;
+            _logger = log;
+            _client = client;
         }
 
         public async Task<AllCommittedEventsPage> LoadAllCommittedEvents(
@@ -62,19 +61,27 @@ namespace EventFlow.EventStores.EventStore
             int pageSize,
             CancellationToken cancellationToken)
         {
+
             var nextPosition = ParsePosition(globalPosition);
             var resolvedEvents = new List<ResolvedEvent>();
-            AllEventsSlice allEventsSlice;
 
             do
             {
-                allEventsSlice = await _connection.ReadAllEventsForwardAsync(nextPosition, pageSize, false).ConfigureAwait(false);
-                resolvedEvents.AddRange(allEventsSlice.Events.Where(e => !e.OriginalStreamId.StartsWith("$")));
-                nextPosition = allEventsSlice.NextPosition;
+                var result = _client.ReadAllAsync(Direction.Forwards, nextPosition, pageSize, cancellationToken: cancellationToken);
+                var events = await result.ToListAsync();
+                var nonDeletedEvents = events.Where(e => !(e.OriginalStreamId.StartsWith("$") || e.Event.EventType.StartsWith("$"))).ToList();
+                resolvedEvents.AddRange(nonDeletedEvents);
+
+                var noPositionAvailable = !result.LastPosition.HasValue;
+                if (noPositionAvailable)
+                {
+                    break;
+                }
+
+                nextPosition = result.LastPosition.Value;
 
             }
-            while (resolvedEvents.Count < pageSize && !allEventsSlice.IsEndOfStream);
-
+            while (resolvedEvents.Count < pageSize);
             var eventStoreEvents = Map(resolvedEvents);
 
             return new AllCommittedEventsPage(
@@ -97,8 +104,8 @@ namespace EventFlow.EventStores.EventStore
                     globalPosition.Value));
             }
 
-            var commitPosition = long.Parse(parts[0]);
-            var preparePosition = long.Parse(parts[1]);
+            var commitPosition = ulong.Parse(parts[0]);
+            var preparePosition = ulong.Parse(parts[1]);
 
             return new Position(commitPosition, preparePosition);
         }
@@ -118,33 +125,33 @@ namespace EventFlow.EventStores.EventStore
                     })
                 .ToList();
 
-            var expectedVersion = Math.Max(serializedEvents.Min(e => e.AggregateSequenceNumber) - 2, ExpectedVersion.NoStream);
+            var aggregateVersion = (ulong) serializedEvents.Min(e => e.AggregateSequenceNumber) - 2;
+            var expectedVersion = aggregateVersion < 0 ? StreamRevision.None : new StreamRevision(aggregateVersion);
             var eventDatas = serializedEvents
                 .Select(e =>
                     {
                         // While it might be tempting to use e.Metadata.EventId here, we can't
                         // as EventStore won't detect optimistic concurrency exceptions then
-                        var guid = Guid.NewGuid();
+                        var guid = Uuid.NewUuid();
 
                         var eventType = string.Format("{0}.{1}.{2}", e.Metadata[MetadataKeys.AggregateName], e.Metadata.EventName, e.Metadata.EventVersion);
                         var data = Encoding.UTF8.GetBytes(e.SerializedData);
                         var meta = Encoding.UTF8.GetBytes(e.SerializedMetadata);
-                        return new EventData(guid, eventType, true, data, meta);
+                        return new EventData(guid, eventType, data, meta);
                     })
                 .ToList();
 
             try
             {
-                var writeResult = await _connection.AppendToStreamAsync(
+                var writeResult = await _client.AppendToStreamAsync(
                     id.Value,
                     expectedVersion,
-                    eventDatas)
-                    .ConfigureAwait(false);
+                    eventDatas);
 
-                _log.Verbose(
+                _logger.LogTrace(
                     "Wrote entity {0} with version {1} ({2},{3})",
                     id,
-                    writeResult.NextExpectedVersion - 1,
+                    writeResult.NextExpectedStreamRevision.ToUInt64() - 1,
                     writeResult.LogPosition.CommitPosition,
                     writeResult.LogPosition.PreparePosition);
             }
@@ -161,33 +168,31 @@ namespace EventFlow.EventStores.EventStore
             int fromEventSequenceNumber,
             CancellationToken cancellationToken)
         {
-            var streamEvents = new List<ResolvedEvent>();
 
-            StreamEventsSlice currentSlice;
-            var nextSliceStart = fromEventSequenceNumber <= 1
+            var startPosition = fromEventSequenceNumber <= 1
                 ? StreamPosition.Start
-                : fromEventSequenceNumber - 1; // Starts from zero
+                : StreamPosition.FromInt64(fromEventSequenceNumber - 1); // Starts from zero
 
-            do
+            try
             {
-                currentSlice = await _connection.ReadStreamEventsForwardAsync(
-                    id.Value,
-                    nextSliceStart,
-                    200,
-                    false)
-                    .ConfigureAwait(false);
-                nextSliceStart = (int)currentSlice.NextEventNumber;
-                streamEvents.AddRange(currentSlice.Events);
+                var result = _client.ReadStreamAsync(Direction.Forwards, id.Value, startPosition, cancellationToken: cancellationToken);
+                var resolvedEvents = await result.ToListAsync();
 
+                return Map(resolvedEvents);
             }
-            while (!currentSlice.IsEndOfStream);
-
-            return Map(streamEvents);
+            catch (StreamNotFoundException)
+            {
+                return new List<ICommittedDomainEvent>();
+            }
+            catch (StreamDeletedException)
+            {
+                return new List<ICommittedDomainEvent>();
+            }
         }
 
-        public Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
+        public async Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
-            return _connection.DeleteStreamAsync(id.Value, ExpectedVersion.Any);
+            var result = await _client.TombstoneAsync(id.Value, StreamState.Any);
         }
 
         private static IReadOnlyCollection<EventStoreEvent> Map(IEnumerable<ResolvedEvent> resolvedEvents)
@@ -195,10 +200,10 @@ namespace EventFlow.EventStores.EventStore
             return resolvedEvents
                 .Select(e => new EventStoreEvent
                     {
-                        AggregateSequenceNumber = (int)(e.Event.EventNumber + 1), // Starts from zero
-                        Metadata = Encoding.UTF8.GetString(e.Event.Metadata),
+                        AggregateSequenceNumber = (int)(e.Event.EventNumber.ToInt64() + 1), // Starts from zero
+                        Metadata = Encoding.UTF8.GetString(e.Event.Metadata.ToArray()),
                         AggregateId = e.OriginalStreamId,
-                        Data = Encoding.UTF8.GetString(e.Event.Data),
+                        Data = Encoding.UTF8.GetString(e.Event.Data.ToArray()),
                     })
                 .ToList();
         }
