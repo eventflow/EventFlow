@@ -58,7 +58,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             };
             
             // Assert
-            commandPublishAction.Should().Throw<Exception>()
+            await commandPublishAction.Should().ThrowAsync<Exception>()
                 .WithMessage("Exception thrown (as requested by ThingySagaExceptionRequestedEvent)");
         }
 
@@ -84,7 +84,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             };
 
             // Assert
-            commandPublishAction.Should().NotThrow<Exception>();
+            await commandPublishAction.Should().NotThrowAsync<Exception>();
         }
 
         protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)

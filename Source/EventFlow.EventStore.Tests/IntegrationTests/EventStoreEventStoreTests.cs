@@ -23,46 +23,34 @@
 
 using System;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.EventStores.EventStore.Extensions;
 using EventFlow.Extensions;
 using EventFlow.MetadataProviders;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
-using EventStore.ClientAPI;
-using EventStore.ClientAPI.SystemData;
 using NUnit.Framework;
 
 namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
 {
-    [TestFixture]
     [Category(Categories.Integration)]
+    [TestFixture]
     public class EventStoreEventStoreTests : TestSuiteForEventStore
     {
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
-            var eventStoreUri = new Uri(Environment.GetEnvironmentVariable("EVENTSTORE_URL") ?? "tcp://admin:changeit@localhost:1113");
+            var eventStoreUri = Environment.GetEnvironmentVariable("EVENTSTORE_URL") ?? "esdb://admin:changeit@localhost:2113?tls=false";
 
-            var connectionSettings = ConnectionSettings.Create()
-                .EnableVerboseLogging()
-                .KeepReconnecting()
-                .KeepRetrying()
-                .SetDefaultUserCredentials(new UserCredentials("admin", "changeit"))
-                .Build();
-
-            var resolver = eventFlowOptions
+            eventFlowOptions
                 .AddMetadataProvider<AddGuidMetadataProvider>()
-                .UseEventStoreEventStore(eventStoreUri, connectionSettings)
-                .CreateResolver();
+                .UseEventStoreEventStore(eventStoreUri);
 
-            return resolver;
+            var serviceProvider = base.Configure(eventFlowOptions);
+            return serviceProvider;
         }
 
-        public override Task LoadAllEventsAsyncFindsEventsAfterLargeGaps()
+        [TearDown]
+        public void TearDown()
         {
-            // Need to reset DB in order to make this test work.
-
-            return Task.CompletedTask;
         }
     }
 }
