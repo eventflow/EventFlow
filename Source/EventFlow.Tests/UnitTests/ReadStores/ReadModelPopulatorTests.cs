@@ -22,12 +22,51 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.TestHelpers;
+using Moq;
 using NUnit.Framework;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Collections.Generic;
+using System.Linq;
+using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.EventStores;
+using EventFlow.Aggregates;
+using System;
 
 namespace EventFlow.Tests.UnitTests.ReadStores
 {
     [Category(Categories.Unit)]
     public class ReadModelPopulatorTests : BaseReadModelTests<TestReadModel>
     {
+        [Test]
+        public async Task MultiplePopulateCallsApplyDomainEvents()
+        {
+            // Arrange
+            var extraManager = ArrangeExtraReadModelManager<SecondTestReadModel>();
+            ArrangeEventStore(Many<ThingyPingEvent>(600));
+
+            // Act
+            await Sut.PopulateAsync(new HashSet<Type> { typeof(TestReadModel), typeof(SecondTestReadModel) }, CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+
+            // Previous tests unchanged
+            _eventStoreMock.Verify(
+                s => s.LoadAllEventsAsync(It.IsAny<GlobalPosition>(), It.Is<int>(i => i == ReadModelPageSize), It.IsAny<IEventUpgradeContext>(), It.IsAny<CancellationToken>()),
+                Times.Exactly(3)); ;
+
+            _readStoreManagerMock.Verify(
+                s => s.UpdateReadStoresAsync(
+                    It.Is<IReadOnlyCollection<IDomainEvent>>(l => l.Count == PopulateReadModelPageSize),
+                    It.IsAny<CancellationToken>()),
+                Times.Exactly(1));
+
+            // New read model received events
+            extraManager.Verify(
+                s => s.UpdateReadStoresAsync(
+                    It.Is<IReadOnlyCollection<IDomainEvent>>(l => l.Count == PopulateReadModelPageSize),
+                    It.IsAny<CancellationToken>()),
+                Times.Exactly(1));
+        }
     }
 }
