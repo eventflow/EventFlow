@@ -28,6 +28,7 @@ namespace EventFlow.Configuration
 {
     public class EventFlowConfiguration : IEventFlowConfiguration, ICancellationConfiguration
     {
+        public int LoadReadModelEventPageSize { get; set; }
         public int PopulateReadModelEventPageSize { get; set; }
         public int NumberOfRetriesOnOptimisticConcurrencyExceptions { get; set; }
         public TimeSpan DelayBeforeRetryOnOptimisticConcurrencyExceptions { get; set; }
@@ -38,7 +39,8 @@ namespace EventFlow.Configuration
 
         internal EventFlowConfiguration()
         {
-            PopulateReadModelEventPageSize = 200;
+            LoadReadModelEventPageSize = 200;
+            PopulateReadModelEventPageSize = 10000;
             NumberOfRetriesOnOptimisticConcurrencyExceptions = 4;
             DelayBeforeRetryOnOptimisticConcurrencyExceptions = TimeSpan.FromMilliseconds(100);
             ThrowSubscriberExceptions = false;
