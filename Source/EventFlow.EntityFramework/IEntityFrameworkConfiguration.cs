@@ -21,12 +21,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.EntityFramework
 {
     public interface IEntityFrameworkConfiguration
     {
-        void Apply(IServiceRegistration serviceRegistration);
+        void Apply(IServiceCollection serviceCollection);
     }
 }
