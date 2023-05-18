@@ -28,22 +28,25 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
     public class RabbitConnection : IRabbitConnection
     {
-        private readonly ILog _log;
+        private readonly ILogger _logger;
         private readonly IConnection _connection;
         private readonly AsyncLock _asyncLock;
         private readonly ConcurrentBag<IModel> _models; 
 
-        public RabbitConnection(ILog log, int maxModels, IConnection connection)
+        public RabbitConnection(
+            ILogger logger,
+            int maxModels,
+            IConnection connection)
         {
+            _logger = logger;
             _connection = connection;
-            _log = log;
             _asyncLock = new AsyncLock(maxModels);
             _models = new ConcurrentBag<IModel>(Enumerable.Range(0, maxModels).Select(_ => connection.CreateModel()));
         }
@@ -52,8 +55,7 @@ namespace EventFlow.RabbitMQ.Integrations
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                IModel model;
-                if (!_models.TryTake(out model))
+                if (!_models.TryTake(out var model))
                 {
                     throw new InvalidOperationException(
                         "This should NEVER happen! If it does, please report a bug.");
@@ -74,12 +76,12 @@ namespace EventFlow.RabbitMQ.Integrations
 
         public void Dispose()
         {
+            _logger.LogTrace("Disposing RabbitMQ connection");
             foreach (var model in _models)
             {
-                model.DisposeSafe(_log, "Failed to dispose model");
+                model.DisposeSafe(_logger, "Failed to dispose model");
             }
-            _connection.DisposeSafe(_log, "Failed to dispose connection");
-            _log.Verbose("Disposing RabbitMQ connection");
+            _connection.DisposeSafe(_logger, "Failed to dispose connection");
         }
     }
 }

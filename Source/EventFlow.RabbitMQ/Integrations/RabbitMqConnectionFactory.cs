@@ -27,23 +27,23 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
     public class RabbitMqConnectionFactory : IRabbitMqConnectionFactory
     {
-        private readonly ILog _log;
+        private readonly ILogger<RabbitMqConnectionFactory> _logger;
         private readonly IRabbitMqConfiguration _configuration;
         private readonly AsyncLock _asyncLock = new AsyncLock();
         private readonly Dictionary<Uri, ConnectionFactory> _connectionFactories = new Dictionary<Uri, ConnectionFactory>();
 
         public RabbitMqConnectionFactory(
-            ILog log,
+            ILogger<RabbitMqConnectionFactory> logger,
             IRabbitMqConfiguration configuration)
         {
-            _log = log;
+            _logger = logger;
             _configuration = configuration;
         }
 
@@ -52,19 +52,20 @@ namespace EventFlow.RabbitMQ.Integrations
             var connectionFactory = await CreateConnectionFactoryAsync(uri, cancellationToken).ConfigureAwait(false);
             var connection = connectionFactory.CreateConnection();
 
-            return new RabbitConnection(_log, _configuration.ModelsPrConnection, connection);
+            return new RabbitConnection(_logger, _configuration.ModelsPrConnection, connection);
         }
 
         private async Task<ConnectionFactory> CreateConnectionFactoryAsync(Uri uri, CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
-                ConnectionFactory connectionFactory;
-                if (_connectionFactories.TryGetValue(uri, out connectionFactory))
+                if (_connectionFactories.TryGetValue(uri, out var connectionFactory))
                 {
                     return connectionFactory;
                 }
-                _log.Verbose("Creating RabbitMQ connection factory to {0}", uri.Host);
+                _logger.LogTrace(
+                    "Creating RabbitMQ connection factory to {RabbitMqHost}",
+                    uri.Host);
 
                 connectionFactory = new ConnectionFactory
                     {
