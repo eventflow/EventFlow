@@ -8,6 +8,11 @@ as recommendations on how to do the migration.
 
 https://github.com/eventflow/EventFlow/blob/develop-v1/MIGRATION_GUIDE.md
 
+Changes since last 1.x pre-release, `1.0.5002-alpha`
+* New: Readmodel rebuilder can be done across multiple read model types. The piping of events
+  and applying them are now done concurrently to reduced memory usage and significantly improve
+  time to completion.
+
 Changes since last 1.x pre-release, `1.0.5001-alpha`
 
 * New/breaking: `IEventUpgrader<,>` are now (finally) async. For an easy upgrade experience,
@@ -57,6 +62,9 @@ Complete 1.0 change log
   - `MsSqlReadModelIdentityColumn`
   - `MsSqlReadModelIgnoreColumn`
   - `MsSqlReadModelVersionColumn`
+* New: Readmodel rebuilder can be done across multiple read model types. The piping of events
+  and applying them are now done concurrently to reduced memory usage and significantly improve
+  time to completion.
 * Breaking: Methods on `IMsSqlDatabaseMigrator` and `ISqlDatabaseMigrator` have been
   made async and have an extra `CancellationToken` argument
 * Breaking: Remove support for .NET Framework and consolidate on .NET (Core) LTS versions

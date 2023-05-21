@@ -43,7 +43,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         {
             // Arrange
             var extraManager = ArrangeExtraReadModelManager<SecondTestReadModel>();
-            ArrangeEventStore(Many<ThingyPingEvent>(600));
+            ArrangeEventStore(Many<ThingyPingEvent>(6));
 
             // Act
             await Sut.PopulateAsync(new HashSet<Type> { typeof(TestReadModel), typeof(SecondTestReadModel) }, CancellationToken.None).ConfigureAwait(false);
