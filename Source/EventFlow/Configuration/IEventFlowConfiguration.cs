@@ -33,6 +33,12 @@ namespace EventFlow.Configuration
         /// are populated.
         /// </summary>
         /// <remarks>Defaults to 200</remarks>
+        int LoadReadModelEventPageSize { get; }
+
+        /// <summary>
+        /// Number of events to batch together when updating read models
+        /// </summary>
+        /// <remarks>Defaults to 200</remarks>
         int PopulateReadModelEventPageSize { get; }
 
         /// <summary>

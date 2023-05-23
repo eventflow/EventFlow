@@ -41,12 +41,13 @@ namespace EventFlow.Tests.UnitTests.ReadStores
     public abstract class BaseReadModelTests<TReadModel> : TestsFor<ReadModelPopulator>
         where TReadModel : class, IReadModel
     {
-        private const int ReadModelPageSize = 3;
+        protected const int ReadModelPageSize = 3;
+        protected const int PopulateReadModelPageSize = 6;
 
         private Mock<IReadModelStore<TReadModel>> _readModelStoreMock;
-        private Mock<IReadStoreManager<TReadModel>> _readStoreManagerMock;
+        protected Mock<IReadStoreManager<IReadModel>> _readStoreManagerMock;
         private Mock<IEventFlowConfiguration> _eventFlowConfigurationMock;
-        private Mock<IEventStore> _eventStoreMock;
+        protected Mock<IEventStore> _eventStoreMock;
         private Mock<IServiceProvider> _serviceProviderMock;
         private List<IDomainEvent> _eventStoreData;
 
@@ -59,7 +60,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             _eventStoreData = null;
             _serviceProviderMock = InjectMock<IServiceProvider>();
             _readModelStoreMock = new Mock<IReadModelStore<TReadModel>>();
-            _readStoreManagerMock = new Mock<IReadStoreManager<TReadModel>>();
+            _readStoreManagerMock = new Mock<IReadStoreManager<IReadModel>>();
             _eventFlowConfigurationMock = InjectMock<IEventFlowConfiguration>();
 
             _serviceProviderMock
@@ -70,8 +71,12 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 .Returns(new[] { _readModelStoreMock.Object });
 
             _eventFlowConfigurationMock
-                .Setup(c => c.PopulateReadModelEventPageSize)
+                .Setup(c => c.LoadReadModelEventPageSize)
                 .Returns(ReadModelPageSize);
+
+            _eventFlowConfigurationMock
+                .Setup(c => c.PopulateReadModelEventPageSize)
+                .Returns(PopulateReadModelPageSize);
 
             _eventStoreMock
                 .Setup(s => s.LoadAllEventsAsync(It.IsAny<GlobalPosition>(), It.IsAny<int>(), It.IsAny<IEventUpgradeContext>(), It.IsAny<CancellationToken>()))
@@ -101,11 +106,15 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             await Sut.PopulateAsync<TReadModel>(CancellationToken.None).ConfigureAwait(false);
 
             // Assert
+            _eventStoreMock.Verify(
+                s => s.LoadAllEventsAsync(It.IsAny<GlobalPosition>(), It.Is<int>(i => i == ReadModelPageSize), It.IsAny<IEventUpgradeContext>(), It.IsAny<CancellationToken>()),
+                Times.Exactly(3)); ;
+
             _readStoreManagerMock.Verify(
                 s => s.UpdateReadStoresAsync(
-                    It.Is<IReadOnlyCollection<IDomainEvent>>(l => l.Count == ReadModelPageSize),
+                    It.Is<IReadOnlyCollection<IDomainEvent>>(l => l.Count == PopulateReadModelPageSize),
                     It.IsAny<CancellationToken>()),
-                Times.Exactly(2));
+                Times.Exactly(1));
         }
 
         [Test]
@@ -148,7 +157,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             return new AllEventsPage(new GlobalPosition(nextPosition.ToString()), events);
         }
 
-        private void ArrangeEventStore(IEnumerable<IAggregateEvent> aggregateEvents)
+        protected void ArrangeEventStore(IEnumerable<IAggregateEvent> aggregateEvents)
         {
             ArrangeEventStore(aggregateEvents.Select(e => ToDomainEvent(e)));
         }
@@ -156,6 +165,27 @@ namespace EventFlow.Tests.UnitTests.ReadStores
         private void ArrangeEventStore(IEnumerable<IDomainEvent> domainEvents)
         {
             _eventStoreData = domainEvents.ToList();
+        }
+
+        protected Mock<IReadStoreManager<IReadModel>> ArrangeExtraReadModelManager<TExtraReadModel>()
+            where TExtraReadModel : class, IReadModel
+        {
+            var extraManager = new Mock<IReadStoreManager<IReadModel>>();
+            var extraReadModel = new Mock<IReadModelStore<TExtraReadModel>>();
+
+            _serviceProviderMock
+                .Setup(r => r.GetService(typeof(IEnumerable<IReadStoreManager>)))
+                .Returns(new[] { _readStoreManagerMock.Object, extraManager.Object });
+
+            _serviceProviderMock
+                .Setup(r => r.GetService(typeof(IEnumerable<IReadModelStore<TExtraReadModel>>)))
+                .Returns(new[] { extraReadModel.Object });
+
+            extraManager
+                .Setup(m => m.ReadModelType)
+                .Returns(typeof(TExtraReadModel));
+
+            return extraManager;
         }
     }
 }

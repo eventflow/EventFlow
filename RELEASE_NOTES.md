@@ -7,6 +7,9 @@ https://github.com/eventflow/EventFlow/blob/develop-v1/MIGRATION_GUIDE.md
 
 Changes since last 1.x pre-release, `1.0.5002-alpha`
 
+* New: Read model rebuilder can be done across multiple read model types. The piping of events
+  and applying them are now done concurrently to reduced memory usage and significantly improve
+  time to completion (by @kyle-bradley)
 * Breaking: Removed old `EventFlow.Shims.Tasks` class that provided a wrapper for `Task.CompletedTask`
   in frameworks that did not have it
 
@@ -33,6 +36,9 @@ Changes since last 1.x pre-release, `1.0.5001-alpha`
 
 Complete 1.0 change log
 
+* New: Read model rebuilder can be done across multiple read model types. The piping of events
+  and applying them are now done concurrently to reduced memory usage and significantly improve
+  time to completion (by @kyle-bradley)
 * New/breaking: Replace internal IoC implementation with `Microsoft.Extensions.DependencyInjection`
 * New/breaking: Replace internal logging implementation with `Microsoft.Extensions.Logging`
 * New/breaking: SQL read models now support different connection strings using the
@@ -47,13 +53,13 @@ Complete 1.0 change log
   use the new base class `EventUpgraderNonAsync` for any existing upgraders. Its a `abstract`
   class that implements the updated interface and provides a `abstract` method with the same
   signature as the previous interface
+* New: Its now possible to change the execution timeout for database migrations using the
+  `SetUpgradeExecutionTimeout(...)` on the SQL configuration
 * Fix/breaking: Event upgraders are now used during read model population. As the upgraders
   are re-used across multiple aggregates, there is a high likelihood that some additions are
   needed in any existing upgraders. Upgraders are stored on the new `IEventUpgradeContext`,
   which is created by the new `IEventUpgradeContextFactory`. Replace this if you need addition
   context during event upgrades
-* New: Its now possible to change the execution timeout for database migrations using the
-  `SetUpgradeExecutionTimeout(...)` on the SQL configuration
 * Breaking: Removed the following dead and/or confusion MSSQL attributes. The real ones
   are named the same, with with `Sql...` instead of `MsSql...`
   - `MsSqlReadModelIdentityColumn`
