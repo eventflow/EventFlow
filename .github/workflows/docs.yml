@@ -1,8 +1,10 @@
 name: docs 
+
 on:
   push:
     branches:
       - develop-v1
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -13,7 +15,9 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: 3.x
+
       - run: pip install -r requirements.txt
+
       - run: mkdocs gh-deploy --force
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
