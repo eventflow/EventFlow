@@ -53,7 +53,9 @@ The following list key characteristics of each version as well as its related br
   updated in the same pull-requests as any code changes.
 
   ### NuGet package status
-  - 🟢 released
+
+  - 🟢 ported
+  - 💚 newly added to 1.0
   - 🟠 not yet ported to 1.0
   - 💀 for packages that are removed as part of 1.0 (see the [migration guide](./MIGRATION_GUIDE.md) for details)
 
@@ -70,6 +72,7 @@ The following list key characteristics of each version as well as its related br
     - 🟢 `EventFlow.MsSql`
     - 💀 `EventFlow.Owin`
     - 🟢 `EventFlow.PostgreSql`
+    - 💚 `EventFlow.Redis`
     - 🟠 `EventFlow.RabbitMQ`
     - 🟢 `EventFlow.Sql`
     - 🟠 `EventFlow.SQLite`

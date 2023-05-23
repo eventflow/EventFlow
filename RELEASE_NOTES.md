@@ -5,11 +5,16 @@ on how to do the migration.
 
 https://github.com/eventflow/EventFlow/blob/develop-v1/MIGRATION_GUIDE.md
 
+(If you see any changes you feel ownership of and you want you name there, create an issue
+and it will get fixed asap. EventFlow would be where it is today without the grate community
+contributions that it have received over the years)
+
 Changes since last 1.x pre-release, `1.0.5002-alpha`
 
 * New: Read model rebuilder can be done across multiple read model types. The piping of events
   and applying them are now done concurrently to reduced memory usage and significantly improve
   time to completion (by @kyle-bradley)
+* New: Created `EventFlow.Redis` (by @joshua211)
 * Breaking: Removed old `EventFlow.Shims.Tasks` class that provided a wrapper for `Task.CompletedTask`
   in frameworks that did not have it
 
@@ -39,6 +44,7 @@ Complete 1.0 change log
 * New: Read model rebuilder can be done across multiple read model types. The piping of events
   and applying them are now done concurrently to reduced memory usage and significantly improve
   time to completion (by @kyle-bradley)
+* New: Created `EventFlow.Redis` (by @joshua211)
 * New/breaking: Replace internal IoC implementation with `Microsoft.Extensions.DependencyInjection`
 * New/breaking: Replace internal logging implementation with `Microsoft.Extensions.Logging`
 * New/breaking: SQL read models now support different connection strings using the
