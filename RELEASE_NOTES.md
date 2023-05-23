@@ -1,4 +1,4 @@
-### New in 1.0 (not released yet)
+### New in 1.0-alpha (not released yet)
 
 Read the complete migration guide to get the full list of changes as well as recommendations
 on how to do the migration.
