@@ -28,7 +28,6 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Core;
-using EventFlow.Shims;
 
 namespace EventFlow.EventStores
 {
@@ -41,7 +40,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Tasks.Completed;
+            return Task.CompletedTask;
         }
 
         public Task BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(TAggregate aggregate,
@@ -51,7 +50,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Tasks.Completed;
+            return Task.CompletedTask;
         }
 
         public Task<(bool, IAggregateUpdateResult<TExecutionResult>)> HandleCommitFailedAsync<TAggregate, TIdentity,
@@ -73,7 +72,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Tasks.Completed;
+            return Task.CompletedTask;
         }
 
         public Task EventPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(TIdentity id,
@@ -84,7 +83,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Tasks.Completed;
+            return Task.CompletedTask;
         }
 
         public Task BeforeEventPublishAsync<TAggregate, TIdentity, TExecutionResult>(TIdentity id,
@@ -95,7 +94,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Tasks.Completed;
+            return Task.CompletedTask;
         }
 
         public Task<bool> HandleEventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(TIdentity id,
@@ -118,7 +117,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Tasks.Completed;
+            return Task.CompletedTask;
         }
     }
 }
