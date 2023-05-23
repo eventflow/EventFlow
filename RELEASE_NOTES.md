@@ -1,12 +1,14 @@
 ### New in 1.0-alpha (not released yet)
 
-**IMPORTANT:** Major API breaking changes *might* occur between 1.0 pre-releases. As breaking
-API changes will need to be tested and verified before the final 1.0 release.
-
-Read the complete migration guide to get the full list of changes as well
-as recommendations on how to do the migration.
+Read the complete migration guide to get the full list of changes as well as recommendations
+on how to do the migration.
 
 https://github.com/eventflow/EventFlow/blob/develop-v1/MIGRATION_GUIDE.md
+
+Changes since last 1.x pre-release, `1.0.5002-alpha`
+
+* Breaking: Removed old `EventFlow.Shims.Tasks` class that provided a wrapper for `Task.CompletedTask`
+  in frameworks that did not have it
 
 Changes since last 1.x pre-release, `1.0.5001-alpha`
 
@@ -74,6 +76,8 @@ Complete 1.0 change log
   - `IQueryProcessor.Process`
   - `IReadModelPopulator.Populate`
   - `IReadModelPopulator.Purge`
+* Breaking: Removed old `EventFlow.Shims.Tasks` class that provided a wrapper for `Task.CompletedTask`
+  in frameworks that did not have it
 * Fix: `SnapshotAggregateRoot` now correctly loads previous source IDs as well
   adds the current source ID that triggered the snapshot. This causes the
   `DuplicateOperationException` to be correctly thrown if a duplicate source
