@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\EventFlow\EventFlow.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Redis.OM" Version="0.2.1"/>
+        <PackageReference Include="StackExchange.Redis" Version="2.6.48"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="EventFlow.Redis.Tests"/>
+    </ItemGroup>
+
+</Project>
