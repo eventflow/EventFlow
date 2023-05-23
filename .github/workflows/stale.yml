@@ -1,8 +1,10 @@
 name: 'Close stale issues and PRs'
 
 on:
+  push:
+    branches: [ develop-v1 ]
   schedule:
-    - cron: '0 14 * * *'
+    - cron: '0 9 * * *'
 
 permissions:
   contents: write
@@ -15,6 +17,7 @@ jobs:
     steps:
       - uses: actions/stale@v8
         with:
+          stale-issue-message: |
             Hello there! 
 
             We hope you are doing well. We noticed that this issue has not seen any activity in the past 90 days.
