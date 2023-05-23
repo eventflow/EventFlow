@@ -21,14 +21,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace EventFlow.Redis.ReadStore;
+using System.Collections.Generic;
 
-internal interface IRedisHashBuilder
+namespace EventFlow.Redis.ReadStore
 {
-    /// <summary>
-    /// Builds a Dictionary out of the provided object by using reflection
-    /// </summary>
-    /// <param name="obj">The object</param>
-    /// <returns>A Dictionary containing all properties, indexed by their property name</returns>
-    IReadOnlyDictionary<string, string> BuildHashSet(object obj);
+    internal interface IRedisHashBuilder
+    {
+        /// <summary>
+        /// Builds a Dictionary out of the provided object by using reflection
+        /// </summary>
+        /// <param name="obj">The object</param>
+        /// <returns>A Dictionary containing all properties, indexed by their property name</returns>
+        IReadOnlyDictionary<string, string> BuildHashSet(object obj);
+    }
 }

@@ -24,14 +24,15 @@
 using Redis.OM;
 using Redis.OM.Searching;
 
-namespace EventFlow.Redis.ReadStore;
-
-public abstract class RedisQueryHandler<TReadModel> where TReadModel : RedisReadModel
+namespace EventFlow.Redis.ReadStore
 {
-    protected readonly IRedisCollection<TReadModel> Collection;
-
-    protected RedisQueryHandler(RedisConnectionProvider provider)
+    public abstract class RedisQueryHandler<TReadModel> where TReadModel : RedisReadModel
     {
-        Collection = provider.RedisCollection<TReadModel>();
+        protected readonly IRedisCollection<TReadModel> Collection;
+
+        protected RedisQueryHandler(RedisConnectionProvider provider)
+        {
+            Collection = provider.RedisCollection<TReadModel>();
+        }
     }
 }

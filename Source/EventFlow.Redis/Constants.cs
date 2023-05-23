@@ -21,11 +21,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namespace EventFlow.Redis;
-
-public static class Constants
+namespace EventFlow.Redis
 {
-    public const string StreamPrefix = "eventflow.events";
-    public const string ReadModelPrefix = "eventflow.readmodel";
-    public const string SnapshotPrefix = "eventflow.snapshot";
+    public static class Constants
+    {
+        public const string StreamPrefix = "eventflow.events";
+        public const string ReadModelPrefix = "eventflow.readmodel";
+        public const string SnapshotPrefix = "eventflow.snapshot";
+    }
 }
