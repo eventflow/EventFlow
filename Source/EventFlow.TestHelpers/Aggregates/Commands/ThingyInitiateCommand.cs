@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2021 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
@@ -21,13 +21,38 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.EventStores;
+using EventFlow.Commands;
+using EventFlow.Core;
+using Newtonsoft.Json;
+using System.Threading.Tasks;
+using System.Threading;
 
-namespace EventFlow.TestHelpers.Aggregates.Events
+namespace EventFlow.TestHelpers.Aggregates.Commands
 {
-    [EventVersion("ThingyDeleted", 1)]
-    public class ThingyDeletedEvent : AggregateEvent<ThingyAggregate, ThingyId>, IDeletedEvent
+    [CommandVersion("ThingyInitiate", 1)]
+    public class ThingyInitiateCommand : Command<ThingyAggregate, ThingyId>, ICommandInitator
     {
+
+        public ThingyInitiateCommand(ThingyId aggregateId)
+            : this(aggregateId, CommandId.New)
+        {   }
+
+        public ThingyInitiateCommand(ThingyId aggregateId, ISourceId sourceId)
+            : base(aggregateId, sourceId)
+        {   }
+
+        [JsonConstructor]
+        public ThingyInitiateCommand(ThingyId aggregateId, SourceId sourceId)
+            : base(aggregateId, sourceId)
+        {   }
+    }
+
+    public class ThingyInitiateCommandHandler : CommandHandler<ThingyAggregate, ThingyId, ThingyInitiateCommand>
+    {
+        public override Task ExecuteAsync(ThingyAggregate aggregate, ThingyInitiateCommand command, CancellationToken cancellationToken)
+        {
+            aggregate.Intiate();
+            return Task.FromResult(0);
+        }
     }
 }

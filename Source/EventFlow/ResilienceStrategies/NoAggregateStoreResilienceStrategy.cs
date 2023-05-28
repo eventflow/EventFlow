@@ -29,85 +29,103 @@ using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Core;
 
-namespace EventFlow.EventStores
+namespace EventFlow.ResilienceStrategies
 {
-    public interface IAggregateStoreResilienceStrategy
+    public class NoAggregateStoreResilienceStrategy : IAggregateStoreResilienceStrategy
     {
-        Task BeforeAggregateLoad<TAggregate, TIdentity, TExecutionResult>(
+        public Task BeforeAggregateLoad<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TExecutionResult : IExecutionResult;
+            where TExecutionResult : IExecutionResult
+        {
+            return Task.CompletedTask;
+        }
 
-        Task BeforeAggregateUpdate<TAggregate, TIdentity, TExecutionResult>(
-            TAggregate aggregate,
-            Func<TAggregate, CancellationToken, Task<TExecutionResult>> updateAggregate,
-            CancellationToken cancellationToken)
+        public Task BeforeAggregateUpdate<TAggregate, TIdentity, TExecutionResult>(TAggregate aggregate, Func<TAggregate, CancellationToken, Task<TExecutionResult>> updateAggregate, CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TExecutionResult : IExecutionResult;
+            where TExecutionResult : IExecutionResult
+        {
+            return Task.CompletedTask;
+        }
 
-        Task BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(
-            TAggregate aggregate,
+        public Task BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(TAggregate aggregate,
             TExecutionResult executionResult,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TExecutionResult : IExecutionResult;
+            where TExecutionResult : IExecutionResult
+        {
+            return Task.CompletedTask;
+        }
 
-        Task<(bool, IAggregateUpdateResult<TExecutionResult>)> HandleCommitFailedAsync<TAggregate, TIdentity, TExecutionResult>(
-            TAggregate aggregate,
+        public Task<(bool, IAggregateUpdateResult<TExecutionResult>)> HandleCommitFailedAsync<TAggregate, TIdentity,
+            TExecutionResult>(TAggregate aggregate,
             TExecutionResult executionResult,
             Exception exception,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TExecutionResult : IExecutionResult;
+            where TExecutionResult : IExecutionResult
+        {
+            return Task.FromResult<(bool, IAggregateUpdateResult<TExecutionResult>)>((false, null));
+        }
 
-        Task CommitSucceededAsync<TAggregate, TIdentity, TExecutionResult>(
-            TAggregate aggregate,
+        public Task CommitSucceededAsync<TAggregate, TIdentity, TExecutionResult>(TAggregate aggregate,
             TExecutionResult executionResult,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TExecutionResult : IExecutionResult;
+            where TExecutionResult : IExecutionResult
+        {
+            return Task.CompletedTask;
+        }
 
-        Task EventPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(
-            TIdentity id,
-            TExecutionResult executionResult,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken)
-            where TAggregate : IAggregateRoot<TIdentity>
-            where TIdentity : IIdentity
-            where TExecutionResult : IExecutionResult;
-
-        Task BeforeEventPublishAsync<TAggregate, TIdentity, TExecutionResult>(
-            TIdentity id,
+        public Task EventPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(TIdentity id,
             TExecutionResult executionResult,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TExecutionResult : IExecutionResult;
+            where TExecutionResult : IExecutionResult
+        {
+            return Task.CompletedTask;
+        }
 
-        Task<bool> HandleEventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(
-            TIdentity id,
+        public Task BeforeEventPublishAsync<TAggregate, TIdentity, TExecutionResult>(TIdentity id,
+            TExecutionResult executionResult,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TExecutionResult : IExecutionResult
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task<bool> HandleEventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(TIdentity id,
             TExecutionResult executionResult,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             Exception exception,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TExecutionResult : IExecutionResult;
+            where TExecutionResult : IExecutionResult
+        {
+            return Task.FromResult(false);
+        }
 
-        Task EventPublishSucceededAsync<TAggregate, TIdentity, TExecutionResult>(
-            TIdentity id,
+        public Task EventPublishSucceededAsync<TAggregate, TIdentity, TExecutionResult>(TIdentity id,
             TExecutionResult executionResult,
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
-            where TExecutionResult : IExecutionResult;
+            where TExecutionResult : IExecutionResult
+        {
+            return Task.CompletedTask;
+        }
     }
 }

@@ -31,7 +31,7 @@ using Newtonsoft.Json;
 namespace EventFlow.TestHelpers.Aggregates.Commands
 {
     [CommandVersion("ThingyPing", 1)]
-    public class ThingyPingCommand : Command<ThingyAggregate, ThingyId>
+    public class ThingyPingCommand : Command<ThingyAggregate, ThingyId>, ICommandInitator
     {
         public PingId PingId { get; }
 

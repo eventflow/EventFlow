@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2021 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
@@ -26,8 +26,8 @@ using EventFlow.EventStores;
 
 namespace EventFlow.TestHelpers.Aggregates.Events
 {
-    [EventVersion("ThingyDeleted", 1)]
-    public class ThingyDeletedEvent : AggregateEvent<ThingyAggregate, ThingyId>, IDeletedEvent
+    [EventVersion("ThingyInitiatedEvent", 1)]
+    public class ThingyInitiatedEvent : AggregateEvent<ThingyAggregate, ThingyId>
     {
     }
 }

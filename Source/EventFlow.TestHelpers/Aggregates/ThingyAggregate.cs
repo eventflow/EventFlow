@@ -40,6 +40,7 @@ namespace EventFlow.TestHelpers.Aggregates
 {
     [AggregateName("Thingy")]
     public class ThingyAggregate : SnapshotAggregateRoot<ThingyAggregate, ThingyId, ThingySnapshot>,
+        IEmit<ThingyInitiatedEvent>,
         IEmit<ThingyDomainErrorAfterFirstEvent>,
         IEmit<ThingyDeletedEvent>,
         IEmit<ThingyUpgradableV1Event>,
@@ -59,7 +60,7 @@ namespace EventFlow.TestHelpers.Aggregates
         public IReadOnlyCollection<PingId> PingsReceived => _pingsReceived;
         public IReadOnlyCollection<ThingyMessage> Messages => _messages;
         public IReadOnlyCollection<ThingySnapshotVersion> SnapshotVersions { get; private set; } = new ThingySnapshotVersion[] {};
-        public bool IsDeleted { get; private set; }
+        public bool IsThingyDeleted { get; private set; }
 
         public int UpgradableEventV1Received { get; private set; }
         public int UpgradableEventV2Received { get; private set; }
@@ -75,6 +76,11 @@ namespace EventFlow.TestHelpers.Aggregates
             Register<ThingySagaStartRequestedEvent>(e => {/* do nothing */});
             Register<ThingySagaCompleteRequestedEvent>(e => {/* do nothing */});
             Register<ThingySagaExceptionRequestedEvent>(e => {/* do nothing */});
+        }
+
+        public void Intiate()
+        {
+            Emit(new ThingyInitiatedEvent());
         }
 
         public void DomainErrorAfterFirst()
@@ -156,6 +162,10 @@ namespace EventFlow.TestHelpers.Aggregates
             EmitCount<ThingyUpgradableV3Event>(upgradableEventV3Count);
         }
 
+        public void Apply(ThingyInitiatedEvent aggregateEvent)
+        {
+        }
+
         public void Apply(ThingyDomainErrorAfterFirstEvent e)
         {
             DomainErrorAfterFirstReceived = true;
@@ -178,7 +188,7 @@ namespace EventFlow.TestHelpers.Aggregates
 
         void IEmit<ThingyDeletedEvent>.Apply(ThingyDeletedEvent e)
         {
-            IsDeleted = true;
+            IsThingyDeleted = true;
         }
 
         protected override Task<ThingySnapshot> CreateSnapshotAsync(CancellationToken cancellationToken)

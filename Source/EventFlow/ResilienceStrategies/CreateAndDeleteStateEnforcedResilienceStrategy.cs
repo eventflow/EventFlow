@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2021 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
@@ -23,24 +23,65 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
+using EventFlow.Commands;
 using EventFlow.Core;
+using EventFlow.EventStores;
+using EventFlow.Extensions;
+using EventFlow.Shims;
 
-namespace EventFlow.EventStores
+namespace EventFlow.ResilienceStrategies
 {
-    public class NoAggregateStoreResilienceStrategy : IAggregateStoreResilienceStrategy
+    public class CreateAndDeleteStateEnforcedResilienceStrategy : IAggregateStoreResilienceStrategy
     {
-        public Task BeforeAggregateUpdate<TAggregate, TIdentity, TExecutionResult>(
+        public CreateAndDeleteStateEnforcedResilienceStrategy()
+        {
+        }
+
+        public Task BeforeAggregateLoad<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Task.CompletedTask;
+            return Tasks.Completed;
+        }
+
+        public Task BeforeAggregateUpdate<TAggregate, TIdentity, TExecutionResult>(
+            TAggregate aggregate,
+            Func<TAggregate, CancellationToken, Task<TExecutionResult>> updateAggregate, 
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TExecutionResult : IExecutionResult
+        {
+            var commandType = GetCommandType<TAggregate, TIdentity, TExecutionResult>(updateAggregate);
+            var isInitatorCommand = typeof(ICommandInitator).IsAssignableFrom(commandType);
+
+            var actionOnDeletedAggregate = aggregate.IsDeleted;
+            if (actionOnDeletedAggregate)
+            {
+                throw new InvalidOperationException($"Aggregate '{typeof(TAggregate).PrettyPrint()}' had command '{commandType.PrettyPrint()}' when it was in a deleted state.");
+            }
+
+            var aggregateExistButShouldnt = !aggregate.IsNew && isInitatorCommand;
+            if (aggregateExistButShouldnt)
+            {
+                throw new InvalidOperationException($"Aggregate '{typeof(TAggregate).PrettyPrint()}' had initator command '{commandType.PrettyPrint()}' when it already has a state");
+            }
+
+            var aggregateDoesntExistButShould = aggregate.IsNew && !isInitatorCommand;
+            if (aggregateDoesntExistButShould)
+            {
+                throw new InvalidOperationException($"Aggregate '{typeof(TAggregate).PrettyPrint()}' had non-initator command '{commandType.PrettyPrint()}' when it doesn't have state");
+            }
+
+            return Tasks.Completed;
         }
 
         public Task BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(TAggregate aggregate,
@@ -50,7 +91,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Task.CompletedTask;
+            return Tasks.Completed;
         }
 
         public Task<(bool, IAggregateUpdateResult<TExecutionResult>)> HandleCommitFailedAsync<TAggregate, TIdentity,
@@ -72,7 +113,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Task.CompletedTask;
+            return Tasks.Completed;
         }
 
         public Task EventPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(TIdentity id,
@@ -83,7 +124,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Task.CompletedTask;
+            return Tasks.Completed;
         }
 
         public Task BeforeEventPublishAsync<TAggregate, TIdentity, TExecutionResult>(TIdentity id,
@@ -94,7 +135,7 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Task.CompletedTask;
+            return Tasks.Completed;
         }
 
         public Task<bool> HandleEventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(TIdentity id,
@@ -117,7 +158,17 @@ namespace EventFlow.EventStores
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Task.CompletedTask;
+            return Tasks.Completed;
+        }
+
+        private Type GetCommandType<TAggregate, TIdentity, TExecutionResult>(Func<TAggregate, CancellationToken, Task<TExecutionResult>> updateAggregate)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TExecutionResult : IExecutionResult
+        {
+            var targetMethod = updateAggregate.Target.GetType();
+            var commandField = targetMethod.GetFields().Last();
+            return commandField.GetValue(updateAggregate.Target).GetType();
         }
     }
 }
