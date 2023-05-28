@@ -48,6 +48,8 @@ namespace EventFlow.TestHelpers
 {
     public abstract class IntegrationTest: Test
     {
+        protected Func<IServiceCollection, IServiceCollection> InjectedServices { get; set; } = new Func<IServiceCollection, IServiceCollection>((collection) => collection);
+
         protected IServiceProvider ServiceProvider { get; private set; }
         protected IAggregateStore AggregateStore { get; private set; }
         protected IEventStore EventStore { get; private set; }
@@ -65,10 +67,13 @@ namespace EventFlow.TestHelpers
         public void SetUpIntegrationTest()
         {
             var eventFlowOptions = Options(EventFlowOptions.New())
-                .RegisterServices(c => c.AddTransient<IScopedContext, ScopedContext>())
                 .AddQueryHandler<DbContextQueryHandler, DbContextQuery, string>()
                 .AddDefaults(EventFlowTestHelpers.Assembly, 
-                    type => type != typeof(DbContextQueryHandler));
+                    type => type != typeof(DbContextQueryHandler))
+                .RegisterServices(c => {
+                    c.AddTransient<IScopedContext, ScopedContext>();
+                    InjectedServices(c);
+                    });
 
             ServiceProvider = Configure(eventFlowOptions);
 

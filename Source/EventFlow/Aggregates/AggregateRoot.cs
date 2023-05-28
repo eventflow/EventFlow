@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,6 +46,7 @@ namespace EventFlow.Aggregates
         public virtual IAggregateName Name => AggregateName;
         public TIdentity Id { get; }
         public int Version { get; protected set; }
+        public bool IsDeleted { get; protected set; }
         public virtual bool IsNew => Version <= 0;
         public IEnumerable<IUncommittedEvent> UncommittedEvents => _uncommittedEvents;
         public IEnumerable<ISourceId> PreviousSourceIds => _previousSourceIds.AsEnumerable();
@@ -67,6 +69,7 @@ namespace EventFlow.Aggregates
             }
 
             Id = id;
+            IsDeleted = false;
         }
 
         protected void SetSourceIdHistory(int count)
@@ -212,6 +215,7 @@ namespace EventFlow.Aggregates
                 applyMethod(this as TAggregate, aggregateEvent);
             }
 
+            IsDeleted = typeof(IDeletedEvent).IsAssignableFrom(eventType);
             Version++;
         }
 

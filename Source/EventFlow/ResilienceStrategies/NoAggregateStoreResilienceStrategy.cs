@@ -28,15 +28,24 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Core;
+using EventFlow.EventStores;
 using EventFlow.Shims;
 
-namespace EventFlow.EventStores
+namespace EventFlow.ResilienceStrategies
 {
     public class NoAggregateStoreResilienceStrategy : IAggregateStoreResilienceStrategy
     {
-        public Task BeforeAggregateUpdate<TAggregate, TIdentity, TExecutionResult>(
+        public Task BeforeAggregateLoad<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
             CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TExecutionResult : IExecutionResult
+        {
+            return Tasks.Completed;
+        }
+
+        public Task BeforeAggregateUpdate<TAggregate, TIdentity, TExecutionResult>(TAggregate aggregate, Func<TAggregate, CancellationToken, Task<TExecutionResult>> updateAggregate, CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
