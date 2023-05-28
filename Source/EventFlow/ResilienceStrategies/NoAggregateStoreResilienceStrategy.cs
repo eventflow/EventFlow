@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Core;
+using EventFlow.EventStores;
 
 namespace EventFlow.ResilienceStrategies
 {

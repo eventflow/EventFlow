@@ -32,7 +32,6 @@ using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
-using EventFlow.Shims;
 
 namespace EventFlow.ResilienceStrategies
 {
@@ -49,7 +48,7 @@ namespace EventFlow.ResilienceStrategies
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Tasks.Completed;
+            return Task.CompletedTask;
         }
 
         public Task BeforeAggregateUpdate<TAggregate, TIdentity, TExecutionResult>(
@@ -81,7 +80,7 @@ namespace EventFlow.ResilienceStrategies
                 throw new InvalidOperationException($"Aggregate '{typeof(TAggregate).PrettyPrint()}' had non-initator command '{commandType.PrettyPrint()}' when it doesn't have state");
             }
 
-            return Tasks.Completed;
+            return Task.CompletedTask;
         }
 
         public Task BeforeCommitAsync<TAggregate, TIdentity, TExecutionResult>(TAggregate aggregate,
@@ -91,7 +90,7 @@ namespace EventFlow.ResilienceStrategies
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Tasks.Completed;
+            return Task.CompletedTask;
         }
 
         public Task<(bool, IAggregateUpdateResult<TExecutionResult>)> HandleCommitFailedAsync<TAggregate, TIdentity,
@@ -113,7 +112,7 @@ namespace EventFlow.ResilienceStrategies
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Tasks.Completed;
+            return Task.CompletedTask;
         }
 
         public Task EventPublishSkippedAsync<TAggregate, TIdentity, TExecutionResult>(TIdentity id,
@@ -124,7 +123,7 @@ namespace EventFlow.ResilienceStrategies
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Tasks.Completed;
+            return Task.CompletedTask;
         }
 
         public Task BeforeEventPublishAsync<TAggregate, TIdentity, TExecutionResult>(TIdentity id,
@@ -135,7 +134,7 @@ namespace EventFlow.ResilienceStrategies
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Tasks.Completed;
+            return Task.CompletedTask;
         }
 
         public Task<bool> HandleEventPublishFailedAsync<TAggregate, TIdentity, TExecutionResult>(TIdentity id,
@@ -158,7 +157,7 @@ namespace EventFlow.ResilienceStrategies
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            return Tasks.Completed;
+            return Task.CompletedTask;
         }
 
         private Type GetCommandType<TAggregate, TIdentity, TExecutionResult>(Func<TAggregate, CancellationToken, Task<TExecutionResult>> updateAggregate)
