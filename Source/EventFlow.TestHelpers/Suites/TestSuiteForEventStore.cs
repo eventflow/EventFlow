@@ -428,7 +428,9 @@ namespace EventFlow.TestHelpers.Suites
                 await CommandBus.PublishAsync(command);
             }
 
-            foreach (var id in ids.Skip(1).Take(5))
+            var removedIds = ids.Skip(1).Take(5);
+            var idsWithGap = ids.Where(i => !removedIds.Contains(i));
+            foreach (var id in removedIds)
             {
                 await EventPersistence.DeleteEventsAsync(id, CancellationToken.None)
                     ;
@@ -440,7 +442,8 @@ namespace EventFlow.TestHelpers.Suites
                 ;
 
             // Assert
-            result.DomainEvents.Should().HaveCount(5);
+            var domainEventIds = result.DomainEvents.Select(d => d.GetIdentity());
+            domainEventIds.Should().Contain(idsWithGap);
         }
 
         [SetUp]

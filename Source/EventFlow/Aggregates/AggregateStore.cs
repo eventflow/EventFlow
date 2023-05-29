@@ -118,7 +118,7 @@ namespace EventFlow.Aggregates
             where TIdentity : IIdentity
             where TExecutionResult : IExecutionResult
         {
-            await _aggregateStoreResilienceStrategy.BeforeAggregateUpdate<TAggregate, TIdentity, TExecutionResult>(
+            await _aggregateStoreResilienceStrategy.BeforeAggregateLoad<TAggregate, TIdentity, TExecutionResult>(
                     id,
                     cancellationToken)
                 .ConfigureAwait(false);
@@ -136,6 +136,12 @@ namespace EventFlow.Aggregates
                     }
 
                     cancellationToken = _cancellationConfiguration.Limit(cancellationToken, CancellationBoundary.BeforeUpdatingAggregate);
+
+                    await _aggregateStoreResilienceStrategy.BeforeAggregateUpdate<TAggregate, TIdentity, TExecutionResult>(
+                            aggregate,
+                            updateAggregate,
+                            cancellationToken)
+                        .ConfigureAwait(false);
 
                     var result = await updateAggregate(aggregate, c).ConfigureAwait(false);
                     if (!result.IsSuccess)

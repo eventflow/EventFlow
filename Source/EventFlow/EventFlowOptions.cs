@@ -38,6 +38,7 @@ using EventFlow.Jobs;
 using EventFlow.Provided.Jobs;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
+using EventFlow.ResilienceStrategies;
 using EventFlow.Sagas;
 using EventFlow.Sagas.AggregateSagas;
 using EventFlow.Snapshots;

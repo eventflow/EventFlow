@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2021 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
@@ -21,17 +21,28 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading.Tasks;
+using EventFlow.Queries;
+using EventFlow.Redis.ReadStore;
+using EventFlow.Redis.Tests.Integration.ReadStore.ReadModels;
+using EventFlow.TestHelpers.Aggregates.Entities;
+using EventFlow.TestHelpers.Aggregates.Queries;
+using Redis.OM;
 
-namespace EventFlow.Shims
+namespace EventFlow.Redis.Tests.Integration.ReadStore.QueryHandlers;
+
+public class RedisThingyGetMessagesQueryHandler : RedisQueryHandler<RedisThingyMessageReadModel>,
+    IQueryHandler<ThingyGetMessagesQuery, IReadOnlyCollection<ThingyMessage>>
 {
-    internal static class Tasks
+    public RedisThingyGetMessagesQueryHandler(RedisConnectionProvider provider) : base(provider)
     {
-// https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/preprocessor-directives/preprocessor-if#remarks
-#if NETSTANDARD1_6 || NET452
-        public static Task Completed => Task.FromResult(0);
-#else
-        public static Task Completed {get;} = Task.CompletedTask;
-#endif
+    }
+
+    public async Task<IReadOnlyCollection<ThingyMessage>> ExecuteQueryAsync(ThingyGetMessagesQuery query,
+        CancellationToken cancellationToken)
+    {
+        var thingyId = query.ThingyId.Value;
+        var messages = await Collection.Where(rm => rm.ThingyId == thingyId).ToListAsync();
+
+        return messages.Select(r => r.ToThingyMessage()).ToArray();
     }
 }

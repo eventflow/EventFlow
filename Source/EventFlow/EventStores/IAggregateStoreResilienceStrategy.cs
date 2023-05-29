@@ -33,8 +33,16 @@ namespace EventFlow.EventStores
 {
     public interface IAggregateStoreResilienceStrategy
     {
-        Task BeforeAggregateUpdate<TAggregate, TIdentity, TExecutionResult>(
+        Task BeforeAggregateLoad<TAggregate, TIdentity, TExecutionResult>(
             TIdentity id,
+            CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TExecutionResult : IExecutionResult;
+
+        Task BeforeAggregateUpdate<TAggregate, TIdentity, TExecutionResult>(
+            TAggregate aggregate,
+            Func<TAggregate, CancellationToken, Task<TExecutionResult>> updateAggregate,
             CancellationToken cancellationToken)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
