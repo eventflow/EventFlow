@@ -1,33 +1,10 @@
 # EventFlow
 
-<table border="0" cellpadding="0" cellspacing="0">
-  <tr>
-    <td width="25%">
-      <img src="./icon-128.png" />
-    </td>
-    <td  width="25%">
-      <p>
-        <a href="https://www.nuget.org/packages/EventFlow/"><img src="https://img.shields.io/nuget/v/EventFlow.svg?style=flat" /></a>
-      </p>
-      <p>
-        <a href="https://docs.geteventflow.net/?badge=latest"><img src="https://readthedocs.org/projects/eventflow/badge/?version=latest" /></a>
-      </p>
-    </td>
-    <td  width="25%">
-      <p>
-        <a href="https://github.com/eventflow/EventFlow/actions/workflows/ci.yml"><img src="https://github.com/eventflow/EventFlow/actions/workflows/ci.yml/badge.svg" /></a>
-      </p>
-      <p>
-        <a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
-      </p>
-     <!--
-      <p>
-        <a href="https://codecov.io/github/eventflow/EventFlow?branch=develop"><img src="https://codecov.io/github/eventflow/EventFlow/coverage.svg?branch=develop" /></a>
-      </p>
-      -->
-    </td>
-  </tr>
-</table>
+<img src="./icon-128.png" />
+
+<a href="https://www.nuget.org/packages/EventFlow/"><img src="https://img.shields.io/nuget/v/EventFlow.svg?style=flat" /></a>
+<a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
+<a href="https://github.com/eventflow/EventFlow/actions/workflows/ci.yml"><img src="https://github.com/eventflow/EventFlow/actions/workflows/ci.yml/badge.svg" /></a>
 
 NuGet feeds
 - Official releases: https://www.nuget.org/packages/EventFlow/
@@ -57,18 +34,18 @@ mainly `IServiceProvider` and `ILogger<>`.
 The following list key characteristics of each version as well as its related branches
 (not properly configured yet).
 
-* `1.x` (under development, not all projects compile yet)
-  
+* `1.x`
+
   Represents the next iteration of EventFlow that aligns EventFlow with the standard
   packages for .NET (Core). Releases here will only support .NET Standard, .NET Core
   and .NET versions going forward.
 
+  - Released
+  - Still development
+  - Not all projects migrated yet
+  
   Read the [migration guide](./MIGRATION_GUIDE.md) to view the full list of breaking
   changes as well as recommendations on how to migrate.
-
-  **NOTE:** This version is under heavy development and NO stable version has yet
-  been releases. It will take a few alpha/beta/rc releases to get this right. These
-  will be released as soon as any significant changes have been made.
 
   ### Documentation (not complete)
   Version 1.x documentation has been pulled into this repository in order to have
@@ -76,35 +53,37 @@ The following list key characteristics of each version as well as its related br
   updated in the same pull-requests as any code changes.
 
   ### NuGet package status
-  - 🟢 compiles and pushed in `-alpha` releases
-  - 🔴 not yet ported to 1.0
-  - 💀 for packages that are removed as part of 1.0, see the
-    [migration guide](./MIGRATION_GUIDE.md) for details)
+
+  - 🟢 ported
+  - 💚 newly added to 1.0
+  - 🟠 not yet ported to 1.0
+  - 💀 for packages that are removed as part of 1.0 (see the [migration guide](./MIGRATION_GUIDE.md) for details)
 
   Projects
     - 🟢 `EventFlow`
-    - 🔴 `EventFlow.AspNetCore`
+    - 🟠 `EventFlow.AspNetCore`
     - 💀 `EventFlow.Autofac`
     - 💀 `EventFlow.DependencyInjection`
-    - 🔴 `EventFlow.Elasticsearch`
-    - 🔴 `EventFlow.EntityFramework`
-    - 🔴 `EventFlow.EventStores.EventStore`
-    - 🔴 `EventFlow.Hangfire`
+    - 🟠 `EventFlow.Elasticsearch`
+    - 🟠 `EventFlow.EntityFramework`
+    - 🟠 `EventFlow.EventStores.EventStore`
+    - 🟠 `EventFlow.Hangfire`
     - 🟢 `EventFlow.MongoDB`
     - 🟢 `EventFlow.MsSql`
     - 💀 `EventFlow.Owin`
     - 🟢 `EventFlow.PostgreSql`
-    - 🔴 `EventFlow.RabbitMQ`
+    - 💚 `EventFlow.Redis`
+    - 🟠 `EventFlow.RabbitMQ`
     - 🟢 `EventFlow.Sql`
-    - 🔴 `EventFlow.SQLite`
+    - 🟠 `EventFlow.SQLite`
     - 🟢 `EventFlow.TestHelpers`
-    
+
   ### Branches
   - `develop-v1`: Development branch, pull requests should be done here
   - `release-v1`: Release branch, merge commits are done to this branch from
     `develop-v1` to create releases. Typically each commit represents a release
 
-* `0.x` (API stable)
+* `0.x` (legacy)
 
   The current stable version of EventFlow and has been the version of EventFlow
   for almost six years. 0.x versions have .NET Framework support and limited
@@ -121,6 +100,7 @@ The following list key characteristics of each version as well as its related br
   ### Documentation
   Version 0.x documentation is (although a bit outdated) is live at
   https://docs.geteventflow.net/.
+
 
 ## Talks directly related to EventFlow
 
