@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2021 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
@@ -21,38 +21,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
+using EventFlow.Core;
 
-namespace EventFlow.ReadStores
+namespace EventFlow.Redis.SnapshotStore;
+
+public class SnapshotId : Identity<SnapshotId>
 {
-    public class NoDispatchToReadStoresResilienceStrategy : IDispatchToReadStoresResilienceStrategy
+    public SnapshotId(string value) : base(value)
     {
-        public Task BeforeUpdateAsync(
-            IReadStoreManager readStoreManager,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
-
-        public Task<bool> HandleUpdateFailedAsync(IReadStoreManager readStoreManager,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            Exception exception,
-            CancellationToken cancellationToken)
-        {
-            return Task.FromResult(false);
-        }
-
-        public Task UpdateSucceededAsync(
-            IReadStoreManager readStoreManager,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
     }
 }

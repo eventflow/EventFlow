@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -37,6 +38,10 @@ namespace EventFlow.ReadStores
 
         Task PopulateAsync(
             Type readModelType,
+            CancellationToken cancellationToken);
+
+        Task PopulateAsync(
+            IReadOnlyCollection<Type> readModelType,
             CancellationToken cancellationToken);
 
         Task PurgeAsync(

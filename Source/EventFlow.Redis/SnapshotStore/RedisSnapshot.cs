@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2021 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
@@ -21,38 +21,19 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
+using Redis.OM.Modeling;
 
-namespace EventFlow.ReadStores
+namespace EventFlow.Redis.SnapshotStore;
+
+//Storage type json is required due to https://github.com/redis/redis-om-dotnet/issues/175
+[Document(StorageType = StorageType.Json, Prefixes = new[] {Constants.SnapshotPrefix})]
+public class RedisSnapshot
 {
-    public class NoDispatchToReadStoresResilienceStrategy : IDispatchToReadStoresResilienceStrategy
-    {
-        public Task BeforeUpdateAsync(
-            IReadStoreManager readStoreManager,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
-
-        public Task<bool> HandleUpdateFailedAsync(IReadStoreManager readStoreManager,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            Exception exception,
-            CancellationToken cancellationToken)
-        {
-            return Task.FromResult(false);
-        }
-
-        public Task UpdateSucceededAsync(
-            IReadStoreManager readStoreManager,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
-    }
+    [RedisIdField] public string Id { get; set; }
+    public long? Version { get; set; }
+    [Indexed] public string AggregateId { get; set; }
+    [Indexed] public string AggregateName { get; set; }
+    [Indexed] public int AggregateSequenceNumber { get; set; }
+    public string Data { get; set; }
+    public string Metadata { get; set; }
 }

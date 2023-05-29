@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2021 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
@@ -21,38 +21,32 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
+using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Configurations;
+using DotNet.Testcontainers.Containers;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Suites;
+using NUnit.Framework;
+using StackExchange.Redis;
 
-namespace EventFlow.ReadStores
+namespace EventFlow.Redis.Tests.Integration.SnapshotStore;
+
+[Category(Categories.Integration)]
+public class SnapshotStoreTests : TestSuiteForSnapshotStore
 {
-    public class NoDispatchToReadStoresResilienceStrategy : IDispatchToReadStoresResilienceStrategy
+    private readonly TestcontainerDatabase _container
+        = new TestcontainersBuilder<RedisTestcontainer>().WithDatabase(
+            new RedisTestcontainerConfiguration("redis/redis-stack")
+            {
+            }).Build();
+
+    protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
     {
-        public Task BeforeUpdateAsync(
-            IReadStoreManager readStoreManager,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
+        _container.StartAsync().Wait();
+        var multiplexer = ConnectionMultiplexer.Connect(_container.ConnectionString);
+        eventFlowOptions.ConfigureRedis(multiplexer);
+        eventFlowOptions.UseRedisSnapshotStore();
 
-        public Task<bool> HandleUpdateFailedAsync(IReadStoreManager readStoreManager,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            Exception exception,
-            CancellationToken cancellationToken)
-        {
-            return Task.FromResult(false);
-        }
-
-        public Task UpdateSucceededAsync(
-            IReadStoreManager readStoreManager,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
+        return base.Configure(eventFlowOptions);
     }
 }
