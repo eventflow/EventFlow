@@ -26,10 +26,12 @@ jobs:
           - 15672:15672
 
       eventstore:
-        image: eventstore/eventstore:release-4.1.3
+        image: eventstore/eventstore:22.10.1-buster-slim
         ports:
           - "1113:1113"
           - "2113:2113"
+        env:
+          EVENTSTORE_INSECURE: true
 
       postgres:
         image: postgres:10
