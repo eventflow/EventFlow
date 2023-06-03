@@ -28,19 +28,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using EventFlow.Logs;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
     public class RabbitConnection : IRabbitConnection
     {
-        private readonly ILog _log;
+        private readonly ILogger<RabbitConnection> _log;
         private readonly IConnection _connection;
         private readonly AsyncLock _asyncLock;
         private readonly ConcurrentBag<IModel> _models; 
 
-        public RabbitConnection(ILog log, int maxModels, IConnection connection)
+        public RabbitConnection(ILogger<RabbitConnection> log, int maxModels, IConnection connection)
         {
             _connection = connection;
             _log = log;
@@ -79,7 +79,7 @@ namespace EventFlow.RabbitMQ.Integrations
                 model.DisposeSafe(_log, "Failed to dispose model");
             }
             _connection.DisposeSafe(_log, "Failed to dispose connection");
-            _log.Verbose("Disposing RabbitMQ connection");
+            _log.LogTrace("Disposing RabbitMQ connection");
         }
     }
 }
