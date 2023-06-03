@@ -192,7 +192,18 @@ namespace EventFlow.EventStores.EventStore
 
         public async Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
-            var result = await _client.TombstoneAsync(id.Value, StreamState.Any);
+            try
+            {
+                var result = await _client.TombstoneAsync(id.Value, StreamState.Any);
+            }
+            catch (StreamNotFoundException)
+            {
+                return;
+            }
+            catch (StreamDeletedException)
+            {
+                return;
+            }
         }
 
         private static IReadOnlyCollection<EventStoreEvent> Map(IEnumerable<ResolvedEvent> resolvedEvents)

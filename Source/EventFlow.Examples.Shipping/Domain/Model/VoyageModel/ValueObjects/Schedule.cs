@@ -32,7 +32,7 @@ namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects
     public class Schedule : ValueObject
     {
         public Schedule(
-            IEnumerable<CarrierMovement> carrierMovements)
+            IReadOnlyList<CarrierMovement> carrierMovements)
         {
             var carrierMovementList = (carrierMovements ?? Enumerable.Empty<CarrierMovement>()).ToList();
 
@@ -51,7 +51,7 @@ namespace EventFlow.Examples.Shipping.Domain.Model.VoyageModel.ValueObjects
                     m.DepartureLocationId,
                     m.ArrivalLocationId,
                     m.DepartureTime + delay,
-                    m.ArrivalTime + delay));
+                    m.ArrivalTime + delay)).ToList();
             return new Schedule(carrierMovements);
         }
     }

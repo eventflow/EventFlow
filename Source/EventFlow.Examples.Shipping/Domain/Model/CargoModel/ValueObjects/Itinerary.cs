@@ -35,7 +35,7 @@ namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel.ValueObjects
     public class Itinerary : ValueObject
     {
         public Itinerary(
-            IEnumerable<TransportLeg> transportLegs)
+            IReadOnlyList<TransportLeg> transportLegs)
         {
             var legsList = (transportLegs ?? Enumerable.Empty<TransportLeg>()).ToList();
 

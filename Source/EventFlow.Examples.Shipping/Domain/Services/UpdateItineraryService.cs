@@ -65,7 +65,7 @@ namespace EventFlow.Examples.Shipping.Domain.Services
                         cm.ArrivalTime,
                         a.VoyageId,
                         l.CarrierMovementId);
-                });
+                }).ToList();
 
             return new Itinerary(transportLegs);
         }

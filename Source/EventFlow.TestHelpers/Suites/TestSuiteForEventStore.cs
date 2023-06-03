@@ -417,6 +417,12 @@ namespace EventFlow.TestHelpers.Suites
         [Test]
         public virtual async Task LoadAllEventsAsyncFindsEventsAfterLargeGaps()
         {
+            var existingEvents = await EventStore.LoadAllEventsAsync(GlobalPosition.Start, 5000, new EventUpgradeContext(), CancellationToken.None);
+            foreach (var id in existingEvents.DomainEvents) 
+            {
+                await EventPersistence.DeleteEventsAsync(id.GetIdentity(), CancellationToken.None);
+            }
+
             // Arrange
             var ids = Enumerable.Range(0, 10)
                 .Select(i => ThingyId.New)
@@ -432,18 +438,19 @@ namespace EventFlow.TestHelpers.Suites
             var idsWithGap = ids.Where(i => !removedIds.Contains(i));
             foreach (var id in removedIds)
             {
-                await EventPersistence.DeleteEventsAsync(id, CancellationToken.None)
-                    ;
+                await EventPersistence.DeleteEventsAsync(id, CancellationToken.None);
             }
 
             // Act
             var result = await EventStore
-                .LoadAllEventsAsync(GlobalPosition.Start, 5, new EventUpgradeContext(), CancellationToken.None)
+                .LoadAllEventsAsync(GlobalPosition.Start, 10, new EventUpgradeContext(), CancellationToken.None)
                 ;
 
             // Assert
             var domainEventIds = result.DomainEvents.Select(d => d.GetIdentity());
             domainEventIds.Should().Contain(idsWithGap);
+
+
         }
 
         [SetUp]

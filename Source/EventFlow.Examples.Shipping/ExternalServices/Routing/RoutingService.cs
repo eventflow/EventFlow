@@ -65,7 +65,7 @@ namespace EventFlow.Examples.Shipping.ExternalServices.Routing
             var paths = CalculatePaths(route, voyages.Select(v => v.Schedule));
 
             var itineraries = paths
-                .Select(p => new Itinerary(p.CarrierMovements.Select(m => new TransportLeg(TransportLegId.New, m.DepartureLocationId, m.ArrivalLocationId, m.DepartureTime, m.ArrivalTime, voyageIds[m.Id], m.Id))))
+                .Select(p => new Itinerary(p.CarrierMovements.Select(m => new TransportLeg(TransportLegId.New, m.DepartureLocationId, m.ArrivalLocationId, m.DepartureTime, m.ArrivalTime, voyageIds[m.Id], m.Id)).ToList()))
                 .ToList();
 
             return itineraries;
