@@ -17,7 +17,7 @@ jobs:
 
     services:
       rabbitmq:
-        image: rabbitmq:3-management-alpine
+        image: rabbitmq:3.12.0-management-alpine
         env:
           RABBITMQ_DEFAULT_USER: guest
           RABBITMQ_DEFAULT_PASS: guest

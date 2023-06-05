@@ -27,10 +27,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
-using EventFlow.Logs;
 using EventFlow.RabbitMQ.Extensions;
 using EventFlow.RabbitMQ.Integrations;
 using EventFlow.TestHelpers;
@@ -40,6 +38,9 @@ using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
 namespace EventFlow.RabbitMQ.Tests.Integration
@@ -53,7 +54,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
         [SetUp]
         public void SetUp()
         {
-            var url = Environment.GetEnvironmentVariable("RABBITMQ_URL");
+            var url = Environment.GetEnvironmentVariable("RABBITMQ_URL") ?? "amqp://localhost";
             if (string.IsNullOrEmpty(url))
             {
                 Assert.Inconclusive("The environment variable named 'RABBITMQ_URL' isn't set. Set it to e.g. 'amqp://localhost'");
@@ -74,10 +75,10 @@ namespace EventFlow.RabbitMQ.Tests.Integration
         {
             var exchange = new Exchange($"eventflow-{Guid.NewGuid():N}");
             using (var consumer = new RabbitMqConsumer(_uri, exchange, new[] { "#" }))
-            using (var resolver = BuildResolver(exchange))
             {
-                var commandBus = resolver.Resolve<ICommandBus>();
-                var eventJsonSerializer = resolver.Resolve<IEventJsonSerializer>();
+                var resolver = BuildProvider(exchange);
+                var commandBus = resolver.GetService<ICommandBus>();
+                var eventJsonSerializer = resolver.GetService<IEventJsonSerializer>();
 
                 var pingId = PingId.New;
                 await commandBus.PublishAsync(new ThingyPingCommand(ThingyId.New, pingId), _timeout.Token).ConfigureAwait(false);
@@ -105,9 +106,11 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             const int totalMessageCount = taskCount * messagesPrThread;
 
             using (var consumer = new RabbitMqConsumer(_uri, exchange, new[] { "#" }))
-            using (var resolver = BuildResolver(exchange, o => o.RegisterServices(sr => sr.Register<ILog, NullLog>())))
             {
-                var rabbitMqPublisher = resolver.Resolve<IRabbitMqPublisher>();
+                var resolver = BuildProvider(exchange, o => o.RegisterServices(sr => 
+                        sr.TryAddTransient<ILogger<RabbitMqPublisher>, LoggerMock<RabbitMqPublisher>>()));
+
+                var rabbitMqPublisher = resolver.GetService<IRabbitMqPublisher>();
                 var tasks = Enumerable.Range(0, taskCount)
                     .Select(i => Task.Run(() => SendMessagesAsync(rabbitMqPublisher, messagesPrThread, exchange, routingKey, exceptions, _timeout.Token)));
 
@@ -148,15 +151,16 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             }
         }
 
-        private IRootResolver BuildResolver(Exchange exchange, Func<IEventFlowOptions, IEventFlowOptions> configure = null)
+        private IServiceProvider BuildProvider(Exchange exchange, Func<IEventFlowOptions, IEventFlowOptions> configure = null)
         {
             configure = configure ?? (e => e);
 
-            return configure(EventFlowOptions.New
+            var eventFlowOptions = configure(EventFlowOptions.New()
                 .PublishToRabbitMq(RabbitMqConfiguration.With(_uri, false, exchange: exchange.Value))
-                .AddDefaults(EventFlowTestHelpers.Assembly))
-                .RegisterServices(sr => sr.Register<IScopedContext, ScopedContext>(Lifetime.Scoped))
-                .CreateResolver(false);
+                .AddDefaults(EventFlowTestHelpers.Assembly)
+                .RegisterServices(c => c.AddTransient<IScopedContext, ScopedContext>()));
+
+            return eventFlowOptions.ServiceCollection.BuildServiceProvider();
         }
     }
 }

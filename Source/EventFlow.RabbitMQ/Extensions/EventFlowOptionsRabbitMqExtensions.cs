@@ -24,6 +24,7 @@
 using EventFlow.Configuration;
 using EventFlow.RabbitMQ.Integrations;
 using EventFlow.Subscribers;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow.RabbitMQ.Extensions
 {
@@ -33,17 +34,16 @@ namespace EventFlow.RabbitMQ.Extensions
             this IEventFlowOptions eventFlowOptions,
             IRabbitMqConfiguration configuration)
         {
-            return eventFlowOptions.RegisterServices(sr =>
-                {
-                    sr.Register<IRabbitMqConnectionFactory, RabbitMqConnectionFactory>(Lifetime.Singleton);
-                    sr.Register<IRabbitMqMessageFactory, RabbitMqMessageFactory>(Lifetime.Singleton);
-                    sr.Register<IRabbitMqPublisher, RabbitMqPublisher>(Lifetime.Singleton);
-                    sr.Register<IRabbitMqRetryStrategy, RabbitMqRetryStrategy>(Lifetime.Singleton);
+            eventFlowOptions.ServiceCollection.TryAddSingleton<IRabbitMqConnectionFactory, RabbitMqConnectionFactory>();
+            eventFlowOptions.ServiceCollection.TryAddSingleton<IRabbitMqMessageFactory, RabbitMqMessageFactory>();
+            eventFlowOptions.ServiceCollection.TryAddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
+            eventFlowOptions.ServiceCollection.TryAddSingleton<IRabbitMqRetryStrategy, RabbitMqRetryStrategy>();
+            
+            eventFlowOptions.ServiceCollection.TryAddSingleton(rc => configuration);
 
-                    sr.Register(rc => configuration, Lifetime.Singleton);
+            eventFlowOptions.ServiceCollection.TryAddTransient<ISubscribeSynchronousToAll, RabbitMqDomainEventPublisher>();
 
-                    sr.Register<ISubscribeSynchronousToAll, RabbitMqDomainEventPublisher>();
-                });
+            return eventFlowOptions;
         }
     }
 }
