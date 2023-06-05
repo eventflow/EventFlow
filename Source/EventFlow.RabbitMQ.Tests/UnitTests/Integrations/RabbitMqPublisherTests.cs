@@ -26,14 +26,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
+using EventFlow.Logs;
 using EventFlow.RabbitMQ.Integrations;
 using EventFlow.TestHelpers;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using RabbitMQ.Client;
-using Castle.Core.Logging;
-using Microsoft.Extensions.Logging;
 
 namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
 {
@@ -42,7 +41,7 @@ namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
     {
         private Mock<IRabbitMqConnectionFactory> _rabbitMqConnectionFactoryMock;
         private Mock<IRabbitMqConfiguration> _rabbitMqConfigurationMock;
-        private Mock<ILogger<TransientFaultHandler<IRabbitMqRetryStrategy>>> _logMock;
+        private Mock<ILog> _logMock;
         private Mock<IModel> _modelMock;
         private Mock<IRabbitConnection> _rabbitConnectionMock;
 
@@ -51,7 +50,7 @@ namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
         {
             _rabbitMqConnectionFactoryMock = InjectMock<IRabbitMqConnectionFactory>();
             _rabbitMqConfigurationMock = InjectMock<IRabbitMqConfiguration>();
-            _logMock = InjectMock<ILogger<TransientFaultHandler<IRabbitMqRetryStrategy>>>();
+            _logMock = InjectMock<ILog>();
 
             Fixture.Inject<ITransientFaultHandler<IRabbitMqRetryStrategy>>(new TransientFaultHandler<IRabbitMqRetryStrategy>(
                 _logMock.Object,
@@ -103,7 +102,7 @@ namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
 
             // Assert
             _modelMock.Verify(
-                m => m.BasicPublish(It.IsAny<string>(), It.IsAny<string>(), false, It.IsAny<IBasicProperties>(), It.IsAny<ReadOnlyMemory<byte>>()),
+                m => m.BasicPublish(It.IsAny<string>(), It.IsAny<string>(), false, It.IsAny<IBasicProperties>(), It.IsAny<byte[]>()),
                 Times.Exactly(rabbitMqMessages.Count));
             _rabbitConnectionMock.Verify(c => c.Dispose(), Times.Never);
         }

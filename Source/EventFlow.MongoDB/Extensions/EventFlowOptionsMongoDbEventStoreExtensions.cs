@@ -31,6 +31,7 @@ namespace EventFlow.MongoDB.Extensions
     {
         public static IEventFlowOptions UseMongoDbEventStore(this IEventFlowOptions eventFlowOptions)
         {
+
             eventFlowOptions.UseEventPersistence<MongoDbEventPersistence>();
             eventFlowOptions.ServiceCollection
                 .TryAddTransient<IMongoDbEventPersistenceInitializer, MongoDbEventPersistenceInitializer>();

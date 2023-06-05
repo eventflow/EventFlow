@@ -24,18 +24,18 @@
 using EventFlow.Aggregates;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
-using Microsoft.Extensions.Logging;
+using EventFlow.Logs;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
     public class RabbitMqMessageFactory : IRabbitMqMessageFactory
     {
-        private readonly ILogger<RabbitMqMessageFactory> _log;
+        private readonly ILog _log;
         private readonly IEventJsonSerializer _eventJsonSerializer;
         private readonly IRabbitMqConfiguration _rabbitMqConfiguration;
 
         public RabbitMqMessageFactory(
-            ILogger<RabbitMqMessageFactory> log,
+            ILog log,
             IEventJsonSerializer eventJsonSerializer,
             IRabbitMqConfiguration rabbitMqConfiguration)
         {
@@ -64,7 +64,7 @@ namespace EventFlow.RabbitMQ.Integrations
                 routingKey,
                 new MessageId(domainEvent.Metadata[MetadataKeys.EventId]));
 
-            _log.LogTrace("Create RabbitMQ message {0}", rabbitMqMessage);
+            _log.Verbose("Create RabbitMQ message {0}", rabbitMqMessage);
 
             return rabbitMqMessage;
         }

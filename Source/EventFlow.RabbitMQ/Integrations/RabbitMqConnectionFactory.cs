@@ -27,20 +27,20 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
-using Microsoft.Extensions.Logging;
+using EventFlow.Logs;
 using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
     public class RabbitMqConnectionFactory : IRabbitMqConnectionFactory
     {
-        private readonly ILogger<RabbitConnection> _log;
+        private readonly ILog _log;
         private readonly IRabbitMqConfiguration _configuration;
         private readonly AsyncLock _asyncLock = new AsyncLock();
         private readonly Dictionary<Uri, ConnectionFactory> _connectionFactories = new Dictionary<Uri, ConnectionFactory>();
 
         public RabbitMqConnectionFactory(
-            ILogger<RabbitConnection> log,
+            ILog log,
             IRabbitMqConfiguration configuration)
         {
             _log = log;
@@ -64,7 +64,7 @@ namespace EventFlow.RabbitMQ.Integrations
                 {
                     return connectionFactory;
                 }
-                _log.LogTrace("Creating RabbitMQ connection factory to {0}", uri.Host);
+                _log.Verbose("Creating RabbitMQ connection factory to {0}", uri.Host);
 
                 connectionFactory = new ConnectionFactory
                     {

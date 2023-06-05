@@ -104,9 +104,9 @@ namespace EventFlow.RabbitMQ.Tests
 
         private static RabbitMqMessage CreateRabbitMqMessage(BasicDeliverEventArgs basicDeliverEventArgs)
         {
-            var headers = basicDeliverEventArgs.BasicProperties.Headers != null ? basicDeliverEventArgs.BasicProperties.Headers
-                .ToDictionary(kv => kv.Key, kv => Encoding.UTF8.GetString((byte[])kv.Value)) : new Dictionary<string, string>();
-            var message = Encoding.UTF8.GetString(basicDeliverEventArgs.Body.ToArray());
+            var headers = basicDeliverEventArgs.BasicProperties.Headers
+                .ToDictionary(kv => kv.Key, kv => Encoding.UTF8.GetString((byte[])kv.Value));
+            var message = Encoding.UTF8.GetString(basicDeliverEventArgs.Body);
 
             return new RabbitMqMessage(
                 message,

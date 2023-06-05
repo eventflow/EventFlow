@@ -29,14 +29,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using Microsoft.Extensions.Logging;
+using EventFlow.Logs;
 using RabbitMQ.Client;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
     public class RabbitMqPublisher : IDisposable, IRabbitMqPublisher
     {
-        private readonly ILogger<RabbitMqPublisher> _log;
+        private readonly ILog _log;
         private readonly IRabbitMqConnectionFactory _connectionFactory;
         private readonly IRabbitMqConfiguration _configuration;
         private readonly ITransientFaultHandler<IRabbitMqRetryStrategy> _transientFaultHandler;
@@ -44,7 +44,7 @@ namespace EventFlow.RabbitMQ.Integrations
         private readonly Dictionary<Uri, IRabbitConnection> _connections = new Dictionary<Uri, IRabbitConnection>(); 
 
         public RabbitMqPublisher(
-            ILogger<RabbitMqPublisher> log,
+            ILog log,
             IRabbitMqConnectionFactory connectionFactory,
             IRabbitMqConfiguration configuration,
             ITransientFaultHandler<IRabbitMqRetryStrategy> transientFaultHandler)
@@ -88,7 +88,7 @@ namespace EventFlow.RabbitMQ.Integrations
                         _connections.Remove(uri);
                     }
                 }
-                _log.LogError(e, "Failed to publish domain events to RabbitMQ");
+                _log.Error(e, "Failed to publish domain events to RabbitMQ");
                 throw;
             }
         }
@@ -114,7 +114,7 @@ namespace EventFlow.RabbitMQ.Integrations
             IModel model,
             IReadOnlyCollection<RabbitMqMessage> messages)
         {
-            _log.LogTrace(
+            _log.Verbose(
                 "Publishing {0} domain events to RabbitMQ host '{1}'",
                 messages.Count,
                 _configuration.Uri.Host);
@@ -130,7 +130,6 @@ namespace EventFlow.RabbitMQ.Integrations
                 basicProperties.ContentEncoding = "utf-8";
                 basicProperties.ContentType = "application/json";
                 basicProperties.MessageId = message.MessageId.Value;
-
                 PublishSingleMessage(model, message, bytes, basicProperties);
             }
 
