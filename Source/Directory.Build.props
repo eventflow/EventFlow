@@ -1,0 +1,36 @@
+<Project>
+
+    <PropertyGroup>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <WarningsAsErrors />
+        <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
+        <NoWarn>1701;1702;1705;1591</NoWarn>
+        <CheckEolTargetFramework>false</CheckEolTargetFramework>
+        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Authors>Rasmus Mikkelsen</Authors>
+        <Company>Rasmus Mikkelsen</Company>
+        <Owners>Rasmus Mikkelsen</Owners>
+        <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2021</Copyright>
+        <PackageIcon>icon-128.png</PackageIcon>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+        <RepositoryUrl>https://github.com/eventflow/EventFlow</RepositoryUrl>
+        <PackageProjectUrl>https://docs.geteventflow.net/</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <NeutralLanguage>en-US</NeutralLanguage>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <IncludeSymbols>true</IncludeSymbols>
+        <DebugType>portable</DebugType>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="$(MSBuildProjectDirectory)\..\..\icon-128.png" Pack="true" PackagePath="\"/>
+        <None Include="$(MSBuildProjectDirectory)\..\..\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+
+</Project>
