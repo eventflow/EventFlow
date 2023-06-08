@@ -12,7 +12,6 @@
     </Description>
     <PackageTags>CQRS ES event sourcing</PackageTags>
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
-    <LangVersion>7.1</LangVersion>
     <IsTestProject>false</IsTestProject>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
