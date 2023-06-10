@@ -1,23 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../Common.props" />
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;netcoreapp3.1;net6.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;netcoreapp3.1;net6.0;net7.0</TargetFrameworks>
     <PackageId>EventFlow.RabbitMQ</PackageId>
-    <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <Title>EventFlow.RabbitMQ</Title>
     <Authors>Rasmus Mikkelsen</Authors>
     <Company>Rasmus Mikkelsen</Company>
     <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2021</Copyright>
     <Description>RabbitMQ integration for EventFlow</Description>
-	<PackageTags>CQRS ES event sourcing MongoDB</PackageTags>
-	<RepositoryType>git</RepositoryType>
-	<RepositoryUrl>https://github.com/eventflow/EventFlow</RepositoryUrl>
-	<PackageProjectUrl>https://docs.geteventflow.net/</PackageProjectUrl>
-	<PackageLicenseExpression>MIT</PackageLicenseExpression>
-	<NeutralLanguage>en-US</NeutralLanguage>
-	<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
 	<PackageTags>CQRS ES event sourcing MongoDB</PackageTags>
 	<PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
 	<IsPackable>true</IsPackable>

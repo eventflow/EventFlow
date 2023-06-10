@@ -1,11 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../Common.props" />
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;netcoreapp3.1;net6.0;net7.0</TargetFrameworks>
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <Title>EventFlow.TestHelpers</Title>
     <Authors>Rasmus Mikkelsen</Authors>
     <Company>Rasmus Mikkelsen</Company>
@@ -16,13 +11,7 @@
       to change.
     </Description>
     <PackageTags>CQRS ES event sourcing</PackageTags>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/eventflow/EventFlow</RepositoryUrl>
-    <PackageProjectUrl>https://docs.geteventflow.net/</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <NeutralLanguage>en-US</NeutralLanguage>
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
-    <LangVersion>10.0</LangVersion>
     <IsTestProject>false</IsTestProject>
     <IsPackable>true</IsPackable>
   </PropertyGroup>

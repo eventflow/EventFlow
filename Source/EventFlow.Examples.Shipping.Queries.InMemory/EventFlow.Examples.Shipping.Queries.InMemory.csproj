@@ -1,9 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../Common.props" />
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
     <IsPackable>False</IsPackable>
   </PropertyGroup>
   <ItemGroup>

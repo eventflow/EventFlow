@@ -1,31 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../Common.props" />
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;netcoreapp3.1;net6.0;net7.0</TargetFrameworks>
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <Title>EventFlow</Title>
-    <Authors>Rasmus Mikkelsen</Authors>
-    <Company>Rasmus Mikkelsen</Company>
-    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2021</Copyright>
     <Description>Async/await first CQRS+ES and DDD framework for .NET - https://docs.geteventflow.net/</Description>
     <PackageTags>CQRS ES event sourcing</PackageTags>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/eventflow/EventFlow</RepositoryUrl>
-    <PackageProjectUrl>https://docs.geteventflow.net/</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <NeutralLanguage>en-US</NeutralLanguage>
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\EventFlow.xml</DocumentationFile>
-    <NoWarn>1701;1702;1705;1591</NoWarn>
-    <CheckEolTargetFramework>false</CheckEolTargetFramework>
     <IsPackable>true</IsPackable>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <DefineConstants>LIBLOG_PORTABLE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

@@ -23,9 +23,9 @@
 
 using EventFlow.Commands;
 using EventFlow.Core;
-using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Text.Json.Serialization;
 
 namespace EventFlow.TestHelpers.Aggregates.Commands
 {
