@@ -7,14 +7,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\EventFlow.Redis\EventFlow.Redis.csproj"/>
-        <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj"/>
+        <ProjectReference Include="..\EventFlow.TestHelpers\EventFlow.TestHelpers.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0"/>
-        <PackageReference Include="StackExchange.Redis" Version="2.6.48"/>
-        <PackageReference Include="Testcontainers" Version="2.1.0"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
+        <PackageReference Include="StackExchange.Redis" Version="2.6.48" />
+        <PackageReference Include="Testcontainers" Version="2.1.0" />
     </ItemGroup>
 
 </Project>
