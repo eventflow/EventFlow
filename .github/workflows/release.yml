@@ -75,7 +75,7 @@ jobs:
 
     # https://github.com/rasmus/Bake
     - name: Install Bake 
-      run: dotnet tool install -g --version 0.20.33-beta Bake
+      run: dotnet tool install -g --version 0.21.34-beta Bake
 
     - name: Run Bake
       run: |
