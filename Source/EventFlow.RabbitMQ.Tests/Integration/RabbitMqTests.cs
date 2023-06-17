@@ -105,7 +105,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             using (var consumer = new RabbitMqConsumer(_uri, exchange, new[] { "#" }))
             {
                 var resolver = BuildProvider(exchange, o => o.RegisterServices(sr =>
-                        sr.TryAddTransient<ICommandBus, RabbitMqApplicationCommandPublisher>()));
+                        sr.AddTransient<ICommandBus, RabbitMqApplicationCommandPublisher>()));
 
                 var commandBus = resolver.GetService<ICommandBus>();
                 var commandJsonSerializer = resolver.GetService<ICommandJsonSerializer>();
@@ -188,9 +188,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             var eventFlowOptions = configure(EventFlowOptions.New()
                 .PublishToRabbitMq(RabbitMqConfiguration.With(_uri, false, exchange: exchange.Value))
                 .AddDefaults(EventFlowTestHelpers.Assembly)
-                .RegisterServices(c => c.AddTransient<IScopedContext, ScopedContext>()))
-                .RegisterServices(c => c.AddTransient<ICommandBus, RabbitMqApplicationCommandPublisher>());
-
+                .RegisterServices(c => c.AddTransient<IScopedContext, ScopedContext>()));
 
             return eventFlowOptions.ServiceCollection.BuildServiceProvider();
         }
