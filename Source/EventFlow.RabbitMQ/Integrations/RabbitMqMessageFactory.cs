@@ -22,6 +22,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
+using EventFlow.Commands;
+using EventFlow.Commands.Serialization;
+using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using Microsoft.Extensions.Logging;
@@ -32,15 +36,18 @@ namespace EventFlow.RabbitMQ.Integrations
     {
         private readonly ILogger<RabbitMqMessageFactory> _log;
         private readonly IEventJsonSerializer _eventJsonSerializer;
+        private readonly ICommandJsonSerializer _commmandJsonSerializer;
         private readonly IRabbitMqConfiguration _rabbitMqConfiguration;
 
         public RabbitMqMessageFactory(
             ILogger<RabbitMqMessageFactory> log,
             IEventJsonSerializer eventJsonSerializer,
+            ICommandJsonSerializer commmandJsonSerializer,
             IRabbitMqConfiguration rabbitMqConfiguration)
         {
             _log = log;
             _eventJsonSerializer = eventJsonSerializer;
+            _commmandJsonSerializer = commmandJsonSerializer;
             _rabbitMqConfiguration = rabbitMqConfiguration;
         }
 
@@ -63,6 +70,34 @@ namespace EventFlow.RabbitMQ.Integrations
                 exchange,
                 routingKey,
                 new MessageId(domainEvent.Metadata[MetadataKeys.EventId]));
+
+            _log.LogTrace("Create RabbitMQ message {0}", rabbitMqMessage);
+
+            return rabbitMqMessage;
+        }
+
+        public RabbitMqMessage CreateMessage<TAggregate, TIdentity, TExecutionResult>(ICommand<TAggregate, TIdentity, TExecutionResult> applicationCommand)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TExecutionResult : IExecutionResult
+        {
+            var serializedCommand = _commmandJsonSerializer.Serialize(applicationCommand);
+            var metaData = serializedCommand.Metadata;
+
+            var routingKey = new RoutingKey(string.Format(
+                "eventflow.applicationcommand.{0}.{1}.{2}",
+                metaData.AggregateName.ToSlug(),
+                metaData.CommandName.ToSlug(),
+                metaData.CommandVersion));
+
+            var exchange = new Exchange(_rabbitMqConfiguration.Exchange);
+
+            var rabbitMqMessage = new RabbitMqMessage(
+                serializedCommand.SerializedData,
+                metaData,
+                exchange,
+                routingKey,
+                new MessageId(metaData.SourceId.Value));
 
             _log.LogTrace("Create RabbitMQ message {0}", rabbitMqMessage);
 

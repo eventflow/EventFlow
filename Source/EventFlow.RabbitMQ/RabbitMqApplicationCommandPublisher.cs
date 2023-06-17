@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2021 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
@@ -21,22 +21,23 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Linq;
+using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
+using EventFlow.Commands;
+using EventFlow.Core;
+using EventFlow.RabbitMQ.Integrations;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.RabbitMQ.Integrations;
-using EventFlow.Subscribers;
 
 namespace EventFlow.RabbitMQ
 {
-    public class RabbitMqDomainEventPublisher : ISubscribeSynchronousToAll
+    public class RabbitMqApplicationCommandPublisher : ICommandBus
     {
         private readonly IRabbitMqPublisher _rabbitMqPublisher;
         private readonly IRabbitMqMessageFactory _rabbitMqMessageFactory;
 
-        public RabbitMqDomainEventPublisher(
+        public RabbitMqApplicationCommandPublisher(
             IRabbitMqPublisher rabbitMqPublisher,
             IRabbitMqMessageFactory rabbitMqMessageFactory)
         {
@@ -44,11 +45,22 @@ namespace EventFlow.RabbitMQ
             _rabbitMqMessageFactory = rabbitMqMessageFactory;
         }
 
-        public async Task HandleAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
+        public async Task<TExecutionResult> PublishAsync<TAggregate, TIdentity, TExecutionResult>(ICommand<TAggregate, TIdentity, TExecutionResult> command, CancellationToken cancellationToken)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TExecutionResult : IExecutionResult
         {
-            var rabbitMqMessages = domainEvents.Select(e => _rabbitMqMessageFactory.CreateMessage(e)).ToList();
+            var onlyAcceptsBasicResults = !typeof(TExecutionResult).IsAssignableFrom(typeof(ExecutionResult));
+            if (onlyAcceptsBasicResults)
+            {
+                throw new ArgumentOutOfRangeException(nameof(command), $"Command {command.GetType().Name} expects a non-standard result. RabbitMq only returns success results");
+            }
 
-            await _rabbitMqPublisher.PublishAsync(rabbitMqMessages, cancellationToken);
+            var rabbitMqMessage = _rabbitMqMessageFactory.CreateMessage(command);
+
+            await _rabbitMqPublisher.PublishAsync(cancellationToken, rabbitMqMessage);
+
+            return (TExecutionResult) ExecutionResult.Success();
         }
     }
 }

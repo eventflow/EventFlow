@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2021 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
@@ -21,18 +21,24 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Threading;
-using System.Threading.Tasks;
+using EventFlow.Aggregates;
+using System.Collections.Generic;
+using System;
 using EventFlow.Core;
 
-namespace EventFlow.Commands
+namespace EventFlow.Commands.Serialization
 {
-    public interface ISerializedCommandPublisher
+    public interface ICommandMetadata : IMetadataContainer
     {
-        Task<ISourceId> PublishSerializedCommandAsync(
-            string name,
-            int version,
-            string json,
-            CancellationToken cancellationToken);
+        ISourceId SourceId { get; }
+        string CommandName { get; }
+        int CommandVersion { get; }
+        DateTimeOffset Timestamp { get; }
+        long TimestampEpoch { get; }
+        string AggregateId { get; }
+        string AggregateName { get; }
+
+        ICommandMetadata CloneWith(params KeyValuePair<string, string>[] keyValuePairs);
+        ICommandMetadata CloneWith(IEnumerable<KeyValuePair<string, string>> keyValuePairs);
     }
 }

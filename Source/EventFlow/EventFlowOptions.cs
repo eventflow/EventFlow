@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
+using EventFlow.Commands.Serialization;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Cancellation;
 using EventFlow.Configuration.Serialization;
@@ -192,6 +193,7 @@ namespace EventFlow
             serviceCollection.TryAddTransient<ISnapshotUpgradeService, SnapshotUpgradeService>();
             serviceCollection.TryAddTransient<IReadModelPopulator, ReadModelPopulator>();
             serviceCollection.TryAddTransient<IEventJsonSerializer, EventJsonSerializer>();
+            serviceCollection.TryAddTransient<ICommandJsonSerializer, CommandJsonSerializer>();
             serviceCollection.TryAddTransient<IQueryProcessor, QueryProcessor>();
             serviceCollection.TryAddSingleton<IJsonSerializer, JsonSerializer>();
             serviceCollection.TryAddTransient<IJsonOptions, JsonOptions>();

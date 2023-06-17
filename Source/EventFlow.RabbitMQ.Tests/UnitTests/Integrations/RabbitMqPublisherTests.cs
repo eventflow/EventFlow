@@ -32,7 +32,6 @@ using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using RabbitMQ.Client;
-using Castle.Core.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
