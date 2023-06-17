@@ -55,9 +55,9 @@ namespace EventFlow.RabbitMQ.Integrations
             _transientFaultHandler = transientFaultHandler;
         }
 
-        public Task PublishAsync(CancellationToken cancellationToken, params RabbitMqMessage[] rabbitMqMessages)
+        public async Task PublishAsync(CancellationToken cancellationToken, params RabbitMqMessage[] rabbitMqMessages)
         {
-            return PublishAsync(rabbitMqMessages, cancellationToken);
+            await PublishAsync(rabbitMqMessages, cancellationToken);
         }
 
         public async Task PublishAsync(IReadOnlyCollection<RabbitMqMessage> rabbitMqMessages, CancellationToken cancellationToken)

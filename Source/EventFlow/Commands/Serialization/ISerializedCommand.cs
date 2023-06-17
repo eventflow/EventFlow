@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2021 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
@@ -21,34 +21,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.RabbitMQ.Integrations;
-using EventFlow.Subscribers;
+using System.Collections.Generic;
+using System;
+using EventFlow.Core;
 
-namespace EventFlow.RabbitMQ
+namespace EventFlow.Commands.Serialization
 {
-    public class RabbitMqDomainEventPublisher : ISubscribeSynchronousToAll
+    public interface ISerializedCommand
     {
-        private readonly IRabbitMqPublisher _rabbitMqPublisher;
-        private readonly IRabbitMqMessageFactory _rabbitMqMessageFactory;
-
-        public RabbitMqDomainEventPublisher(
-            IRabbitMqPublisher rabbitMqPublisher,
-            IRabbitMqMessageFactory rabbitMqMessageFactory)
-        {
-            _rabbitMqPublisher = rabbitMqPublisher;
-            _rabbitMqMessageFactory = rabbitMqMessageFactory;
-        }
-
-        public async Task HandleAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
-        {
-            var rabbitMqMessages = domainEvents.Select(e => _rabbitMqMessageFactory.CreateMessage(e)).ToList();
-
-            await _rabbitMqPublisher.PublishAsync(rabbitMqMessages, cancellationToken);
-        }
+        string SerializedMetadata { get; }
+        string SerializedData { get; }
+        ICommandMetadata Metadata { get; }
     }
 }

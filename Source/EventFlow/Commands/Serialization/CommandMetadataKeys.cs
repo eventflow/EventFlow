@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2021 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
@@ -21,34 +21,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.RabbitMQ.Integrations;
-using EventFlow.Subscribers;
 
-namespace EventFlow.RabbitMQ
+namespace EventFlow.Commands.Serialization
 {
-    public class RabbitMqDomainEventPublisher : ISubscribeSynchronousToAll
+    public sealed class CommandMetadataKeys
     {
-        private readonly IRabbitMqPublisher _rabbitMqPublisher;
-        private readonly IRabbitMqMessageFactory _rabbitMqMessageFactory;
-
-        public RabbitMqDomainEventPublisher(
-            IRabbitMqPublisher rabbitMqPublisher,
-            IRabbitMqMessageFactory rabbitMqMessageFactory)
-        {
-            _rabbitMqPublisher = rabbitMqPublisher;
-            _rabbitMqMessageFactory = rabbitMqMessageFactory;
-        }
-
-        public async Task HandleAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
-        {
-            var rabbitMqMessages = domainEvents.Select(e => _rabbitMqMessageFactory.CreateMessage(e)).ToList();
-
-            await _rabbitMqPublisher.PublishAsync(rabbitMqMessages, cancellationToken);
-        }
+        public const string CommandName = "command_name";
+        public const string CommandVersion = "command_version";
+        public const string Timestamp = MetadataKeys.Timestamp;
+        public const string TimestampEpoch = MetadataKeys.TimestampEpoch;
+        public const string AggregateName = MetadataKeys.AggregateName;
+        public const string AggregateId = MetadataKeys.AggregateId;
+        public const string SourceId = MetadataKeys.SourceId;
     }
 }

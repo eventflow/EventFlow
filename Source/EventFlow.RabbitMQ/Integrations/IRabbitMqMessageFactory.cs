@@ -22,11 +22,18 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
+using EventFlow.Commands;
+using EventFlow.Core;
 
 namespace EventFlow.RabbitMQ.Integrations
 {
     public interface IRabbitMqMessageFactory
     {
         RabbitMqMessage CreateMessage(IDomainEvent domainEvent);
+        RabbitMqMessage CreateMessage<TAggregate, TIdentity, TExecutionResult>(ICommand<TAggregate, TIdentity, TExecutionResult> applicationCommand)
+            where TAggregate : IAggregateRoot<TIdentity>
+            where TIdentity : IIdentity
+            where TExecutionResult : IExecutionResult;
     }
 }
