@@ -35,6 +35,8 @@ using EventFlow.TestHelpers.Suites;
 using FluentAssertions;
 using Hangfire.Common;
 using Hangfire.SqlServer;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace EventFlow.Hangfire.Tests.Integration
 {
@@ -74,8 +76,10 @@ namespace EventFlow.Hangfire.Tests.Integration
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
-            _backgroundJobServer.DisposeSafe(null, "Hangfire background job server");
-            _msSqlDatabase.DisposeSafe(null, "MSSQL database");
+            var logger = new Mock<ILogger<HangfireJobSchedulerTests>>();
+
+            _backgroundJobServer.DisposeSafe(logger.Object, "Hangfire background job server");
+            _msSqlDatabase.DisposeSafe(logger.Object, "MSSQL database");
         }
 
         private class DelegatingActivator : JobActivator
