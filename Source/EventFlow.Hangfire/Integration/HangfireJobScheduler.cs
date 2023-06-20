@@ -23,8 +23,8 @@
 
 using EventFlow.Core;
 using EventFlow.Jobs;
-using EventFlow.Logs;
 using Hangfire;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,19 +36,19 @@ namespace EventFlow.Hangfire.Integration
         private readonly IBackgroundJobClient _backgroundJobClient;
         private readonly IJobDefinitionService _jobDefinitionService;
         private readonly IJsonSerializer _jsonSerializer;
-        private readonly ILog _log;
+        private readonly ILogger<HangfireJobScheduler> _logger;
         private readonly IJobDisplayNameBuilder _jobDisplayNameBuilder;
         private readonly string _queueName;
 
         public HangfireJobScheduler(
-            ILog log,
+            ILogger<HangfireJobScheduler> logger,
             IJobDisplayNameBuilder jobDisplayNameBuilder,
             IJsonSerializer jsonSerializer,
             IBackgroundJobClient backgroundJobClient,
             IJobDefinitionService jobDefinitionService,
             IQueueNameProvider queueNameProvider)
         {
-            _log = log;
+            _logger = logger;
             _jobDisplayNameBuilder = jobDisplayNameBuilder;
             _jsonSerializer = jsonSerializer;
             _backgroundJobClient = backgroundJobClient;
@@ -91,7 +91,7 @@ namespace EventFlow.Hangfire.Integration
 
             var id = schedule(_backgroundJobClient, jobDefinition, name, json);
 
-            _log.Verbose($"Scheduled job '{id}' with name '{name}' in Hangfire");
+            _logger.LogTrace($"Scheduled job '{id}' with name '{name}' in Hangfire");
 
             return new HangfireJobId(id);
         }

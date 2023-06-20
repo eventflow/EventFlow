@@ -21,7 +21,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
 using Hangfire;
 using System;
 
@@ -29,16 +28,16 @@ namespace EventFlow.Hangfire.Integration
 {
     public class EventFlowResolverActivator : JobActivator
     {
-        private readonly IResolver _resolver;
+        private readonly IServiceProvider _provider;
 
-        public EventFlowResolverActivator(IResolver resolver)
+        public EventFlowResolverActivator(IServiceProvider provider)
         {
-            _resolver = resolver;
+            _provider = provider;
         }
 
         public override object ActivateJob(Type jobType)
         {
-            return _resolver.Resolve(jobType);
+            return _provider.GetService(jobType);
         }
     }
 }

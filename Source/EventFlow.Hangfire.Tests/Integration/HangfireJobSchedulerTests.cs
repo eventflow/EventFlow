@@ -29,13 +29,11 @@ using EventFlow.Hangfire.Integration;
 using EventFlow.TestHelpers;
 using Hangfire;
 using NUnit.Framework;
-using EventFlow.Configuration;
 using EventFlow.Jobs;
 using EventFlow.TestHelpers.MsSql;
 using EventFlow.TestHelpers.Suites;
 using FluentAssertions;
 using Hangfire.Common;
-using Hangfire.Server;
 using Hangfire.SqlServer;
 
 namespace EventFlow.Hangfire.Tests.Integration
@@ -45,14 +43,12 @@ namespace EventFlow.Hangfire.Tests.Integration
     {
         private IMsSqlDatabase _msSqlDatabase;
         private BackgroundJobServer _backgroundJobServer;
-        private EventFlowResolverActivator _eventFlowResolverActivator;
         private HangfireJobLog _log;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
             _msSqlDatabase = MsSqlHelpz.CreateDatabase("hangfire");
-
             var sqlServerStorageOptions = new SqlServerStorageOptions 
                 {
                     QueuePollInterval = TimeSpan.FromSeconds(1),
@@ -70,7 +66,7 @@ namespace EventFlow.Hangfire.Tests.Integration
 
             GlobalConfiguration.Configuration
                 .UseSqlServerStorage(_msSqlDatabase.ConnectionString.Value, sqlServerStorageOptions)
-                .UseActivator(new DelegatingActivator(() => _eventFlowResolverActivator));
+                .UseActivator(new DelegatingActivator(() => new EventFlowResolverActivator(ServiceProvider)));
 
             _backgroundJobServer = new BackgroundJobServer(backgroundJobServerOptions);
         }
@@ -78,8 +74,8 @@ namespace EventFlow.Hangfire.Tests.Integration
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
-            _backgroundJobServer.DisposeSafe("Hangfire background job server");
-            _msSqlDatabase.DisposeSafe("MSSQL database");
+            _backgroundJobServer.DisposeSafe(null, "Hangfire background job server");
+            _msSqlDatabase.DisposeSafe(null, "MSSQL database");
         }
 
         private class DelegatingActivator : JobActivator
@@ -97,18 +93,15 @@ namespace EventFlow.Hangfire.Tests.Integration
             }
         }
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
         {
-            var resolver = eventFlowOptions
-                .UseHangfireJobScheduler()
-                .CreateResolver(false);
+            var hangfireOptions = base.Options(eventFlowOptions)
+                .UseHangfireJobScheduler();
 
-            _eventFlowResolverActivator = new EventFlowResolverActivator(resolver);
-
-            return resolver;
+            return hangfireOptions;
         }
 
-        protected override async Task AssertJobIsSuccessfullAsync(IJobId jobId)
+        protected override async Task AssertJobIsSuccessfullyAsync(IJobId jobId)
         {
             var context = await _log.GetAsync(jobId.Value);
             context.Should().NotBeNull();

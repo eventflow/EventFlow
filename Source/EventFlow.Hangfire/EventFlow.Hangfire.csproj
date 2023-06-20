@@ -1,29 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../Common.props" />
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <TargetFrameworks>netstandard2.1;netcoreapp3.1;net6.0</TargetFrameworks>
+	<PackageId>EventFlow.Hangfire</PackageId>
     <Title>EventFlow.Hangfire</Title>
     <Authors>Rasmus Mikkelsen</Authors>
     <Company>Rasmus Mikkelsen</Company>
     <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2021</Copyright>
     <Description>Hangfire job scheduling support for EventFlow</Description>
     <PackageTags>CQRS ES event sourcing Hangfire</PackageTags>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/eventflow/EventFlow</RepositoryUrl>
-    <PackageProjectUrl>https://docs.geteventflow.net/</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <NeutralLanguage>en-US</NeutralLanguage>
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Hangfire.Core" Version="1.6.20" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="newtonsoft.json" Version="13.0.1" />
+    <PackageReference Include="Hangfire.Core" Version="1.8.2" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>

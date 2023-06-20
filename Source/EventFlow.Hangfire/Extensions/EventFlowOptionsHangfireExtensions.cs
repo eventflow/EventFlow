@@ -25,29 +25,22 @@ using System;
 using EventFlow.Hangfire.Integration;
 using EventFlow.Jobs;
 using Hangfire;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Hangfire.Extensions
 {
     public static class EventFlowOptionsHangfireExtensions
     {
-        [Obsolete("Please use the correctly spelled 'UseHangfireJobScheduler()' instead")]
-        public static IEventFlowOptions UseHandfireJobScheduler(
-            this IEventFlowOptions eventFlowOptions)
-        {
-            return eventFlowOptions.UseHangfireJobScheduler();
-        }
-
         public static IEventFlowOptions UseHangfireJobScheduler(
             this IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions.RegisterServices(sr =>
-                {
-                    sr.Register<IJobScheduler, HangfireJobScheduler>();
-                    sr.Register<IHangfireJobRunner, HangfireJobRunner>();
-                    sr.Register<IJobDisplayNameBuilder, JobDisplayNameBuilder>();
-                    sr.Register<IBackgroundJobClient>(r => new BackgroundJobClient());
-                    sr.Register<IQueueNameProvider>(r => new QueueNameProvider(null));
-                });
+            eventFlowOptions.ServiceCollection.AddTransient<IJobScheduler, HangfireJobScheduler>();
+            eventFlowOptions.ServiceCollection.AddTransient<IHangfireJobRunner, HangfireJobRunner>();
+            eventFlowOptions.ServiceCollection.AddTransient<IJobDisplayNameBuilder, JobDisplayNameBuilder>();
+            eventFlowOptions.ServiceCollection.AddTransient<IBackgroundJobClient, BackgroundJobClient>();
+            eventFlowOptions.ServiceCollection.AddTransient<IQueueNameProvider>(r => new QueueNameProvider(null));
+
+            return eventFlowOptions;
         }
 
         public static IEventFlowOptions UseHangfireJobScheduler(
