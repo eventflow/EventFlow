@@ -77,4 +77,5 @@ jobs:
           stale-pr-label: stale
           stale-issue-label: stale
           exempt-pr-labels: stale-exempt
+          exempt-issue-labels: stale-exempt
           operations-per-run: 1000
