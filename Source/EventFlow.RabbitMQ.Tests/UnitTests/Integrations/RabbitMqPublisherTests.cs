@@ -29,7 +29,6 @@ using EventFlow.Core;
 using EventFlow.RabbitMQ.Integrations;
 using EventFlow.TestHelpers;
 using AutoFixture;
-using Moq;
 using NUnit.Framework;
 using RabbitMQ.Client;
 using Castle.Core.Logging;
@@ -40,11 +39,11 @@ namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
     [Category(Categories.Unit)]
     public class RabbitMqPublisherTests : TestsFor<RabbitMqPublisher>
     {
-        private Mock<IRabbitMqConnectionFactory> _rabbitMqConnectionFactoryMock;
-        private Mock<IRabbitMqConfiguration> _rabbitMqConfigurationMock;
-        private Mock<ILogger<TransientFaultHandler<IRabbitMqRetryStrategy>>> _logMock;
-        private Mock<IModel> _modelMock;
-        private Mock<IRabbitConnection> _rabbitConnectionMock;
+        private IRabbitMqConnectionFactory _rabbitMqConnectionFactoryMock;
+        private IRabbitMqConfiguration _rabbitMqConfigurationMock;
+        private ILogger<TransientFaultHandler<IRabbitMqRetryStrategy>> _logMock;
+        private IModel _modelMock;
+        private IRabbitConnection _rabbitConnectionMock;
 
         [SetUp]
         public void SetUp()
@@ -54,7 +53,7 @@ namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
             _logMock = InjectMock<ILogger<TransientFaultHandler<IRabbitMqRetryStrategy>>>();
 
             Fixture.Inject<ITransientFaultHandler<IRabbitMqRetryStrategy>>(new TransientFaultHandler<IRabbitMqRetryStrategy>(
-                _logMock.Object,
+                _logMock,
                 new RabbitMqRetryStrategy()));
 
             var basicPropertiesMock = new Mock<IBasicProperties>();

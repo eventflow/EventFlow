@@ -40,7 +40,7 @@ using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
+using NSubstitute;
 using NUnit.Framework;
 
 namespace EventFlow.TestHelpers.Suites
@@ -454,15 +454,16 @@ namespace EventFlow.TestHelpers.Suites
 
         protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
         {
-            var subscribeSynchronousToAllMock = new Mock<ISubscribeSynchronousToAll>();
+            var subscribeSynchronousToAllMock = Substitute.For<ISubscribeSynchronousToAll>();
 
             subscribeSynchronousToAllMock
-                .Setup(s => s.HandleAsync(It.IsAny<IReadOnlyCollection<IDomainEvent>>(), It.IsAny<CancellationToken>()))
-                .Callback<IReadOnlyCollection<IDomainEvent>, CancellationToken>((d, c) => _publishedDomainEvents.AddRange(d))
-                .Returns(Task.FromResult(0));
+                .HandleAsync(Arg.Any<IReadOnlyCollection<IDomainEvent>>(), Arg.Any<CancellationToken>())
+                .Returns(Task.FromResult(0))
+                .AndDoes(c => _publishedDomainEvents.AddRange(c.Arg<IReadOnlyCollection<IDomainEvent>>()))
+                ;
 
             return base.Options(eventFlowOptions)
-                .RegisterServices(sr => sr.AddSingleton(_ => subscribeSynchronousToAllMock.Object));
+                .RegisterServices(sr => sr.AddSingleton(_ => subscribeSynchronousToAllMock));
         }
 
         private static async Task ThrowsExceptionAsync<TException>(Func<Task> action)

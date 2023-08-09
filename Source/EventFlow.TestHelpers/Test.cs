@@ -30,9 +30,9 @@ using EventFlow.EventStores;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using AutoFixture;
-using AutoFixture.AutoMoq;
+using AutoFixture.AutoNSubstitute;
 using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
 using NUnit.Framework;
 using EventId = EventFlow.Aggregates.EventId;
 
@@ -47,7 +47,7 @@ namespace EventFlow.TestHelpers
         [SetUp]
         public void SetUpTest()
         {
-            Fixture = new Fixture().Customize(new AutoMoqCustomization());
+            Fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
             Fixture.Customize<ThingyId>(x => x.FromFactory(() => ThingyId.New));
             Fixture.Customize<ThingyMessageId>(x => x.FromFactory(() => ThingyMessageId.New));
@@ -70,7 +70,7 @@ namespace EventFlow.TestHelpers
         protected T Mock<T>()
             where T : class
         {
-            return new Mock<T>().Object;
+            return Substitute.For<T>();
         }
 
         protected static ILogger<T> Logger<T>()
@@ -85,11 +85,11 @@ namespace EventFlow.TestHelpers
             return instance;
         }
 
-        protected Mock<T> InjectMock<T>(params object[] args)
+        protected T InjectMock<T>(params object[] args)
             where T : class
         {
-            var mock = new Mock<T>(args);
-            Fixture.Inject(mock.Object);
+            var mock = Substitute.For<T>(args);
+            Fixture.Inject(mock);
             return mock;
         }
 
@@ -141,13 +141,12 @@ namespace EventFlow.TestHelpers
                 aggregateSequenceNumber);
         }
 
-        protected Mock<Func<T>> CreateFailingFunction<T>(T result, params Exception[] exceptions)
+        public Func<T> CreateFailingFunction<T>(T result, params Exception[] exceptions)
         {
-            var function = new Mock<Func<T>>();
+            var function = Substitute.For<Func<T>>();
             var exceptionStack = new Stack<Exception>(exceptions.Reverse());
-            function
-                .Setup(f => f())
-                .Returns(() =>
+            function()
+                .Returns(_ =>
                 {
                     if (exceptionStack.Any())
                     {

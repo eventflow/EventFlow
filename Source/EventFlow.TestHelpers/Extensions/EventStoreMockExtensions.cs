@@ -27,27 +27,27 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.EventStores;
 using EventFlow.TestHelpers.Aggregates;
-using Moq;
+using NSubstitute;
 
 namespace EventFlow.TestHelpers.Extensions
 {
     public static class EventStoreMockExtensions
     {
         public static void Arrange_LoadEventsAsync(
-            this Mock<IEventStore> eventStoreMock,
+            this IEventStore eventStoreMock,
             params IDomainEvent<ThingyAggregate, ThingyId>[] domainEvents)
         {
             eventStoreMock
-                .Setup(s => s.LoadEventsAsync<ThingyAggregate, ThingyId>(
-                    It.IsAny<ThingyId>(),
-                    It.IsAny<CancellationToken>()))
+                .LoadEventsAsync<ThingyAggregate, ThingyId>(
+                    Arg.Any<ThingyId>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult<IReadOnlyCollection<IDomainEvent<ThingyAggregate, ThingyId>>>(domainEvents));
 
             eventStoreMock
-                .Setup(s => s.LoadEventsAsync<ThingyAggregate, ThingyId>(
-                    It.IsAny<ThingyId>(),
-                    It.IsAny<int>(),
-                    It.IsAny<CancellationToken>()))
+                .LoadEventsAsync<ThingyAggregate, ThingyId>(
+                    Arg.Any<ThingyId>(),
+                    Arg.Any<int>(),
+                    Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult<IReadOnlyCollection<IDomainEvent<ThingyAggregate, ThingyId>>>(domainEvents));
         }
     }
