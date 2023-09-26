@@ -73,7 +73,7 @@ The following list key characteristics of each version as well as its related br
     - 💀 `EventFlow.Owin`
     - 🟢 `EventFlow.PostgreSql`
     - 💚 `EventFlow.Redis`
-    - 🟠 `EventFlow.RabbitMQ`
+    - 💚 `EventFlow.RabbitMQ`
     - 🟢 `EventFlow.Sql`
     - 🟠 `EventFlow.SQLite`
     - 🟢 `EventFlow.TestHelpers`

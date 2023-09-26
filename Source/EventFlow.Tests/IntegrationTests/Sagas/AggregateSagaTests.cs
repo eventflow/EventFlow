@@ -26,7 +26,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.Sagas;
 using EventFlow.Subscribers;

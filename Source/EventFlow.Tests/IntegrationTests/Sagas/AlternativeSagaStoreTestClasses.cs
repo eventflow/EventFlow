@@ -29,7 +29,6 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Sagas;
 using EventFlow.ValueObjects;
@@ -73,6 +72,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
                 CancellationToken cancellationToken)
             {
                 var commandBus = _serviceProvider.GetRequiredService<ICommandBus>();
+                var scheduler = _serviceProvider.GetRequiredService<ICommandScheduler>();
 
                 ISaga saga;
                 using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
@@ -91,6 +91,8 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
                 }
                 
                 await saga.PublishAsync(commandBus, cancellationToken).ConfigureAwait(false);
+                await saga.SchedulePublishAsync(scheduler, cancellationToken).ConfigureAwait(false);
+
                 return saga;
             }
         }
@@ -98,9 +100,11 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
         public class TestSaga : ISaga<TestSagaLocator>,
             ISagaIsStartedBy<SagaTestAggregate, SagaTestAggregateId, SagaTestEventA>,
             ISagaHandles<SagaTestAggregate, SagaTestAggregateId, SagaTestEventB>,
-            ISagaHandles<SagaTestAggregate, SagaTestAggregateId, SagaTestEventC>
+            ISagaHandles<SagaTestAggregate, SagaTestAggregateId, SagaTestEventC>,
+            ISagaHandles<SagaTestAggregate, SagaTestAggregateId, SagaTestEventD>
         {
             private readonly ICollection<Func<ICommandBus, CancellationToken, Task>> _unpublishedCommands = new List<Func<ICommandBus, CancellationToken, Task>>();
+            private readonly ICollection<Func<ICommandScheduler, CancellationToken, Task>> _scheduledCommands = new List<Func<ICommandScheduler, CancellationToken, Task>>();
 
             public TestSagaId Id { get; }
             public SagaState State { get; private set; }
@@ -135,6 +139,15 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
                 ISagaContext sagaContext,
                 CancellationToken cancellationToken)
             {
+                _scheduledCommands.Add((b, c) => b.ScheduleAsync(new SagaTestDCommand(domainEvent.AggregateIdentity), DateTimeOffset.Now, c));
+                return Task.FromResult(0);
+            }
+
+            public Task HandleAsync(
+                IDomainEvent<SagaTestAggregate, SagaTestAggregateId, SagaTestEventD> domainEvent, 
+                ISagaContext sagaContext, 
+                CancellationToken cancellationToken)
+            {
                 return Task.FromResult(0);
             }
 
@@ -144,6 +157,15 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
                 {
                     _unpublishedCommands.Remove(unpublishedCommand);
                     await unpublishedCommand(commandBus, cancellationToken).ConfigureAwait(false);
+                }
+            }
+
+            public async Task SchedulePublishAsync(ICommandScheduler scheduler, CancellationToken cancellationToken)
+            {
+                foreach (var unpublishedCommand in _scheduledCommands.ToList())
+                {
+                    _scheduledCommands.Remove(unpublishedCommand);
+                    await unpublishedCommand(scheduler, cancellationToken).ConfigureAwait(false);
                 }
             }
 
@@ -183,6 +205,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             public int As { get; private set; }
             public int Bs { get; private set; }
             public int Cs { get; private set; }
+            public int Ds { get; private set; }
 
             public SagaTestAggregate(SagaTestAggregateId id) : base(id)
             {
@@ -191,10 +214,12 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             public void A() { Emit(new SagaTestEventA()); }
             public void B() { Emit(new SagaTestEventB()); }
             public void C() { Emit(new SagaTestEventC()); }
+            public void D() { Emit(new SagaTestEventD()); }
 
             public void Apply(SagaTestEventA e) { As++; }
             public void Apply(SagaTestEventB e) { Bs++; }
             public void Apply(SagaTestEventC e) { Cs++; }
+            public void Apply(SagaTestEventD e) { Ds++; }
         }
 
         public class SagaTestACommand : Command<SagaTestAggregate, SagaTestAggregateId>
@@ -239,8 +264,23 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             }
         }
 
+        public class SagaTestDCommand : Command<SagaTestAggregate, SagaTestAggregateId>
+        {
+            public SagaTestDCommand(SagaTestAggregateId aggregateId) : base(aggregateId) { }
+        }
+
+        public class SagaTestDCommandHandler : CommandHandler<SagaTestAggregate, SagaTestAggregateId, SagaTestDCommand>
+        {
+            public override Task ExecuteAsync(SagaTestAggregate aggregate, SagaTestDCommand command, CancellationToken cancellationToken)
+            {
+                aggregate.D();
+                return Task.FromResult(0);
+            }
+        }
+
         public class SagaTestEventA : AggregateEvent<SagaTestAggregate, SagaTestAggregateId> { }
         public class SagaTestEventB : AggregateEvent<SagaTestAggregate, SagaTestAggregateId> { }
         public class SagaTestEventC : AggregateEvent<SagaTestAggregate, SagaTestAggregateId> { }
+        public class SagaTestEventD : AggregateEvent<SagaTestAggregate, SagaTestAggregateId> { }
     }
 }

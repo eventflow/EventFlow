@@ -21,6 +21,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.Commands;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,6 +32,7 @@ namespace EventFlow.Sagas
         SagaState State { get; }
 
         Task PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken);
+        Task SchedulePublishAsync(ICommandScheduler scheduler, CancellationToken cancellationToken);
     }
 
     public interface ISaga<TLocator> : ISaga

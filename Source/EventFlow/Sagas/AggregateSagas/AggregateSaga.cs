@@ -41,6 +41,7 @@ namespace EventFlow.Sagas.AggregateSagas
         where TLocator : ISagaLocator
     {
         private readonly ICollection<Tuple<ICommand, Func<ICommandBus, CancellationToken, Task<IExecutionResult>>>> _unpublishedCommands = new List<Tuple<ICommand, Func<ICommandBus, CancellationToken, Task<IExecutionResult>>>>();
+        private readonly ICollection<Tuple<ICommand, Func<ICommandScheduler, CancellationToken, Task>>> _scheduledCommands = new List<Tuple<ICommand, Func<ICommandScheduler, CancellationToken, Task>>>();
 
         private bool _isCompleted;
 
@@ -65,6 +66,32 @@ namespace EventFlow.Sagas.AggregateSagas
                 new Tuple<ICommand, Func<ICommandBus, CancellationToken, Task<IExecutionResult>>>(
                         command,
                         async (b, c) => await b.PublishAsync(command, c).ConfigureAwait(false))
+                );
+        }
+
+        protected void ScheduledPublish<TCommandAggregate, TCommandAggregateIdentity, TExecutionResult>(
+            ICommand<TCommandAggregate, TCommandAggregateIdentity, TExecutionResult> command, TimeSpan delay)
+            where TCommandAggregate : IAggregateRoot<TCommandAggregateIdentity>
+            where TCommandAggregateIdentity : IIdentity
+            where TExecutionResult : IExecutionResult
+        {
+            _scheduledCommands.Add(
+                new Tuple<ICommand, Func<ICommandScheduler, CancellationToken, Task>>(
+                        command,
+                        async (b, c) => await b.ScheduleAsync(command, delay, c).ConfigureAwait(false))
+                );
+        }
+
+        protected void ScheduledPublish<TCommandAggregate, TCommandAggregateIdentity, TExecutionResult>(
+            ICommand<TCommandAggregate, TCommandAggregateIdentity, TExecutionResult> command, DateTimeOffset runAt)
+            where TCommandAggregate : IAggregateRoot<TCommandAggregateIdentity>
+            where TCommandAggregateIdentity : IIdentity
+            where TExecutionResult : IExecutionResult
+        {
+            _scheduledCommands.Add(
+                new Tuple<ICommand, Func<ICommandScheduler, CancellationToken, Task>>(
+                        command,
+                        async (b, c) => await b.ScheduleAsync(command, runAt, c).ConfigureAwait(false))
                 );
         }
 
@@ -110,6 +137,45 @@ namespace EventFlow.Sagas.AggregateSagas
                 else
                 {
                     await commandInvoker(commandBus, cancellationToken).ConfigureAwait(false);
+                }
+            }
+
+            if (0 < exceptions.Count)
+            {
+                throw new SagaPublishException(
+                    $"Some commands published from a saga with ID '{Id}' failed. See InnerExceptions.",
+                    exceptions);
+            }
+        }
+        public virtual async Task SchedulePublishAsync(ICommandScheduler scheduler, CancellationToken cancellationToken)
+        {
+            var commandsToPublish = _scheduledCommands.ToList();
+            _scheduledCommands.Clear();
+
+            var exceptions = new List<CommandException>();
+            foreach (var unpublishedCommand in commandsToPublish)
+            {
+                var command = unpublishedCommand.Item1;
+                var commandInvoker = unpublishedCommand.Item2;
+                if (ThrowExceptionsOnFailedPublish)
+                {
+                    try
+                    {
+                        await commandInvoker(scheduler, cancellationToken).ConfigureAwait(false);                        
+                    }
+                    catch (Exception e)
+                    {
+                        exceptions.Add(
+                            new CommandException(
+                                command.GetType(),
+                                command.GetSourceId(),
+                                $"Command '{command.GetType().PrettyPrint()}' with ID '{command.GetSourceId()}' published from a saga with ID '{Id}' failed with: '{e.Message}'. See InnerException.",
+                                e));
+                    }
+                }
+                else
+                {
+                    await commandInvoker(scheduler, cancellationToken).ConfigureAwait(false);
                 }
             }
 

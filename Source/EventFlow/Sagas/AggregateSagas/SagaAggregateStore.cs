@@ -28,6 +28,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.Core.Caching;
 using EventFlow.Extensions;
@@ -85,6 +86,9 @@ namespace EventFlow.Sagas.AggregateSagas
 
             var commandBus = _serviceProvider.GetRequiredService<ICommandBus>();
             await saga.PublishAsync(commandBus, cancellationToken).ConfigureAwait(false);
+
+            var commandScheduler = _serviceProvider.GetRequiredService<ICommandScheduler>();
+            await saga.SchedulePublishAsync(commandScheduler, cancellationToken).ConfigureAwait(false);
 
             return saga;
         }

@@ -27,23 +27,20 @@ using System.Threading.Tasks;
 using EventFlow.Core;
 using Microsoft.Extensions.Logging;
 
-namespace EventFlow.Commands
+namespace EventFlow.Commands.Serialization
 {
     public class SerializedCommandPublisher : ISerializedCommandPublisher
     {
         private readonly ILogger<SerializedCommandPublisher> _logger;
-        private readonly ICommandDefinitionService _commandDefinitionService;
-        private readonly IJsonSerializer _jsonSerializer;
+        private readonly ICommandJsonSerializer _jsonSerializer;
         private readonly ICommandBus _commandBus;
 
         public SerializedCommandPublisher(
             ILogger<SerializedCommandPublisher> logger,
-            ICommandDefinitionService commandDefinitionService,
-            IJsonSerializer jsonSerializer,
+            ICommandJsonSerializer jsonSerializer,
             ICommandBus commandBus)
         {
             _logger = logger;
-            _commandDefinitionService = commandDefinitionService;
             _jsonSerializer = jsonSerializer;
             _commandBus = commandBus;
         }
@@ -63,22 +60,9 @@ namespace EventFlow.Commands
                 name,
                 version);
 
-            if (!_commandDefinitionService.TryGetDefinition(name, version, out var commandDefinition))
-            {
-                throw new ArgumentException($"No command definition found for command '{name}' v{version}");
-            }
-
-            ICommand command;
-            try
-            {
-                command = (ICommand)_jsonSerializer.Deserialize(json, commandDefinition.Type);
-            }
-            catch (Exception e)
-            {
-                throw new ArgumentException($"Failed to deserialize command '{name}' v{version}: {e.Message}", e);
-            }
-
+            var command = _jsonSerializer.Deserialize(name, version, json);
             await command.PublishAsync(_commandBus, CancellationToken.None).ConfigureAwait(false);
+
             return command.GetSourceId();
         }
     }

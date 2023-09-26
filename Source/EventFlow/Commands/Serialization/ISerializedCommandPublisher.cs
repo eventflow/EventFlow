@@ -21,34 +21,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.RabbitMQ.Integrations;
-using EventFlow.Subscribers;
+using EventFlow.Core;
 
-namespace EventFlow.RabbitMQ
+namespace EventFlow.Commands.Serialization
 {
-    public class RabbitMqDomainEventPublisher : ISubscribeSynchronousToAll
+    public interface ISerializedCommandPublisher
     {
-        private readonly IRabbitMqPublisher _rabbitMqPublisher;
-        private readonly IRabbitMqMessageFactory _rabbitMqMessageFactory;
-
-        public RabbitMqDomainEventPublisher(
-            IRabbitMqPublisher rabbitMqPublisher,
-            IRabbitMqMessageFactory rabbitMqMessageFactory)
-        {
-            _rabbitMqPublisher = rabbitMqPublisher;
-            _rabbitMqMessageFactory = rabbitMqMessageFactory;
-        }
-
-        public async Task HandleAsync(IReadOnlyCollection<IDomainEvent> domainEvents, CancellationToken cancellationToken)
-        {
-            var rabbitMqMessages = domainEvents.Select(e => _rabbitMqMessageFactory.CreateMessage(e)).ToList();
-
-            await _rabbitMqPublisher.PublishAsync(rabbitMqMessages, cancellationToken);
-        }
+        Task<ISourceId> PublishSerializedCommandAsync(
+            string name,
+            int version,
+            string json,
+            CancellationToken cancellationToken);
     }
 }

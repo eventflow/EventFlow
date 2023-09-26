@@ -25,6 +25,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Commands;
 using EventFlow.Extensions;
 using EventFlow.Sagas;
 using EventFlow.TestHelpers;
@@ -38,6 +39,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
     public class AlternativeSagaStoreTests
     {
         private ICommandBus _commandBus;
+        private ICommandScheduler _commandScheduler;
         private IAggregateStore _aggregateStore;
         private AlternativeSagaStoreTestClasses.InMemorySagaStore _sagaStore;
         private ServiceProvider _serviceProvider;
@@ -47,14 +49,20 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
         {
             _serviceProvider = EventFlowOptions.New()
                 .AddSagas(typeof(AlternativeSagaStoreTestClasses.TestSaga))
+                .AddCommands(typeof(AlternativeSagaStoreTestClasses.SagaTestACommand))
+                .AddCommands(typeof(AlternativeSagaStoreTestClasses.SagaTestBCommand))
+                .AddCommands(typeof(AlternativeSagaStoreTestClasses.SagaTestCCommand))
+                .AddCommands(typeof(AlternativeSagaStoreTestClasses.SagaTestDCommand))
                 .AddCommandHandlers(
                     typeof(AlternativeSagaStoreTestClasses.SagaTestACommandHandler),
                     typeof(AlternativeSagaStoreTestClasses.SagaTestBCommandHandler),
-                    typeof(AlternativeSagaStoreTestClasses.SagaTestCCommandHandler))
+                    typeof(AlternativeSagaStoreTestClasses.SagaTestCCommandHandler),
+                    typeof(AlternativeSagaStoreTestClasses.SagaTestDCommandHandler))
                 .AddEvents(
                     typeof(AlternativeSagaStoreTestClasses.SagaTestEventA),
                     typeof(AlternativeSagaStoreTestClasses.SagaTestEventB),
-                    typeof(AlternativeSagaStoreTestClasses.SagaTestEventC))
+                    typeof(AlternativeSagaStoreTestClasses.SagaTestEventC),
+                    typeof(AlternativeSagaStoreTestClasses.SagaTestEventD))
                 .RegisterServices(sr =>
                 {
                     sr.AddTransient(typeof(AlternativeSagaStoreTestClasses.TestSagaLocator));
@@ -63,6 +71,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
                 .ServiceCollection.BuildServiceProvider();
 
             _commandBus = _serviceProvider.GetRequiredService<ICommandBus>();
+            _commandScheduler = _serviceProvider.GetRequiredService<ICommandScheduler>();
             _aggregateStore = _serviceProvider.GetRequiredService<IAggregateStore>();
             _sagaStore = (AlternativeSagaStoreTestClasses.InMemorySagaStore) _serviceProvider.GetRequiredService<ISagaStore>();
         }
@@ -91,6 +100,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             testAggregate.As.Should().Be(1);
             testAggregate.Bs.Should().Be(1);
             testAggregate.Cs.Should().Be(1);
+            testAggregate.Ds.Should().Be(1);
         }
 
         [Test]

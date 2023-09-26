@@ -15,6 +15,7 @@ Changes since last 1.x pre-release, `1.0.5002-alpha`
   and applying them are now done concurrently to reduced memory usage and significantly improve
   time to completion (by @kyle-bradley)
 * New: Created `EventFlow.Redis` (by @joshua211)
+* New: Migrated `EventFlow.RabbitMQ` to v1 (by @kyle-bradley)
 * Breaking: Removed old `EventFlow.Shims.Tasks` class that provided a wrapper for `Task.CompletedTask`
   in frameworks that did not have it
 

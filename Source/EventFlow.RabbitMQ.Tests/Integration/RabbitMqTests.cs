@@ -27,6 +27,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
+using EventFlow.Commands;
+using EventFlow.Commands.Serialization;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.RabbitMQ.Extensions;
@@ -71,7 +74,7 @@ namespace EventFlow.RabbitMQ.Tests.Integration
         }
 
         [Test, Retry(3)]
-        public async Task Scenario()
+        public async Task EventPublisherScenario()
         {
             var exchange = new Exchange($"eventflow-{Guid.NewGuid():N}");
             using (var consumer = new RabbitMqConsumer(_uri, exchange, new[] { "#" }))
@@ -92,6 +95,33 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                     new Metadata(rabbitMqMessage.Headers));
 
                 pingEvent.AggregateEvent.PingId.Should().Be(pingId);
+            }
+        }
+
+        [Test, Retry(3)]
+        public async Task CommandPublisherScenario()
+        {
+            var exchange = new Exchange($"eventflow-{Guid.NewGuid():N}");
+            using (var consumer = new RabbitMqConsumer(_uri, exchange, new[] { "#" }))
+            {
+                var resolver = BuildProvider(exchange, o => o.RegisterServices(sr =>
+                        sr.AddTransient<ICommandBus, RabbitMqApplicationCommandPublisher>()));
+
+                var commandBus = resolver.GetService<ICommandBus>();
+                var commandJsonSerializer = resolver.GetService<ICommandJsonSerializer>();
+
+                var pingId = PingId.New;
+                await commandBus.PublishAsync(new ThingyPingCommand(ThingyId.New, pingId), _timeout.Token).ConfigureAwait(false);
+
+                var rabbitMqMessage = consumer.GetMessages(TimeSpan.FromMinutes(1)).Single();
+                rabbitMqMessage.Exchange.Value.Should().Be(exchange.Value);
+                rabbitMqMessage.RoutingKey.Value.Should().Be("eventflow.applicationcommand.thingy.thingy-ping.1");
+
+                var pingCommand = (ThingyPingCommand)commandJsonSerializer.Deserialize(
+                    rabbitMqMessage.Message,
+                    new CommandMetadata(rabbitMqMessage.Headers));
+
+                pingCommand.PingId.Should().Be(pingId);
             }
         }
 
