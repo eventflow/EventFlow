@@ -236,6 +236,31 @@ namespace EventFlow.EventStores.Files
             }
         }
 
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            IIdentity id,
+            int fromEventSequenceNumber,
+            int toEventSequenceNumber,
+            CancellationToken cancellationToken)
+        {
+            using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
+            {
+                var committedDomainEvents = new List<ICommittedDomainEvent>();
+                for (var i = fromEventSequenceNumber; i <= toEventSequenceNumber ; i++)
+                {
+                    var eventPath = _filesEventLocator.GetEventPath(id, i);
+                    if (!File.Exists(eventPath))
+                    {
+                        return committedDomainEvents;
+                    }
+
+                    var committedDomainEvent = await LoadFileEventDataFile(eventPath).ConfigureAwait(false);
+                    committedDomainEvents.Add(committedDomainEvent);
+                }
+
+                return committedDomainEvents;
+            }
+        }
+
         public async Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             _logger.LogTrace("Deleting entity with ID {EventFilePath}", id);
