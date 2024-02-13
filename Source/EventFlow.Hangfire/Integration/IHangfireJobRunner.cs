@@ -29,9 +29,6 @@ namespace EventFlow.Hangfire.Integration
     public interface IHangfireJobRunner
     {
         [DisplayName("{0}")]
-        Task ExecuteAsync(string displayName, string jobName, int version, string job);
-
-        [DisplayName("{0}"), UseQueueFromParameter(4)]
-        Task ExecuteAsync(string displayName, string jobName, int version, string job, string queueName);
+        Task ExecuteAsync(string jobName, int version, string job);
     }
 }

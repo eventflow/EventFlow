@@ -5,7 +5,7 @@ parent: Basics
 nav_order: 2
 ---
 
-.. _jobs:
+.. \_jobs:
 
 # Jobs
 
@@ -16,8 +16,8 @@ provides basic functionality for jobs.
 There are areas where you might find jobs very useful, here are some
 examples
 
--  Publish a command at a specific time in the future
--  Transient error handling
+- Publish a command at a specific time in the future
+- Transient error handling
 
 ```csharp
 var jobScheduler = resolver.Resolve<IJobScheduler>();
@@ -33,16 +33,15 @@ In the above example the `SendEmailCommand` command will be published
 in seven days.
 
 !!! attention
-    When working with jobs, you should be aware of the following
+When working with jobs, you should be aware of the following
 
     - The default implementation does executes the job *now* (completely ignoring `runAt`/`delay` parameters) and in the
-      current context. To get support for scheduled jobs, inject another implementation of `IJobScheduler`, 
+      current context. To get support for scheduled jobs, inject another implementation of `IJobScheduler`,
       e.g. by  installing ``EventFlow.Hangfire`` (Read below for details).
     - Your jobs should serialize to JSON properly, see the section on
       `value objects <./ValueObjects.md>`__ for more information
     - If you use the provided ``PublishCommandJob``, make sure that your
       commands serialize properly as well
-
 
 ## Create your own jobs
 
@@ -77,7 +76,7 @@ version to EventFlow and this is how EventFlow distinguishes between the
 different job types. This makes it possible for you to reorder your
 code, even rename the job type. As long as you keep the same attribute
 values it is considered the same job in EventFlow. If the attribute is
-omitted, the name will be the type name and version will be ``1``.
+omitted, the name will be the type name and version will be `1`.
 
 Here's how the job is registered in EventFlow.
 
@@ -102,17 +101,22 @@ await jobScheduler.ScheduleAsync(
 
 ## Hangfire
 
-To use `Hangfire <http://hangfire.io/>`__ as the job scheduler, install
-the NuGet package ``EventFlow.Hangfire`` and configure EventFlow to use
+To use `Hangfire <http://hangfire.io/>`\_\_ as the job scheduler, install
+the NuGet package `EventFlow.Hangfire` and configure EventFlow to use
 the scheduler like this.
 
+hangfire supports several different storage solutions including Microsoft SQL Server and MongoDB. Use only inMemoryStorage for testing and development.
+
 ```csharp
-var resolver = EventFlowOptions.new
-  .UseHangfireJobScheduler() // This line
-  ...
-  .CreateResolver();
+private void RegisterHangfire(IEventFlowOptions eventFlowOptions)
+{
+    eventFlowOptions.ServiceCollection
+        .AddHangfire(c => c.UseInMemoryStorage())
+        .AddHangfireServer();
+    eventFlowOptions.UseHangfireJobScheduler();
+}
 ```
 
 !!! note
-    The `UseHangfireJobScheduler()` doesn't do any Hangfire
-    configuration, but merely registers the proper scheduler in EventFlow.
+The `UseHangfireJobScheduler()` doesn't do any Hangfire
+configuration, but merely registers the proper scheduler in EventFlow.
