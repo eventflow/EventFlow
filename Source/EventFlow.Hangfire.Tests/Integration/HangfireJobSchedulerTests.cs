@@ -22,99 +22,160 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Concurrent;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.Extensions;
 using EventFlow.Hangfire.Extensions;
-using EventFlow.Hangfire.Integration;
-using EventFlow.TestHelpers;
-using Hangfire;
-using NUnit.Framework;
-using EventFlow.Configuration;
 using EventFlow.Jobs;
-using EventFlow.TestHelpers.MsSql;
-using EventFlow.TestHelpers.Suites;
+using EventFlow.Provided.Jobs;
+using EventFlow.Subscribers;
+using EventFlow.TestHelpers;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Commands;
+using EventFlow.TestHelpers.Aggregates.Events;
+using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
+using FluentAssertions.Common;
+using Hangfire;
 using Hangfire.Common;
-using Hangfire.Server;
-using Hangfire.SqlServer;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using NUnit.Framework;
 
 namespace EventFlow.Hangfire.Tests.Integration
 {
-    [Category(Categories.Integration)]
-    public class HangfireJobSchedulerTests : TestSuiteForScheduler
+    public class HangfireJobSchedulerTests : IntegrationTest
     {
-        private IMsSqlDatabase _msSqlDatabase;
-        private BackgroundJobServer _backgroundJobServer;
-        private EventFlowResolverActivator _eventFlowResolverActivator;
+        private IJobScheduler _jobScheduler;
+        private TestAsynchronousSubscriber _testAsynchronousSubscriber;
         private HangfireJobLog _log;
+        private IHostedService _backgroundService;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        private class TestAsynchronousSubscriber : ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>
         {
-            _msSqlDatabase = MsSqlHelpz.CreateDatabase("hangfire");
+            public BlockingCollection<PingId> PingIds { get; } = new BlockingCollection<PingId>();
 
-            var sqlServerStorageOptions = new SqlServerStorageOptions 
-                {
-                    QueuePollInterval = TimeSpan.FromSeconds(1),
-                };
+            public Task HandleAsync(IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent, CancellationToken cancellationToken)
+            {
+                PingIds.Add(domainEvent.AggregateEvent.PingId, CancellationToken.None);
+                return Task.FromResult(0);
+            }
+        }
 
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
+        {   
+            RegisterHangfire(eventFlowOptions);
+            
+            var serviceProvider =  eventFlowOptions.ServiceCollection.BuildServiceProvider();
+            _backgroundService = serviceProvider.GetRequiredService<IHostedService>();
+            _backgroundService.StartAsync(CancellationToken.None);
+            return serviceProvider;
+        }
+
+        private void RegisterHangfire(IEventFlowOptions eventFlowOptions)
+        {
             _log = new HangfireJobLog();
-
-            var jobFilterCollection = new JobFilterCollection {_log};
-
-            var backgroundJobServerOptions = new BackgroundJobServerOptions
+            var jobFilterCollection = new JobFilterCollection { _log };
+            
+            eventFlowOptions.ServiceCollection
+                .AddHangfire(c => c.UseInMemoryStorage())
+                .AddHangfireServer(options =>
                 {
-                    SchedulePollingInterval = TimeSpan.FromSeconds(1),
-                    FilterProvider = jobFilterCollection
-                };
-
-            GlobalConfiguration.Configuration
-                .UseSqlServerStorage(_msSqlDatabase.ConnectionString.Value, sqlServerStorageOptions)
-                .UseActivator(new DelegatingActivator(() => _eventFlowResolverActivator));
-
-            _backgroundJobServer = new BackgroundJobServer(backgroundJobServerOptions);
+                    options.SchedulePollingInterval = TimeSpan.FromSeconds(1);
+                    options.FilterProvider = jobFilterCollection;
+                });
+            eventFlowOptions.UseHangfireJobScheduler();
+        }
+        
+        [SetUp]
+        public void TestSuiteForSchedulerSetUp()
+        {
+            _jobScheduler = ServiceProvider.GetRequiredService<IJobScheduler>();
         }
 
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
+        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
         {
-            _backgroundJobServer.DisposeSafe("Hangfire background job server");
-            _msSqlDatabase.DisposeSafe("MSSQL database");
+            _testAsynchronousSubscriber = new TestAsynchronousSubscriber();
+
+            return base.Options(eventFlowOptions)
+                .RegisterServices(sr => sr.AddTransient(_ => (ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, ThingyPingEvent>)_testAsynchronousSubscriber))
+                .Configure(c => c.IsAsynchronousSubscribersEnabled = true);
         }
 
-        private class DelegatingActivator : JobActivator
+        [Test]
+        public async Task AsynchronousSubscribesGetInvoked()
         {
-            private readonly Func<EventFlowResolverActivator> _eventFlowResolverActivatorFetcher;
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            // Act
+            var pingId = await PublishPingCommandAsync(A<ThingyId>(), cts.Token).ConfigureAwait(false);
 
-            public DelegatingActivator(Func<EventFlowResolverActivator> eventFlowResolverActivatorFetcher)
+            // Assert
+            var receivedPingId = await Task.Run(() => _testAsynchronousSubscriber.PingIds.Take(), cts.Token).ConfigureAwait(false);
+            receivedPingId.Should().IsSameOrEqualTo(pingId);
+        }
+
+        [Test]
+        public async Task ScheduleNow()
+        {
+            await ValidateScheduleHappens((j, s) => s.ScheduleNowAsync(j, CancellationToken.None)).ConfigureAwait(false);
+        }
+
+        [Test]
+        public async Task ScheduleAsyncWithDateTime()
+        {
+            await ValidateScheduleHappens((j, s) => s.ScheduleAsync(j, DateTimeOffset.Now.AddSeconds(1), CancellationToken.None)).ConfigureAwait(false);
+        }
+
+        [Test]
+        public async Task ScheduleAsyncWithTimeSpan()
+        {
+            await ValidateScheduleHappens((j, s) => s.ScheduleAsync(j, TimeSpan.FromSeconds(1), CancellationToken.None)).ConfigureAwait(false);
+        }
+
+        private async Task ValidateScheduleHappens(Func<IJob, IJobScheduler, Task<IJobId>> schedule)
+        {
+            // Arrange
+            var testId = ThingyId.New;
+            var pingId = PingId.New;
+            var executeCommandJob = PublishCommandJob.Create(new ThingyPingCommand(testId, pingId), ServiceProvider);
+
+            // Act
+            var jobId = await schedule(executeCommandJob, _jobScheduler).ConfigureAwait(false);
+
+            // Assert
+            var start = DateTimeOffset.Now;
+            while (DateTimeOffset.Now < start + TimeSpan.FromSeconds(10))
             {
-                _eventFlowResolverActivatorFetcher = eventFlowResolverActivatorFetcher;
+                var testAggregate = await AggregateStore.LoadAsync<ThingyAggregate, ThingyId>(testId, CancellationToken.None).ConfigureAwait(false);
+                if (!testAggregate.IsNew)
+                {
+                    await AssertJobIsSuccessfullyAsync(jobId).ConfigureAwait(false);
+                    Assert.Contains(pingId, testAggregate.PingsReceived.ToList());
+                    Assert.Pass();
+                }
+                
+                await Task.Delay(TimeSpan.FromSeconds(0.2)).ConfigureAwait(false);
             }
 
-            public override object ActivateJob(Type jobType)
-            {
-                return _eventFlowResolverActivatorFetcher().ActivateJob(jobType);
-            }
+            Assert.Fail("Aggregate did not receive the command as expected");
         }
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
-        {
-            var resolver = eventFlowOptions
-                .UseHangfireJobScheduler()
-                .CreateResolver(false);
-
-            _eventFlowResolverActivator = new EventFlowResolverActivator(resolver);
-
-            return resolver;
-        }
-
-        protected override async Task AssertJobIsSuccessfullAsync(IJobId jobId)
+        async Task AssertJobIsSuccessfullyAsync(IJobId jobId)
         {
             var context = await _log.GetAsync(jobId.Value);
             context.Should().NotBeNull();
             context.Exception.Should().BeNull();
             var displayName = context.BackgroundJob.Job.Args[0].ToString();
-            displayName.Should().Be("PublishCommand v1");
+            displayName.Should().Be("PublishCommand");
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _backgroundService.StopAsync(CancellationToken.None);
         }
     }
 }
