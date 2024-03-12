@@ -68,6 +68,7 @@ jobs:
         dotnet-version:
           3.1.x
           6.0.x
+          8.0.x
 
     # Yes, EventFlow has a custom built build tool. If you are reading this
     # you might have a better idea of how to do it alternatively, if so,
@@ -75,7 +76,7 @@ jobs:
 
     # https://github.com/rasmus/Bake
     - name: Install Bake 
-      run: dotnet tool install -g --version 0.21.34-beta Bake
+      run: dotnet tool install -g --version 0.23.36-beta Bake
 
     - name: Run Bake
       run: |

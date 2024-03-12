@@ -67,7 +67,7 @@ The following list key characteristics of each version as well as its related br
     - 🟠 `EventFlow.Elasticsearch`
     - 🟠 `EventFlow.EntityFramework`
     - 🟠 `EventFlow.EventStores.EventStore`
-    - 🟠 `EventFlow.Hangfire`
+    - 🟢 `EventFlow.Hangfire`
     - 🟢 `EventFlow.MongoDB`
     - 🟢 `EventFlow.MsSql`
     - 💀 `EventFlow.Owin`
