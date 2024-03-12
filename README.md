@@ -1,13 +1,10 @@
 # EventFlow
 
-<img src="./icon-128.png" />
+![EventFlow logo](./icon-128.png)
 
-<a href="https://www.nuget.org/packages/EventFlow/"><img src="https://img.shields.io/nuget/v/EventFlow.svg?style=flat" /></a>
-<a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
-<a href="https://github.com/eventflow/EventFlow/actions/workflows/ci.yml"><img src="https://github.com/eventflow/EventFlow/actions/workflows/ci.yml/badge.svg" /></a>
-
-NuGet feeds
-- Official releases: https://www.nuget.org/packages/EventFlow/
+```
+$ dotnet add package EventFlow
+```
 
 EventFlow is a basic CQRS+ES framework designed to be easy to use.
 
