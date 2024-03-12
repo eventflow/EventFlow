@@ -37,12 +37,7 @@ namespace EventFlow.Hangfire.Integration
             _jobRunner = jobRunner;
         }
 
-        public Task ExecuteAsync(string displayName, string jobName, int version, string job)
-        {
-            return _jobRunner.ExecuteAsync(jobName, version, job, CancellationToken.None);
-        }
-
-        public Task ExecuteAsync(string displayName, string jobName, int version, string job, string queueName)
+        public Task ExecuteAsync(string jobName, int version, string job)
         {
             return _jobRunner.ExecuteAsync(jobName, version, job, CancellationToken.None);
         }
