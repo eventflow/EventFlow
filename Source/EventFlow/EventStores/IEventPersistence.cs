@@ -44,6 +44,12 @@ namespace EventFlow.EventStores
             IIdentity id,
             int fromEventSequenceNumber,
             CancellationToken cancellationToken);
+        
+        Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            IIdentity id,
+            int fromEventSequenceNumber,
+            int toEventSequenceNumber,
+            CancellationToken cancellationToken);
 
         Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken);
     }

@@ -379,6 +379,16 @@ namespace EventFlow.Tests.IntegrationTests
                 return result;
             }
 
+            public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id,
+                int fromEventSequenceNumber,
+                int toEventSequenceNumber,
+                CancellationToken cancellationToken)
+            {
+                var result = await _inner.LoadCommittedEventsAsync(id, fromEventSequenceNumber, toEventSequenceNumber, cancellationToken);
+                await LoadCompletionSource.Task;
+                return result;
+            }
+
             public Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
             {
                 return _inner.DeleteEventsAsync(id, cancellationToken);

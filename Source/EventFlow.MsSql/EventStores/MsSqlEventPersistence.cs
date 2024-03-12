@@ -195,6 +195,37 @@ namespace EventFlow.MsSql.EventStores
             return eventDataModels;
         }
 
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            IIdentity id,
+            int fromEventSequenceNumber,
+            int toEventSequenceNumber,
+            CancellationToken cancellationToken)
+        {
+            const string sql = @"
+                SELECT
+                    GlobalSequenceNumber, BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
+                FROM EventFlow
+                WHERE
+                    AggregateId = @AggregateId AND
+                    AggregateSequenceNumber >= @FromEventSequenceNumber AND
+                    AggregateSequenceNumber <= @ToEventSequenceNumber
+                ORDER BY
+                    AggregateSequenceNumber ASC";
+            var eventDataModels = await _connection.QueryAsync<EventDataModel>(
+                    Label.Named("mssql-fetch-events"),
+                    null, 
+                    cancellationToken,
+                    sql,
+                    new
+                    {
+                        AggregateId = id.Value,
+                        FromEventSequenceNumber = fromEventSequenceNumber,
+                        ToEventSequenceNumber = toEventSequenceNumber
+                    })
+                .ConfigureAwait(false);
+            return eventDataModels;
+        }
+
         public async Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             const string sql = @"DELETE FROM EventFlow WHERE AggregateId = @AggregateId";

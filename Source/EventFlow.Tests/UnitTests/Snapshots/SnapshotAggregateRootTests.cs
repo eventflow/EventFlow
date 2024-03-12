@@ -115,6 +115,27 @@ namespace EventFlow.Tests.UnitTests.Snapshots
             // Assert
             domainEvents.Should().HaveCount(expectedNumberOfEvents);
         }
+        
+        [Description("Mock test")]
+        [TestCase(5, 3, 5, 3)]
+        [TestCase(5, 0, 5, 5)]
+        [TestCase(5, 1, 2, 2)]
+        [TestCase(0, 1, 2, 0)]
+        public async Task Test_Arrange_EventStore_SequenceRange(int eventInStore, int fromEventSequenceNumber, int toEventSequenceNumber, int expectedNumberOfEvents)
+        {
+            // Arrange
+            Arrange_EventStore(ManyDomainEvents<ThingyPingEvent>(eventInStore));
+
+            // Act
+            var domainEvents = await _eventStoreMock.Object.LoadEventsAsync<ThingyAggregate, ThingyId>(
+                A<ThingyId>(),
+                fromEventSequenceNumber,
+                toEventSequenceNumber,
+                CancellationToken.None);
+
+            // Assert
+            domainEvents.Should().HaveCount(expectedNumberOfEvents);
+        }
 
         private void Arrange_EventStore(IEnumerable<IDomainEvent<ThingyAggregate, ThingyId>> domainEvents)
         {
@@ -123,6 +144,10 @@ namespace EventFlow.Tests.UnitTests.Snapshots
             _eventStoreMock
                 .Setup(e => e.LoadEventsAsync<ThingyAggregate, ThingyId>(It.IsAny<ThingyId>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
                 .Returns<ThingyId, int, CancellationToken>((id, seq, c) => Task.FromResult<IReadOnlyCollection<IDomainEvent<ThingyAggregate, ThingyId>>>(domainEventList.Skip(Math.Max(seq - 1, 0)).ToList()));
+            
+            _eventStoreMock
+                .Setup(e => e.LoadEventsAsync<ThingyAggregate, ThingyId>(It.IsAny<ThingyId>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                .Returns<ThingyId, int, int, CancellationToken>((id, from, to, c) => Task.FromResult<IReadOnlyCollection<IDomainEvent<ThingyAggregate, ThingyId>>>(domainEventList.Take(to).Skip(Math.Max(from - 1, 0)).ToList()));
         }
 
         private void Arrange_Snapshot(ThingySnapshot thingySnapshot)
