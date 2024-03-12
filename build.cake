@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2023 Rasmus Mikkelsen
+// Copyright (c) 2015-2024 Rasmus Mikkelsen
 // Copyright (c) 2015-2018 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
