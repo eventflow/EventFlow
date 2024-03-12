@@ -187,6 +187,22 @@ namespace EventFlow.TestHelpers.Suites
             domainEvents.ElementAt(1).AggregateSequenceNumber.Should().Be(4);
             domainEvents.ElementAt(2).AggregateSequenceNumber.Should().Be(5);
         }
+        
+        [Test]
+        public async Task LoadingOfEventsCanStartLaterAndStopEarlier()
+        {
+            // Arrange
+            var id = ThingyId.New;
+            await PublishPingCommandsAsync(id, 5);
+
+            // Act
+            var domainEvents = await EventStore.LoadEventsAsync<ThingyAggregate, ThingyId>(id, 3, 4, CancellationToken.None);
+
+            // Assert
+            domainEvents.Should().HaveCount(2);
+            domainEvents.ElementAt(0).AggregateSequenceNumber.Should().Be(3);
+            domainEvents.ElementAt(1).AggregateSequenceNumber.Should().Be(4);
+        }
 
         [Test]
         public async Task AggregateCanHaveMultipleCommits()

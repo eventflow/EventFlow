@@ -113,6 +113,17 @@ namespace EventFlow.MongoDB.EventStore
                 .ConfigureAwait(continueOnCapturedContext: false);
         }
 
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id, int fromEventSequenceNumber, int toEventSequenceNumber,
+            CancellationToken cancellationToken)
+        {
+            return await MongoDbEventStoreCollection
+                .Find(model => model.AggregateId == id.Value &&
+                               model.AggregateSequenceNumber >= fromEventSequenceNumber &&
+                               model.AggregateSequenceNumber <= toEventSequenceNumber)
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
+        }
+
         public async Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             DeleteResult affectedRows = await MongoDbEventStoreCollection
