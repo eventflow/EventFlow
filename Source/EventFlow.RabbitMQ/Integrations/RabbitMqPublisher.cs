@@ -148,6 +148,8 @@ namespace EventFlow.RabbitMQ.Integrations
                 rabbitConnection.Dispose();
             }
             _connections.Clear();
+
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -86,8 +86,8 @@ namespace EventFlow.Sql.Migrations
         private void Upgrade(UpgradeEngine upgradeEngine)
         {
             var scripts = upgradeEngine.GetScriptsToExecute()
-                .Select(s => s.Name)
-                .ToList();
+                .ConvertAll(s => s.Name)
+;
 
             _log.Information(
                 "Going to migrate the SQL database by executing these scripts: {0}",

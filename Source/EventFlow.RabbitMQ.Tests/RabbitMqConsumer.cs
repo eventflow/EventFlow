@@ -32,19 +32,21 @@ using RabbitMQ.Client.Events;
 
 namespace EventFlow.RabbitMQ.Tests
 {
-    public class RabbitMqConsumer : IDisposable
+    public sealed class RabbitMqConsumer : IDisposable
     {
+        private static readonly Dictionary<string, string> EmptyDictionary = new Dictionary<string, string>();
+
         private readonly IConnection _connection;
         private readonly IModel _model;
         private readonly EventingBasicConsumer _eventingBasicConsumer;
-        private readonly BlockingCollection<BasicDeliverEventArgs> _receivedMessages = new BlockingCollection<BasicDeliverEventArgs>(); 
+        private readonly BlockingCollection<BasicDeliverEventArgs> _receivedMessages = new BlockingCollection<BasicDeliverEventArgs>();
 
         public RabbitMqConsumer(Uri uri, Exchange exchange, IEnumerable<string> routingKeys)
         {
             var connectionFactory = new ConnectionFactory
-                {
-                    Uri = uri,
-                };
+            {
+                Uri = uri,
+            };
             _connection = connectionFactory.CreateConnection();
             _model = _connection.CreateModel();
 
@@ -103,14 +105,16 @@ namespace EventFlow.RabbitMQ.Tests
 
         private static RabbitMqMessage CreateRabbitMqMessage(BasicDeliverEventArgs basicDeliverEventArgs)
         {
-            var headers = basicDeliverEventArgs.BasicProperties.Headers
-                .ToDictionary(kv => kv.Key, kv => Encoding.UTF8.GetString((byte[])kv.Value));
-            var message = Encoding.UTF8.GetString(basicDeliverEventArgs.Body);
+            var headers = basicDeliverEventArgs.BasicProperties.Headers?
+                              .ToDictionary(kv => kv.Key, kv => Encoding.UTF8.GetString((byte[])kv.Value))
+                          ?? EmptyDictionary;
+
+            var message = Encoding.UTF8.GetString(basicDeliverEventArgs.Body.Span);
 
             return new RabbitMqMessage(
                 message,
                 headers,
-                new Exchange(basicDeliverEventArgs.Exchange), 
+                new Exchange(basicDeliverEventArgs.Exchange),
                 new RoutingKey(basicDeliverEventArgs.RoutingKey),
                 new MessageId(basicDeliverEventArgs.BasicProperties.MessageId));
         }

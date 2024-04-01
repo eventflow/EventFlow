@@ -23,10 +23,14 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data.SqlClient;
 using System.Linq;
 using EventFlow.Core;
 using EventFlow.Logs;
+#if !NET6_0_OR_GREATER
+using System.Data.SqlClient;
+#else
+using Microsoft.Data.SqlClient;
+#endif
 
 namespace EventFlow.MsSql.RetryStrategies
 {

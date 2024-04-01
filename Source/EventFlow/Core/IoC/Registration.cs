@@ -57,7 +57,7 @@ namespace EventFlow.Core.IoC
 
         public object Create(IResolverContext resolverContext, Type[] genericTypeArguments)
         {
-            var serviceType = genericTypeArguments.Any() && ServiceType.GetTypeInfo().IsGenericType
+            var serviceType = genericTypeArguments.Length != 0 && ServiceType.GetTypeInfo().IsGenericType
                 ? ServiceType.MakeGenericType(genericTypeArguments)
                 : ServiceType;
 

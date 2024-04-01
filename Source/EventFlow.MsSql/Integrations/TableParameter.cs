@@ -23,12 +23,17 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using Dapper;
+#if !NET6_0_OR_GREATER
+using System.Data.SqlClient;
 using Microsoft.SqlServer.Server;
+#else
+using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient.Server;
+#endif
 
 namespace EventFlow.MsSql.Integrations
 {

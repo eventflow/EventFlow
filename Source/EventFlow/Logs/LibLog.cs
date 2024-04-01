@@ -54,14 +54,14 @@ namespace EventFlow.Logs
         {
             _logger(
                 LevelMap[logLevel],
-                () => args.Any() ? string.Format(format, args) : format);
+                () => args.Length != 0 ? string.Format(format, args) : format);
         }
 
         public override void Write(LogLevel logLevel, Exception exception, string format, params object[] args)
         {
             _logger(
                 LevelMap[logLevel],
-                () => args.Any() ? string.Format(format, args) : format,
+                () => args.Length != 0 ? string.Format(format, args) : format,
                 exception);
         }
 

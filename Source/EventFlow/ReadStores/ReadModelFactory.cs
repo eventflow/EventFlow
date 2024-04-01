@@ -41,7 +41,7 @@ namespace EventFlow.ReadStores
 
             var emptyConstructor = type
                 .GetConstructors()
-                .Where(c => !c.GetParameters().Any())
+                .Where(c => c.GetParameters().Length == 0)
                 .ToList();
 
             if (!emptyConstructor.Any())

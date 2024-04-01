@@ -68,7 +68,6 @@ namespace EventFlow.RabbitMQ.Integrations
                 connectionFactory = new ConnectionFactory
                     {
                         Uri = uri,
-                        UseBackgroundThreadsForIO = true, // TODO: As soon as RabbitMQ supports async/await, set to false
                         TopologyRecoveryEnabled = true,
                         AutomaticRecoveryEnabled = true,
                         ClientProperties = new Dictionary<string, object>

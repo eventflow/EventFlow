@@ -33,9 +33,11 @@ namespace EventFlow.EntityFramework.Tests.InMemory
 
         public InMemoryDbContextProvider()
         {
+#pragma warning disable EF1001
             _options = new DbContextOptionsBuilder<TestDbContext>()
                 .UseInMemoryDatabase("EventFlowTest")
                 .ReplaceService<IInMemoryTableFactory, IndexingInMemoryTableFactory>()
+#pragma warning restore EF1001
                 .Options;
         }
 

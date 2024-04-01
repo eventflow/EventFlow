@@ -101,7 +101,7 @@ namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
 
             // Assert
             _modelMock.Verify(
-                m => m.BasicPublish(It.IsAny<string>(), It.IsAny<string>(), false, It.IsAny<IBasicProperties>(), It.IsAny<byte[]>()),
+                m => m.BasicPublish(It.IsAny<string>(), It.IsAny<string>(), false, It.IsAny<IBasicProperties>(), It.IsAny<ReadOnlyMemory<byte>>()),
                 Times.Exactly(rabbitMqMessages.Count));
             _rabbitConnectionMock.Verify(c => c.Dispose(), Times.Never);
         }

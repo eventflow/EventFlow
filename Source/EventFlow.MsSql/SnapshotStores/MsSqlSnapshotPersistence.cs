@@ -21,7 +21,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,6 +28,11 @@ using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
+#if !NET6_0_OR_GREATER
+using System.Data.SqlClient;
+#else
+using Microsoft.Data.SqlClient;
+#endif
 
 namespace EventFlow.MsSql.SnapshotStores
 {

@@ -58,7 +58,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var values = Many<string>(10);
             var orderedValues = values.OrderBy(s => s).ToList();
             values.Should().NotEqual(orderedValues); // Data test
-            var singleValueObjects = values.Select(s => new StringSingleValue(s)).ToList();
+            var singleValueObjects = values.ConvertAll(s => new StringSingleValue(s));
 
             // Act
             var orderedSingleValueObjects = singleValueObjects.OrderBy(v => v).ToList();
@@ -76,7 +76,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var values = Many<MagicEnum>(10);
             var orderedValues = values.OrderBy(s => s).ToList();
             values.Should().NotEqual(orderedValues); // Data test
-            var singleValueObjects = values.Select(s => new MagicEnumSingleValue(s)).ToList();
+            var singleValueObjects = values.ConvertAll(s => new MagicEnumSingleValue(s));
 
             // Act
             var orderedSingleValueObjects = singleValueObjects.OrderBy(v => v).ToList();

@@ -92,7 +92,7 @@ namespace EventFlow.TestHelpers.Aggregates
         public void AddMessageHistory(ThingyMessage[] messages)
         {
             var existingIds = _messages.Select(m => m.Id).Intersect(_messages.Select(m => m.Id)).ToArray();
-            if (existingIds.Any())
+            if (existingIds.Length != 0)
             {
                 throw DomainError.With($"Thingy '{Id}' already has messages with IDs " +
                                        $"'{string.Join(",", existingIds.Select(id => id.ToString()))}'");

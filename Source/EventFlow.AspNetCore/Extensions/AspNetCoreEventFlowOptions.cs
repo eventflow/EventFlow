@@ -100,7 +100,7 @@ namespace EventFlow.AspNetCore.Extensions
             return this;
         }
 #endif
-#if (NETCOREAPP3_0 || NETCOREAPP3_1)
+#if NET6_0_OR_GREATER
         public AspNetCoreEventFlowOptions UseMvcJsonOptions()
         {
             _options.RegisterServices(s =>

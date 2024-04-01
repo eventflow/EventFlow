@@ -21,8 +21,12 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Data.SqlClient;
 using System.Linq;
+#if !NET6_0_OR_GREATER
+using System.Data.SqlClient;
+#else
+using Microsoft.Data.SqlClient;
+#endif
 
 namespace EventFlow.TestHelpers.MsSql
 {
@@ -49,7 +53,8 @@ namespace EventFlow.TestHelpers.MsSql
                 {
                     DataSource = FirstNonEmpty(
                         Environment.GetEnvironmentVariable("EVENTFLOW_MSSQL_SERVER"),
-                        ".")
+                        "."),
+                    TrustServerCertificate = true
                 };
 
             var password = Environment.GetEnvironmentVariable("EVENTFLOW_MSSQL_PASS");

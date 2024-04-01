@@ -140,7 +140,7 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
         {
             IEnumerable<Type> availableTypes;
 
-            if (assemblies == null || !assemblies.Any()) throw new ArgumentNullException(nameof(assemblies));
+            if (assemblies == null || assemblies.Length == 0) throw new ArgumentNullException(nameof(assemblies));
             try
             {
                 availableTypes = assemblies.SelectMany(x => x.GetTypes());

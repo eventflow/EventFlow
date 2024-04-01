@@ -58,8 +58,7 @@ namespace EventFlow.Sagas
                 .Select(i => i.GetGenericArguments()[2])
                 .ToList();
             var aggregateEventTypes = sagaHandlesTypes
-                .Select(i => i.GetGenericArguments()[2])
-                .ToList();
+                .ConvertAll(i => i.GetGenericArguments()[2]);
             var sagaInterfaceType = sagaInterfaces.Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISaga<>));
 
             var sagaTypeDetails = new SagaDetails(

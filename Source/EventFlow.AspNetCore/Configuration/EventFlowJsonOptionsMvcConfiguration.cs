@@ -30,7 +30,7 @@ namespace EventFlow.AspNetCore.Configuration
 #if NETSTANDARD2_0
         : IConfigureOptions<MvcJsonOptions>
 #endif
-#if (NETCOREAPP3_0 || NETCOREAPP3_1)
+#if NET6_0_OR_GREATER
         : IConfigureOptions<MvcNewtonsoftJsonOptions>
 #endif
     {
@@ -47,7 +47,7 @@ namespace EventFlow.AspNetCore.Configuration
             _jsonOptions.Apply(options.SerializerSettings);
         }
 #endif
-#if (NETCOREAPP3_0 || NETCOREAPP3_1)
+#if NET6_0_OR_GREATER
         public void Configure(MvcNewtonsoftJsonOptions options)
         {
             _jsonOptions.Apply(options.SerializerSettings);

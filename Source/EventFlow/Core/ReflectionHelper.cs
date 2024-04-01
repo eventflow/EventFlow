@@ -34,7 +34,7 @@ namespace EventFlow.Core
     {
         public static string GetCodeBase(Assembly assembly, bool includeFileName = false)
         {
-            var codebase = assembly.CodeBase;
+            var codebase = assembly.Location;
             var uri = new UriBuilder(codebase);
             var path = Path.GetFullPath(Uri.UnescapeDataString(uri.Path));
             var codeBase = includeFileName ?
@@ -55,7 +55,7 @@ namespace EventFlow.Core
                 .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .Where(m => m.Name == methodName);
 
-            var methodInfo = methodSignature == null || !methodSignature.Any()
+            var methodInfo = methodSignature == null || methodSignature.Length == 0
                 ? methods.SingleOrDefault()
                 : methods.SingleOrDefault(m => m.GetParameters().Select(mp => mp.ParameterType).SequenceEqual(methodSignature));
 
@@ -82,13 +82,13 @@ namespace EventFlow.Core
                 throw new ArgumentException("Incorrect number of arguments");
             }
 
-            var instanceArgument = Expression.Parameter(genericArguments[0]);;
+            var instanceArgument = Expression.Parameter(genericArguments[0]);
 
             var argumentPairs = funcArgumentList.Zip(methodArgumentList, (s, d) => new {Source = s, Destination = d}).ToList();
-            if (argumentPairs.All(a => a.Source == a.Destination))
+            if (argumentPairs.TrueForAll(a => a.Source == a.Destination))
             {
                 // No need to do anything fancy, the types are the same
-                var parameters = funcArgumentList.Select(Expression.Parameter).ToList();
+                var parameters = funcArgumentList.ConvertAll(Expression.Parameter);
                 return Expression.Lambda<TResult>(Expression.Call(instanceArgument, methodInfo, parameters), new [] { instanceArgument }.Concat(parameters)).Compile();
             }
 
