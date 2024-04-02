@@ -478,11 +478,14 @@ category.
 
 ## License
 
+EventFlow was originally developed <u>in my spare time</u> while I worked at both
+<a href="https://www.ebay.com/">eBay (2015 to 2021)</a> and
+<a href="https://schibsted.com/">Schibsted (2021 and onward)</a>.
+
 ```
 The MIT License (MIT)
 
-Copyright (c) 2015-2021 Rasmus Mikkelsen
-Copyright (c) 2015-2021 eBay Software Foundation
+Copyright (c) 2015-2024 Rasmus Mikkelsen
 https://github.com/eventflow/EventFlow
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
