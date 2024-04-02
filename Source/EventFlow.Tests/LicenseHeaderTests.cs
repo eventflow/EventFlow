@@ -41,23 +41,16 @@ namespace EventFlow.Tests
         private static readonly ISet<string> ExternalFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 Path.Combine("EventFlow", "Core", "HashHelper.cs"),
-                Path.Combine("EventFlow", "Logs", "Internals", "ImportedLibLog.cs")
             };
         private static readonly ISet<string> CurrentCopyrightHolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 "Rasmus Mikkelsen",
             };
-        private static readonly ISet<string> PastCopyrightHolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                "eBay Software Foundation",
-                "Schibsted",
-            };
         private static readonly Regex CopyrightLineExtractor = new Regex(
             @"Copyright \(c\) (?<from>20\d{2})\-(?<to>20\d{2}) (?<name>.*)",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        private static readonly int CurrentYear = 2023; // Hardcoded, we don't want test failing every January 1'st
-        private static readonly int EndYearForPastCopyrightHolders = 2022;
+        private static readonly int CurrentYear = 2024; // Hardcoded, we don't want test failing every January 1'st
 
         [Test]
         public async Task EveryFileHasCorrectLicenseHeader()
@@ -153,15 +146,6 @@ namespace EventFlow.Tests
                         yield return $"Year for current copyright holder '{Name}' is not correct, should be {CurrentYear}";
                     }
 
-                    yield break;
-                }
-
-                if (PastCopyrightHolders.Contains(Name))
-                {
-                    if (Year.Item2 > EndYearForPastCopyrightHolders)
-                    {
-                        yield return $"Year for past copyright holder '{Name}' ended {PastCopyrightHolders}, not {Year.Item2}";
-                    }
                     yield break;
                 }
 
