@@ -13,7 +13,7 @@
         <Authors>Rasmus Mikkelsen</Authors>
         <Company>Rasmus Mikkelsen</Company>
         <Owners>Rasmus Mikkelsen</Owners>
-        <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2021</Copyright>
+        <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2024</Copyright>
         <PackageIcon>icon-128.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
