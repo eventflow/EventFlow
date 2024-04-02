@@ -89,7 +89,7 @@ jobs:
       run: |
         declare -i REVISION
         REVISION=5000+$GITHUB_RUN_NUMBER
-        bake run --convention=${{ input.bake-convention }} --build-version 1.0.$REVISION --destination="${{ input.bake-destination }}"
+        bake run --convention=${{ inputs.bake-convention }} --build-version 1.0.$REVISION --destination="${{ inputs.bake-destination }}"
 
     - name: Upload NuGet packages
       uses: actions/upload-artifact@v2
