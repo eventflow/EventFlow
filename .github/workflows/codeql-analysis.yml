@@ -2,17 +2,21 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ develop-v1, develop-v*, release-v* ]
+    branches:
+    - develop-v1
   pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ develop-v1 ]
+    branches:
+    - develop-v1
   schedule:
     - cron: '30 3 * * 1'
 
 jobs:
   analyze:
     name: Analyze
-    runs-on: ubuntu-latest
+
+    runs-on:
+    - ubuntu-22.04
+
     permissions:
       actions: read
       contents: read
@@ -21,7 +25,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'csharp' ]
+        language:
+        - csharp
 
     steps:
     - name: Checkout repository
@@ -35,7 +40,6 @@ jobs:
           3.1.x
           6.0.x
 
-    # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
@@ -43,17 +47,6 @@ jobs:
 
     - name: Autobuild
       uses: github/codeql-action/autobuild@v3
-
-    # ℹ️ Command-line programs to run using the OS shell.
-    # 📚 https://git.io/JvXDl
-
-    # ✏️ If the Autobuild fails above, remove it and uncomment the following three lines
-    #    and modify them (or add more) to build your code if your project
-    #    uses a compiled language
-
-    #- run: |
-    #   make bootstrap
-    #   make release
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
