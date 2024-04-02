@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Linq;
 using EventFlow.Core;
 using Microsoft.Extensions.Logging;
