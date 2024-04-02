@@ -3,21 +3,24 @@ name: docs
 on:
   push:
     branches:
-      - develop-v1
+    - develop-v1
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on:
+    - ubuntu-22.04
+
     permissions:
       contents: write
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v5
-        with:
-          python-version: 3.x
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v5
+      with:
+        python-version: 3.x
 
-      - run: pip install -r requirements.txt
+    - run: pip install -r requirements.txt
 
-      - run: mkdocs gh-deploy --force
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - run: mkdocs gh-deploy --force
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

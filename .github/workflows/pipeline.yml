@@ -1,14 +1,22 @@
-name: CI
+name: Pipeline
 
 on:
-  push:
-    branches: [ develop-v1 ]
-  pull_request:
-    branches: [ develop-v1 ]
+  workflow_dispatch:
+    inputs:
+      bake-convention:
+        default: "Default"
+        type: string
+        required: false
+      bake-destination:
+        default: ""
+        type: string
+        required: false
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on:
+    - ubuntu-22.04
+
     env:
       HELPZ_POSTGRESQL_PASS: Password12!
       EVENTFLOW_MSSQL_SERVER: 127.0.0.1,1433
@@ -73,7 +81,6 @@ jobs:
     # Yes, EventFlow has a custom built build tool. If you are reading this
     # you might have a better idea of how to do it alternatively, if so,
     # create a PR for EventFlow.
-
     # https://github.com/rasmus/Bake
     - name: Install Bake 
       run: dotnet tool install -g --version 0.23.36-beta Bake
@@ -82,7 +89,7 @@ jobs:
       run: |
         declare -i REVISION
         REVISION=5000+$GITHUB_RUN_NUMBER
-        bake run --build-version 1.0.$REVISION
+        bake run --convention=${{ input.bake-convention }} --build-version 1.0.$REVISION --destination="${{ input.bake-destination }}"
 
     - name: Upload NuGet packages
       uses: actions/upload-artifact@v2

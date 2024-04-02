@@ -1,0 +1,13 @@
+name: Pull-request
+
+on:
+  push:
+    branches:
+    - develop-v1
+  pull_request:
+    branches:
+    - develop-v1
+
+jobs:
+  build:
+    uses: ./.github/workflows/pipeline.yml

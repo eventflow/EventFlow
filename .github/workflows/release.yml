@@ -2,92 +2,12 @@ name: Release
 
 on:
   push:
-    branches: [ release-v1 ]
+    branches:
+    - release-v1
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
-    env:
-      HELPZ_POSTGRESQL_PASS: Password12!
-      EVENTFLOW_MSSQL_SERVER: 127.0.0.1,1433
-      EVENTFLOW_MSSQL_USER: sa
-      EVENTFLOW_MSSQL_PASS: Password12!      
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      NUGET_APIKEY: ${{ secrets.NUGET_APIKEY }}
-      
-    services:
-      rabbitmq:
-        image: rabbitmq:3-management-alpine
-        env:
-          RABBITMQ_DEFAULT_USER: guest
-          RABBITMQ_DEFAULT_PASS: guest
-        ports:
-          - 5672:5672
-          - 15672:15672
-
-      eventstore:
-        image: eventstore/eventstore:release-4.1.3
-        ports:
-          - "1113:1113"
-          - "2113:2113"
-
-      postgres:
-        image: postgres:10
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: Password12!
-        ports:
-          - "5432:5432"
-
-      mssql:
-        image: mcr.microsoft.com/mssql/server:2017-latest
-        env:
-          ACCEPT_EULA: Y
-          SA_PASSWORD: Password12!
-        ports:
-          - "1433:1433"
-
-    steps:
-    - name: Configure sysctl limits for Elasticsearch
-      run: |
-        sudo swapoff -a
-        sudo sysctl -w vm.swappiness=1
-        sudo sysctl -w fs.file-max=262144
-        sudo sysctl -w vm.max_map_count=262144
-
-    - name: Run Elasticsearch
-      uses: elastic/elastic-github-actions/elasticsearch@master
-      with:
-        stack-version: 6.8.3
-
-    - uses: actions/checkout@v3
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version:
-          3.1.x
-          6.0.x
-          8.0.x
-
-    # Yes, EventFlow has a custom built build tool. If you are reading this
-    # you might have a better idea of how to do it alternatively, if so,
-    # create a PR for EventFlow.
-
-    # https://github.com/rasmus/Bake
-    - name: Install Bake 
-      run: dotnet tool install -g --version 0.23.36-beta Bake
-
-    - name: Run Bake
-      run: |
-        declare -i REVISION
-        REVISION=5000+$GITHUB_RUN_NUMBER
-        bake run --convention=Release --build-version 1.0.$REVISION --destination="nuget>github,nuget,release>github"
-
-    - name: Upload test results
-      uses: actions/upload-artifact@v2
-      if: success() || failure()
-      with:
-        name: test-results
-        path: "**/*.trx"
-        if-no-files-found: error
+    uses: ./.github/workflows/pipeline.yml
+    with:
+      bake-convention: Release
+      bake-destination: "nuget>github,nuget,release>github"
