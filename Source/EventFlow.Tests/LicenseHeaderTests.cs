@@ -1,7 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2021 Rasmus Mikkelsen
-// Copyright (c) 2015-2021 eBay Software Foundation
+// Copyright (c) 2015-2024 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -42,16 +41,16 @@ namespace EventFlow.Tests
         private static readonly ISet<string> ExternalFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 Path.Combine("EventFlow", "Core", "HashHelper.cs"),
-                Path.Combine("EventFlow", "Logs", "Internals", "ImportedLibLog.cs")
             };
-        private static readonly ISet<string> ValidCopyrightNames = new HashSet<string>
+        private static readonly ISet<string> CurrentCopyrightHolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 "Rasmus Mikkelsen",
-                "eBay Software Foundation"
             };
         private static readonly Regex CopyrightLineExtractor = new Regex(
-            @"Copyright \(c\) 20\d{2}\-20\d{2} (?<name>.*)",
+            @"Copyright \(c\) (?<from>20\d{2})\-(?<to>20\d{2}) (?<name>.*)",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        private static readonly int CurrentYear = 2024; // Hardcoded, we don't want test failing every January 1'st
 
         [Test]
         public async Task EveryFileHasCorrectLicenseHeader()
@@ -72,16 +71,16 @@ namespace EventFlow.Tests
             missingHeaders.ForEach(Console.WriteLine);
 
             // Missing name in header as defined by the CLA (current license)
-            var missingNameInHeader = sourceFiles
-                .Where(s => !s.Copyright.All(ValidCopyrightNames.Contains))
+            var validationErrors = sourceFiles
+                .Where(s => s.ValidationErrors.Any())
                 .Where(s => !ExternalFiles.Contains(PathRelativeTo(sourceRoot, s.Path)))
                 .ToList();
             Console.WriteLine("File with incorrect name in header according to CLA");
-            missingNameInHeader.ForEach(Console.WriteLine);
+            validationErrors.ForEach(Console.WriteLine);
 
             // Asserts
             missingHeaders.Should().BeEmpty();
-            missingNameInHeader.Should().BeEmpty();
+            validationErrors.Should().BeEmpty();
         }
 
         private static string PathRelativeTo(string root, string fullPath)
@@ -119,7 +118,10 @@ namespace EventFlow.Tests
             var copyright = license
                 .Select(l => CopyrightLineExtractor.Match(l))
                 .Where(m => m.Success)
-                .Select(m => m.Groups["name"].Value)
+                .Select(m => new Copyright(
+                    m.Groups["name"].Value,
+                    (int.Parse(m.Groups["from"].Value), int.Parse(m.Groups["to"].Value)))
+                    )
                 .ToList();
 
             return new SourceFile(
@@ -128,25 +130,62 @@ namespace EventFlow.Tests
                 copyright);
         }
 
+        private class Copyright
+        {
+            public string Name { get; }
+            public (int, int) Year { get; }
+
+            public bool IsCurrent => CurrentCopyrightHolders.Contains(Name);
+
+            public IEnumerable<string> ValidationErrors()
+            {
+                if (IsCurrent)
+                {
+                    if (Year.Item2 != CurrentYear)
+                    {
+                        yield return $"Year for current copyright holder '{Name}' is not correct, should be {CurrentYear}";
+                    }
+
+                    yield break;
+                }
+
+                yield return $"Unknown copyright holder '{Name}'";
+            }
+
+            public Copyright(
+                string name,
+                (int, int) year)
+            {
+                Name = name;
+                Year = year;
+            }
+        }
+
         private class SourceFile
         {
             public string Path { get; }
             public IReadOnlyCollection<string> License { get; }
-            public IReadOnlyCollection<string> Copyright { get; }
+            public IReadOnlyCollection<Copyright> Copyright { get; }
+            public IReadOnlyCollection<string> ValidationErrors => _validationErrors.Value;
+
+            private readonly Lazy<IReadOnlyCollection<string>> _validationErrors;
 
             public SourceFile(
                 string path,
                 IReadOnlyCollection<string> license,
-                IReadOnlyCollection<string> copyright)
+                IReadOnlyCollection<Copyright> copyright)
             {
                 Path = path;
                 License = license;
                 Copyright = copyright;
+
+                _validationErrors = new Lazy<IReadOnlyCollection<string>>(
+                        () => Copyright.SelectMany(c => c.ValidationErrors()).ToArray());
             }
 
             public override string ToString()
             {
-                return Path;
+                return $"{Path}: {string.Join(", ", ValidationErrors)}";
             }
         }
     }
