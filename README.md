@@ -424,7 +424,6 @@ EventFlow was originally developed <u>in my spare time</u> while I worked at bot
 The MIT License (MIT)
 
 Copyright (c) 2015-2024 Rasmus Mikkelsen
-Copyright (c) 2015-2021 eBay Software Foundation
 https://github.com/eventflow/EventFlow
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
