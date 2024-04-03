@@ -21,6 +21,7 @@
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <PackageTags>CQRS ES event sourcing MongoDB</PackageTags>
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
+    <NoWarn>NU1903</NoWarn> <!-- MongoDB.Driver is outdated and update requires .NetFramework update -->
   </PropertyGroup>
 
   <ItemGroup>

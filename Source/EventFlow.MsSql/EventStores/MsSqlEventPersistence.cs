@@ -22,7 +22,11 @@
 
 using System;
 using System.Collections.Generic;
+#if NETSTANDARD2_0_OR_GREATER
+using Microsoft.Data.SqlClient;
+#else
 using System.Data.SqlClient;
+#endif
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;

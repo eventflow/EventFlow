@@ -23,12 +23,20 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+#if NETSTANDARD2_0_OR_GREATER
+using Microsoft.Data.SqlClient;
+#else
 using System.Data.SqlClient;
+#endif
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using Dapper;
+#if NETSTANDARD2_0_OR_GREATER
+using Microsoft.Data.SqlClient.Server;
+#else
 using Microsoft.SqlServer.Server;
+#endif
 
 namespace EventFlow.MsSql.Integrations
 {
