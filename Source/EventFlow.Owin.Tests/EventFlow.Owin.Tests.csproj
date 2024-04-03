@@ -5,6 +5,7 @@
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
     <IsPackable>False</IsPackable>
+    <NoWarn>NU1903</NoWarn> <!--Microsoft.Owin is outdated and update requires Autofac and a lot more to update -->
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
