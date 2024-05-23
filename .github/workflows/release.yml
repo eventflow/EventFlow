@@ -7,6 +7,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-20.04
+
+    environment: 
+      name: release
+
     env:
       HELPZ_POSTGRESQL_PASS: Password12!
       EVENTFLOW_MSSQL_SERVER: 127.0.0.1,1433
