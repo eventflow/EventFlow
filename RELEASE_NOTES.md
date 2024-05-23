@@ -9,6 +9,13 @@ https://github.com/eventflow/EventFlow/blob/develop-v1/MIGRATION_GUIDE.md
 and it will get fixed asap. EventFlow would be where it is today without the grate community
 contributions that it have received over the years)
 
+Changes since last 1.x pre-release, `1.0.5003-alpha`
+
+* New: .NET 8 support
+* New: Enable `IEventStore` to load events to a given sequence number (thanks @SeWaS)
+* New: `EventFlow.Hangfire` now part of the v1 release cycle (thanks @nicolaj-hartmann)
+* Fix/breaking: Switch from `System.Data.SqlClient` to `Microsoft.Data.SqlClient` (thanks @janrybka)
+
 Changes since last 1.x pre-release, `1.0.5002-alpha`
 
 * New: Read model rebuilder can be done across multiple read model types. The piping of events
