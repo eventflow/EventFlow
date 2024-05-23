@@ -1,6 +1,6 @@
 # EventFlow
 
-![EventFlow logo](./icon-128.png)
+![EventFlow logo](https://raw.githubusercontent.com/eventflow/EventFlow/develop-v1/icon-128.png)
 
 ```
 $ dotnet add package EventFlow
