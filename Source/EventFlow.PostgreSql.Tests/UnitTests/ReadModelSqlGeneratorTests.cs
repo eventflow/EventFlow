@@ -41,7 +41,7 @@ namespace EventFlow.PostgreSql.Tests.UnitTests
             var selectSql = readModelSqlGenerator.CreateSelectSql<TestReadModel>();
 
             // Assert
-            selectSql.Should().Contain("\"Id\" = @EventFlowReadModelId");
+            selectSql.Should().Contain("\"AggregateId\" = @EventFlowReadModelId");
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace EventFlow.PostgreSql.Tests.UnitTests
             var insertSql = readModelSqlGenerator.CreateInsertSql<TestReadModel>();
 
             // Assert
-            insertSql.Should().Contain("\"Id\", \"Name\"");
+            insertSql.Should().Contain("\"AggregateId\", \"Name\"");
         }
 
         [Test]
@@ -67,7 +67,7 @@ namespace EventFlow.PostgreSql.Tests.UnitTests
             var updateSql = readModelSqlGenerator.CreateUpdateSql<TestReadModel>();
 
             // Assert
-            updateSql.Should().Contain("\"Id\" = @Id");
+            updateSql.Should().Contain("\"AggregateId\" = @Id");
         }
 
         [Test]
@@ -80,7 +80,7 @@ namespace EventFlow.PostgreSql.Tests.UnitTests
             var deleteSql = readModelSqlGenerator.CreateDeleteSql<TestReadModel>();
 
             // Assert
-            deleteSql.Should().Contain("\"Id\" = @EventFlowReadModelId");
+            deleteSql.Should().Contain("\"AggregateId\" = @EventFlowReadModelId");
         }
 
         public class TestReadModel : IReadModel
