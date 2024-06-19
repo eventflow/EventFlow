@@ -1,5 +1,6 @@
 using EventFlow.PostgreSql.ReadModels;
 using EventFlow.Sql.ReadModels;
+using EventFlow.ReadStores;
 using FluentAssertions;
 using NUnit.Framework;
 
