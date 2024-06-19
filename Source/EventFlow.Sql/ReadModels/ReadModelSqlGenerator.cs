@@ -101,7 +101,7 @@ namespace EventFlow.Sql.ReadModels
             var tableName = GetTableName<TReadModel>();
             var identityColumn = GetIdentityColumn<TReadModel>();
 
-            sql = $"SELECT * FROM {tableName} WHERE {identityColumn} = @EventFlowReadModelId";
+            sql = $"SELECT * FROM {tableName} WHERE {Configuration.ColumnQuotedIdentifierPrefix}{identityColumn}{Configuration.ColumnQuotedIdentifierSuffix} = @EventFlowReadModelId";
 
             _selectSqls[readModelType] = sql;
 
