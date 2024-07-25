@@ -1,6 +1,7 @@
 ### New in 0.84 (not released yet)
 
-* _Nothing yet_
+* New: Added overload of `MongoDbOptionsExtensions.ConfigureMongoDb` that passes 
+  IResolverContext through to IMongoDatabase factory delegate
 
 ### New in 0.83.4713 (released 2021-09-07)
 
