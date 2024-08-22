@@ -24,7 +24,7 @@
 #r "System.IO.Compression.FileSystem"
 #r "System.Xml"
 
-#module nuget:?package=Cake.DotNetTool.Module
+#module nuget:?package=Cake.DotNetTool.Module&version=4.0.0
 #tool "nuget:?package=OpenCover"
 #tool "dotnet:?package=sourcelink"
 
@@ -73,11 +73,11 @@ Task("Restore")
     .IsDependentOn("Clean")
     .Does(() =>
         {
-			DotNetCoreRestore(
+			DotNetRestore(
 				".", 
-				new DotNetCoreRestoreSettings()
+				new DotNetRestoreSettings()
 				{
-					ArgumentCustomization = aggs => aggs.Append(GetDotNetCoreArgsVersions())
+					ArgumentCustomization = aggs => aggs.Append(GetDotNetArgsVersions())
 				});
         });
 		
@@ -86,14 +86,14 @@ Task("Build")
     .IsDependentOn("Restore")
     .Does(() =>
         {
-            DotNetCoreBuild(
+            DotNetBuild(
 				".", 
-				new DotNetCoreBuildSettings()
+				new DotNetBuildSettings()
 				{
                     NoRestore = true,
 					Configuration = CONFIGURATION,
 					ArgumentCustomization = aggs => aggs
-                        .Append(GetDotNetCoreArgsVersions())
+                        .Append(GetDotNetArgsVersions())
                         .Append("/p:ci=true")
                         .Append("/p:SourceLinkEnabled=true")
                         .Append("/p:TreatWarningsAsErrors=true")
@@ -135,14 +135,14 @@ Task("Package")
 
                 SetReleaseNotes(project.ToString());
 							
-				DotNetCorePack(
+				DotNetPack(
 					name,
-					new DotNetCorePackSettings()
+					new DotNetPackSettings()
 					{
 						Configuration = CONFIGURATION,
 						OutputDirectory = DIR_OUTPUT_PACKAGES,
 						NoBuild = true,
-						ArgumentCustomization = aggs => aggs.Append(GetDotNetCoreArgsVersions())
+						ArgumentCustomization = aggs => aggs.Append(GetDotNetArgsVersions())
 					});
 			}
         });
@@ -178,10 +178,9 @@ Task("All")
 
 Version GetArgumentVersion()
 {
-    return Version.Parse(EnvironmentVariable("APPVEYOR_BUILD_VERSION") ?? "0.0.1");
 }
 
-string GetDotNetCoreArgsVersions()
+string GetDotNetArgsVersions()
 {
 	var version = GetArgumentVersion().ToString();
 	
@@ -297,7 +296,7 @@ void ExecuteTest(IEnumerable<FilePath> paths)
 {
 	OpenCover(tool => 
 		{
-            var settings = new DotNetCoreVSTestSettings()
+            var settings = new DotNetVSTestSettings()
                 {
                     Parallel = true,
                     ToolTimeout = TimeSpan.FromMinutes(30),
@@ -307,7 +306,7 @@ void ExecuteTest(IEnumerable<FilePath> paths)
                         args.Append("--nologo")
                 };
 
-            tool.DotNetCoreVSTest(paths, settings);
+            tool.DotNetVSTest(paths, settings);
         },
         new FilePath(FILE_OPENCOVER_REPORT),
         new OpenCoverSettings
