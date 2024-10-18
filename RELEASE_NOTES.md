@@ -1,9 +1,9 @@
-### New in 1.0-alpha (not released yet)
+### New in 1.0-alpha (not properly released yet)
 
 Read the complete migration guide to get the full list of changes as well as recommendations
 on how to do the migration.
 
-https://github.com/eventflow/EventFlow/blob/develop-v1/MIGRATION_GUIDE.md
+https://geteventflow.net/migrations/v0-to-v1/
 
 (If you see any changes you feel ownership of and you want you name there, create an issue
 and it will get fixed asap. EventFlow would be where it is today without the grate community

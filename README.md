@@ -8,9 +8,9 @@ $ dotnet add package EventFlow
 
 EventFlow is a basic CQRS+ES framework designed to be easy to use.
 
-Have a look at our [getting started guide](https://docs.geteventflow.net/GettingStarted.html),
-the [do’s and don’ts](https://docs.geteventflow.net/DosAndDonts.html) and the
-[FAQ](https://docs.geteventflow.net/FAQ.html).
+Have a look at our [getting started guide](https://geteventflow.net/getting-started/),
+the [do’s and don’ts](https://geteventflow.net/additional/dos-and-donts/) and the
+[FAQ](https://geteventflow.net/additional/faq/).
 
 ## Features
 
@@ -34,27 +34,28 @@ The following list key characteristics of each version as well as its related br
 * `1.x`
 
   Represents the next iteration of EventFlow that aligns EventFlow with the standard
-  packages for .NET (Core). Releases here will only support .NET Standard, .NET Core
-  and .NET versions going forward.
+  packages for .NET. Releases here will only support .NET Standard, .NET Core
+  and .NET versions 6+ going forward.
 
   - Released
   - Still development
   - Not all projects migrated yet
   
-  Read the [migration guide](./MIGRATION_GUIDE.md) to view the full list of breaking
+  Read the [migration guide](https://geteventflow.net/migrations/v0-to-v1/) to view the full list of breaking
   changes as well as recommendations on how to migrate.
 
-  ### Documentation (not complete)
+  ### Documentation
   Version 1.x documentation has been pulled into this repository in order to have
-  the code and documentation closer together and (hopefully) have the documentation
-  updated in the same pull-requests as any code changes.
+  the code and documentation closer together and have the documentation
+  updated in the same pull-requests as any code changes. The compiled version of the
+  documentation is available at https://geteventflow.net/.
 
   ### NuGet package status
 
   - 🟢 ported
   - 💚 newly added to 1.0
   - 🟠 not yet ported to 1.0
-  - 💀 for packages that are removed as part of 1.0 (see the [migration guide](./MIGRATION_GUIDE.md) for details)
+  - 💀 for packages that are removed as part of 1.0 (see the [migration guide](https://geteventflow.net/migrations/v0-to-v1/) for details)
 
   Projects
     - 🟢 `EventFlow`
@@ -169,12 +170,12 @@ examples will be using EventFlow 0.x.
 Here is a list of the EventFlow concepts. Use the links to navigate
 to the documentation.
 
-* [**Aggregates:**](https://docs.geteventflow.net/Aggregates.html)
+* [**Aggregates:**](https://geteventflow.net/basics/aggregates/)
   Domains object that guarantees the consistency of changes being made within
   each aggregate
-* [**Command bus and commands:**](https://docs.geteventflow.net/Commands.html)
+* [**Command bus and commands:**](https://geteventflow.net/basics/commands/)
   Entry point for all command/operation execution.
-* [**Event store:**](https://docs.geteventflow.net/EventStore.html)
+* [**Event store:**](https://geteventflow.net/integration/event-stores/)
   Storage of the event stream for aggregates. Currently there is support for
   these storage types.
   * In-memory - only for test
@@ -184,56 +185,53 @@ to the documentation.
   * SQLite
   * PostgreSQL
   * EventStore - [home page](https://eventstore.org/)
-* [**Subscribers:**](https://docs.geteventflow.net/Subscribers.html)
+* **Subscribers:**
   Listeners that act on specific domain events. Useful if an specific action
   needs to be triggered after a domain event has been committed.
-* [**Read models:**](https://docs.geteventflow.net/ReadStores.html)
+* [**Read models:**]https://geteventflow.net/integration/read-stores/)
   Denormalized representation of aggregate events optimized for reading fast.
   Currently there is support for these read model storage types.
   For the SQL storage types the queries are being generated automatically with quoted columns and table names.
-  * [Elasticsearch](https://docs.geteventflow.net/ReadStores.html#elasticsearch)
-  * [In-memory](https//docs.geteventflow.net/ReadStores.html#in-memory) - only for test
-  * [Microsoft SQL Server](https://docs.geteventflow.net/ReadStores.html#microsoft-sql-server)
+  * Elasticsearch
+  * In-memory - only for test
+  * Microsoft SQL Server
   * Entity Framework Core
   * SQLite
   * PostgreSQL
-* [**Snapshots:**](https://docs.geteventflow.net/Snapshots.html)
+* [**Snapshots:**](https://geteventflow.net/additional/snapshots/)
   Instead of reading the entire event stream every single time, a snapshot can
   be created every so often that contains the aggregate state. EventFlow
   supports upgrading existing snapshots, which is useful for long-lived
   aggregates. Snapshots in EventFlow are opt-in and EventFlow has support for
-  * [In-memory](https://docs.geteventflow.net/Snapshots.html#in-memory) - only for test
-  * [Microsoft SQL Server](https://docs.geteventflow.net/Snapshots.html#microsoft-sql-server)  
+  * In-memory - only for test
+  * Microsoft SQL Server
   * Entity Framework Core
   * SQLite
   * PostgreSQL
-* [**Sagas:**](https://docs.geteventflow.net/Sagas.html)
+* [**Sagas:**](https://geteventflow.net/basics/sagas/)
   Also known as _process managers_, coordinates and routes messages between
   bounded contexts and aggregates
-* [**Queries:**](https://docs.geteventflow.net/Queries.html)
+* [**Queries:**](https://geteventflow.net/basics/queries/)
   Value objects that represent a query without specifying how its executed,
   that is let to a query handler
-* [**Jobs:**](https://docs.geteventflow.net/Jobs.html) Perform scheduled tasks at
+* [**Jobs:**](https://geteventflow.net/basics/jobs/) Perform scheduled tasks at
   a later time, e.g. publish a command. EventFlow provides support for these
   job schedulers
-  * [Hangfire](https://docs.geteventflow.net/Jobs.html#hangfire) - [home page](https://hangfire.io/)
-* [**Event upgrade:**](https://docs.geteventflow.net/EventUpgrade.html)
+  * Hangfire - [home page](https://hangfire.io/)
+* [**Event upgrade:**](https://geteventflow.net/basics/event-upgrade/)
   As events committed to the event store is never changed, EventFlow uses the
   concept of event upgraders to deprecate events and replace them with new
   during aggregate load.
 * **Event publishing:** Sometimes you want other applications or services to
   consume and act on domains. For this EventFlow supports event publishing.
-  * [RabbitMQ](https://docs.geteventflow.net/Subscribers.html#rabbitmq)
-* [**Metadata:**](https://docs.geteventflow.net/Metadata.html)
+  * RabbitMQ
+* [**Metadata:**](https://geteventflow.net/basics/metadata/)
   Additional information for each aggregate event, e.g. the IP of
   the user behind the event being emitted. EventFlow ships with
   several providers ready to use used.
-* [**Value objects:**](https://docs.geteventflow.net/ValueObjects.html)
+* [**Value objects:**](https://geteventflow.net/additional/value-objects/)
   Data containing classes used to validate and hold domain data, e.g. a
   username or e-mail.
-* [**Customize:**](https://docs.geteventflow.net/Customize.html) Almost every
-  single part of EventFlow can be swapped with a custom implementation through
-  the embedded IoC container.
 
 ## Complete example
 Here's a complete example on how to use the default in-memory event store
