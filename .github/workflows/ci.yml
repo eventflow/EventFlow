@@ -7,6 +7,16 @@ on:
     branches: [ develop-v1 ]
 
 jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - run: pip install -r requirements.txt
+      - run: mkdocs build --strict --verbose
+
   build:
     runs-on: ubuntu-20.04
     env:
