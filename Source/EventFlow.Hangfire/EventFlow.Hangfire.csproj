@@ -24,9 +24,10 @@
     <PackageReference Include="Hangfire.Core" Version="1.6.20" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="newtonsoft.json" Version="13.0.3" />
+    <PackageReference Condition="'$(Configuration)' == 'Release'" Include="EventFlow" Version="0.83.4713" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
+	  <ProjectReference Condition="'$(Configuration)' != 'Release'" Include="..\EventFlow\EventFlow.csproj" />
   </ItemGroup>
 </Project>

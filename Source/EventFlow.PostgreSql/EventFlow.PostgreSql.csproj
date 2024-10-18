@@ -34,13 +34,13 @@
 
   <ItemGroup>
     <PackageReference Include="dbup-postgresql" Version="4.1.0" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     <PackageReference Include="Npgsql" Version="4.1.14" />
+    <PackageReference Condition="'$(Configuration)' == 'Release'" Include="EventFlow.Sql" Version="0.83.4713" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EventFlow.Sql\EventFlow.Sql.csproj" />
-    <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
+	  <ProjectReference Condition="'$(Configuration)' != 'Release'" Include="..\EventFlow.Sql\EventFlow.Sql.csproj" />
   </ItemGroup>
 
 </Project>

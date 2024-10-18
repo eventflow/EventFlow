@@ -26,10 +26,10 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     <PackageReference Include="MongoDB.Driver" Version="2.28.0" />
+    <PackageReference Condition="'$(Configuration)' == 'Release'" Include="EventFlow" Version="0.83.4713" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
+	  <ProjectReference Condition="'$(Configuration)' != 'Release'" Include="..\EventFlow\EventFlow.csproj" />
   </ItemGroup>
-  
 </Project>

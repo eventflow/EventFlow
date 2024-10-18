@@ -24,9 +24,10 @@
     <PackageReference Include="dbup-sqlserver" Version="4.1.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.1" />
+    <PackageReference Condition="'$(Configuration)' == 'Release'" Include="EventFlow.Sql" Version="0.83.4713" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EventFlow.Sql\EventFlow.Sql.csproj" />
+    <ProjectReference Condition="'$(Configuration)' != 'Release'" Include="..\EventFlow.Sql\EventFlow.Sql.csproj" />
   </ItemGroup>
 </Project>

@@ -24,10 +24,11 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.0.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Condition="'$(Configuration)' == 'Release'" Include="EventFlow" Version="0.83.4713" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
+	  <ProjectReference Condition="'$(Configuration)' != 'Release'" Include="..\EventFlow\EventFlow.csproj" />
   </ItemGroup>
 
 </Project>
