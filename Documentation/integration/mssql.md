@@ -12,11 +12,15 @@ To setup EventFlow Microsoft SQL Server integration, install the NuGet
 package `EventFlow.MsSql` and add this to your EventFlow setup.
 
 ```csharp
-IRootResolver rootResolver = EventFlowOptions.New
-  .ConfigureMsSql(MsSqlConfiguration.New
-    .SetConnectionString(@"Server=.\SQLEXPRESS;Database=MyApp;User Id=sa;Password=???"))
-  ...
-  .CreateResolver();
+public void ConfigureServices(IServiceCollection services)
+{
+  services.AddEventFlow(ef =>
+  {
+    ef.ConfigureMsSql(MsSqlConfiguration.New
+      .SetConnectionString(@"Server=.\SQLEXPRESS;Database=MyApp;User Id=sa;Password=???"))
+    .UseMsSqlEventStore();
+  });
+}
 ```
 
 After setting up Microsoft SQL Server support in EventFlow, you can
