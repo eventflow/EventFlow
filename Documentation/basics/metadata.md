@@ -5,8 +5,6 @@ parent: Basics
 nav_order: 2
 ---
 
-.. _metadata-providers:
-
 # Metadata
 
 Metadata is all the "additional" information that resides with a emitted
@@ -24,8 +22,6 @@ Out of the box these metadata keys are added to each aggregate event.
 -  `aggregate_sequence_number` - The version the aggregate was after
    the event was emitted, e.g. `1` for the very first event emitted.
 
-
-.. _metadata-providers-custom:
 
 ## Custom metadata provider
 

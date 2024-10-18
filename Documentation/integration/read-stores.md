@@ -5,8 +5,6 @@ parent: Integration
 nav_order: 2
 ---
 
-.. _read-stores:
-
 # Read model stores
 
 In order to create query handlers that perform and enable them search
@@ -15,11 +13,11 @@ across multiple fields, read models or projections are used.
 To get started you can use the built-in in-memory read model store, but
 EventFlow supports a few others as well.
 
-- :ref:`In-memory <read-store-inmemory>`
-- :ref:`Microsoft SQL Server <read-store-mssql>`
-- :ref:`Elasticsearch <read-store-elasticsearch>`
-- :ref:`Mongo DB <read-model-mongodb>`
-- :ref:`Redis <read-store-redis>`
+- [In-memory](#in-memory)
+- [Microsoft SQL Server](#microsoft-sql-server)
+- [Elasticsearch](#elasticsearch)
+- [Mongo DB](#mongo-db)
+- [Redis](#redis)
 
 
 ## Creating read models
@@ -151,9 +149,10 @@ for a given user by search for read models that have a specific
 EventFlow has built-in support for several different read model stores.
 
 
-.. _read-store-inmemory:
-
 ### In-memory
+
+!!! attention
+    In-memory event store shouldn't be used for production environments, only for tests.
 
 The in-memory read store is easy to use and easy to configure. All read
 models are stored in-memory, so if EventFlow is restarted all read
@@ -171,8 +170,6 @@ var resolver = EventFlowOptions.New
   ...
   .CreateResolver();
 ```
-
-.. _read-store-mssql:
 
 ### Microsoft SQL Server
 
@@ -211,8 +208,6 @@ the read model version is stored in.
     used in EventFlow.
 
 
-.. _read-store-elasticsearch:
-
 ### Elasticsearch
 
 To configure the
@@ -248,8 +243,6 @@ If you want to control the index a specific read model is stored in,
 create an implementation of `IReadModelDescriptionProvider` and
 register it in the `EventFlow IoC <./Customize.md>`__.
 
-.. _read-model-mongodb:
-
 ### Mongo DB
 
 To configure the Mongo DB read model store, call `UseMongoDbReadModel<>` or
@@ -264,7 +257,6 @@ var resolver = EventFlowOptions.New
   // ...
   .CreateResolver();
 ```
-.. _read-store-redis:
 
 ### Redis
 

@@ -5,8 +5,6 @@ parent: Integration
 nav_order: 2
 ---
 
-.. _setup-mongodb:
-
 Mongo DB
 ========
 
@@ -21,5 +19,5 @@ IRootResolver rootResolver = EventFlowOptions.New
 
 After setting up Mongo DB support in EventFlow, you can continue to configure it.
 
-- :ref:`Event store <eventstore-mongodb>`
-- :ref:`Read model store <read-model-mongodb>`
+- [Event store](event-stores.md#mongo-db)
+- [Read model store](read-stores.md#mongo-db)

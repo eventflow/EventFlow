@@ -5,8 +5,6 @@ parent: Basics
 nav_order: 2
 ---
 
-.. _sagas:
-
 # Sagas
 
 EventFlow provides a simple saga system to coordinate messages between 
@@ -17,9 +15,7 @@ bounded contexts and aggregates.
 -  **Saga locator**
 -  **Zero or more aggregates**
 
-This example is based on the chapter "A Saga on Sagas" from the `CQRS
-Journey <https://msdn.microsoft.com/en-us/library/jj591569.aspx>`__ by
-Microsoft, in which we want to model the process of placing an order.
+This example is based on the chapter "A Saga on Sagas" from the [CQRS Journey](https://msdn.microsoft.com/en-us/library/jj591569.aspx) by Microsoft, in which we want to model the process of placing an order.
 
 1. User sends command `PlaceOrder` to the `OrderAggregate`
 2. `OrderAggregate` emits an `OrderCreated` event
