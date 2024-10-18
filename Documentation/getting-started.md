@@ -7,15 +7,13 @@ nav_order: 1
 
 # Getting started
 
-Initializing EventFlow always starts with an `EventFlowOptions.New` as this
-performs the initial bootstrap and starts the fluent configuration API. The
-very minimum initialization of EventFlow can be done in a single line, but
-wouldn't serve any purpose as no domain has been configured.
+Initializing EventFlow always starts with a call to the `AddEventFlow(ef => {})` extension method as this
+performs the initial bootstrap and starts the fluent configuration API.
 
 ```csharp
 var services = new ServiceCollection();
 services.AddEventFlow(ef => ef.AddDefaults(typeof(Startup).Assembly));
-var serviceProvider = services.BuildServiceProvider();
+using var serviceProvider = services.BuildServiceProvider();
 ```
 
 The above line does configures several important defaults
@@ -28,17 +26,8 @@ The above line does configures several important defaults
   snapshots)
 - And lastly, default implementations of all the internal parts of EventFlow
 
-
-```csharp
-public void ConfigureServices(IServiceCollection services)
-{
-  services.AddEventFlow(ef =>
-  {
-    ef.AddDefaults(typeof(Startup).Assembly);
-    ef.AddAspNetCoreMetadataProviders();
-  });
-}
-```
+!!! note
+    If you are setting up small tests, its possible to use the shorthand `EventFlowOptions.New` to get an already initialized `IServiceCollection` instance that can be used for further configuration. This should only be used for testing and not in production code.
 
 To start using EventFlow, a domain must be configured which consists of the
 following parts
@@ -67,15 +56,6 @@ The example application includes one of each of the required parts: aggregate,
 event, aggregate identity, command and a command handler. Further down we will
 go through each of the individual parts.
 
-!!! info
-    The example code provided here is located within the EventFlow code base
-    exactly as shown, so if you would like to debug and step through the
-    entire flow, checkout the code and execute the ``GettingStartedExample``
-    test.
-    
-    https://github.com/eventflow/Documentation/tree/master/Source/EventFlow.Documentation/GettingStarted
-
-
 All classes create for the example application are prefixed with ``Example``.
 
 ```csharp
@@ -89,7 +69,7 @@ public class ExampleTests
     services.AddEventFlow(ef => ef
       .AddDefaults(typeof(ExampleAggregate).Assembly)
       .UseInMemoryReadStoreFor<ExampleReadModel>());
-    var serviceProvider = services.BuildServiceProvider();
+    using var serviceProvider = services.BuildServiceProvider();
 
     var commandBus = serviceProvider.GetRequiredService<ICommandBus>();
     var queryProcessor = serviceProvider.GetRequiredService<IQueryProcessor>();
@@ -217,7 +197,7 @@ is used to expose the business rules for changing the magic number. If the
 magic number hasn't been set before, the event ``ExampleEvent`` is emitted
 and the aggregate state is mutated.
 
-If the magic numer was changed, we return a failed ``IExecutionResult`` with
+If the magic number was changed, we return a failed ``IExecutionResult`` with
 an error message. Returning a failed execution result will make EventFlow
 disregard any events the aggregate has emitted.
 
@@ -360,7 +340,7 @@ public class ExampleReadModel : IReadModel,
 }
 ```
 
-Notice the ``IDomainEvent<ExampleAggrenate, ExampleId, ExampleEvent> domainEvent``
+Notice the ``IDomainEvent<ExampleAggregate, ExampleId, ExampleEvent> domainEvent``
 argument. It's merely a wrapper around the specific event we implemented
 earlier. The ``IDomainEvent<,,>`` provides additional information, e.g. any
 metadata stored alongside the event.
@@ -374,7 +354,7 @@ instance wrapped here, is that the event has been committed to the event store.
 Although the implementation in this guide enables you to create a complete
 application, there are several topics that are recommended as next steps.
 
--  Read the [dos and donts](additional/dos-and-donts.md) section
+-  Read the [dos and don'ts](additional/dos-and-donts.md) section
 -  Use [value objects](additional/value-objects.md) to produce cleaner JSON
 -  If your application need to act on an emitted event, create a
    [subscriber](basics/subscribers.md)

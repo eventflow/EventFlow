@@ -243,7 +243,7 @@ each read model.
 
 If you want to control the index a specific read model is stored in,
 create an implementation of `IReadModelDescriptionProvider` and
-register it in the `EventFlow IoC <./Customize.md>`__.
+register it in the service collection
 
 ### Mongo DB
 
@@ -269,13 +269,11 @@ argument.
 In order to use Redis as your read model store, you need to enable the Redis Search and Redis JSON modules, both of which are included in [Redis Stack](https://redis.io/docs/stack/get-started/install/docker/).
 
 ```csharp
-var resolver = EventFlowOptions.New
   // ...
   .UseRedisReadModel<UserReadModel>()
   .UseRedisReadModel<UserNicknameReadModel,UserNicknameReadModelLocator>()
   // ...
-  .CreateResolver();
 ```
 
 `EventFlow.Redis` uses [Redis OM](https://github.com/redis/redis-om-dotnet) to provide a LINQ like querying experience. 
-Keep in mind that in order to query a readmodel by a field other than the id, you have to add the `[Indexed]` attribute to the field. For more information, check the Redis OM documentation.
+Keep in mind that in order to query a read model by a field other than the id, you have to add the `[Indexed]` attribute to the field. For more information, check the Redis OM documentation.
