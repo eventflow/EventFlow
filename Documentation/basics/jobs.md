@@ -5,8 +5,6 @@ parent: Basics
 nav_order: 2
 ---
 
-.. \_jobs:
-
 # Jobs
 
 A job is basically a task that you want to execute outside of the
@@ -33,14 +31,14 @@ In the above example the `SendEmailCommand` command will be published
 in seven days.
 
 !!! attention
-When working with jobs, you should be aware of the following
+    When working with jobs, you should be aware of the following
 
     - The default implementation does executes the job *now* (completely ignoring `runAt`/`delay` parameters) and in the
       current context. To get support for scheduled jobs, inject another implementation of `IJobScheduler`,
-      e.g. by  installing ``EventFlow.Hangfire`` (Read below for details).
+      e.g. by  installing `EventFlow.Hangfire` (Read below for details).
     - Your jobs should serialize to JSON properly, see the section on
-      `value objects <./ValueObjects.md>`__ for more information
-    - If you use the provided ``PublishCommandJob``, make sure that your
+      [value objects](../additional/value-objects.md) for more information
+    - If you use the provided `PublishCommandJob`, make sure that your
       commands serialize properly as well
 
 ## Create your own jobs
@@ -101,7 +99,7 @@ await jobScheduler.ScheduleAsync(
 
 ## Hangfire
 
-To use `Hangfire <http://hangfire.io/>`\_\_ as the job scheduler, install
+To use [Hangfire](http://hangfire.io/) as the job scheduler, install
 the NuGet package `EventFlow.Hangfire` and configure EventFlow to use
 the scheduler like this.
 
@@ -118,5 +116,5 @@ private void RegisterHangfire(IEventFlowOptions eventFlowOptions)
 ```
 
 !!! note
-The `UseHangfireJobScheduler()` doesn't do any Hangfire
-configuration, but merely registers the proper scheduler in EventFlow.
+    The `UseHangfireJobScheduler()` doesn't do any Hangfire
+    configuration, but merely registers the proper scheduler in EventFlow.

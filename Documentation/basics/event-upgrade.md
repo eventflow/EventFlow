@@ -5,8 +5,6 @@ parent: Basics
 nav_order: 2
 ---
 
-.. _event-upgrade:
-
 # Event upgrade
 
 At some point you might find the need to replace an event with zero or

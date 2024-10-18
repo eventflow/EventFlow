@@ -5,8 +5,6 @@ parent: Integration
 nav_order: 2
 ---
 
-.. _setup-mssql:
-
 Microsoft SQL Server
 ====================
 
@@ -24,5 +22,5 @@ IRootResolver rootResolver = EventFlowOptions.New
 After setting up Microsoft SQL Server support in EventFlow, you can
 continue to configure it.
 
-- :ref:`Event store <eventstore-mssql>`
-- :ref:`Read model store <read-store-mssql>`
+- [Event store](event-stores.md#mongo-db)
+- [Read model store](read-stores.md#mongo-db)

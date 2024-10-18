@@ -5,8 +5,6 @@ parent: Subscribers
 nav_order: 2
 ---
 
-.. _subscribers:
-
 # Subscribers
 
 Whenever your application needs to perform an action when a specific 
@@ -31,8 +29,6 @@ instead.
     below for details.
 
 
-.. _subscribers-sync:
-
 ## Synchronous subscribers
 
 Synchronous subscribers in EventFlow are executed one at a time for each
@@ -52,8 +48,6 @@ public interface ISubscribeSynchronousTo<TAggregate, in TIdentity, in TEvent>
   CancellationToken cancellationToken);
 }
 ```
-
-.. _out-of-order-event-subscribers:
 
 ### Out of order events
 
@@ -94,8 +88,6 @@ using (var resolver = EventFlowOptions.New
   // ...
 }
 ```
-
-.. _subscribers-async:
 
 ## Asynchronous subscribers
 
@@ -155,11 +147,9 @@ Any registered implementations will be notified for every domain event
 emitted.
 
 
-.. _subscribers-rabbitmq:
-
 ### RabbitMQ
 
-See :ref:`RabbitMQ setup <setup-rabbitmq>` for details on how to get
+See [RabbitMQ setup](../integration/rabbitmq.md) for details on how to get
 started using RabbitMQ_.
 
 After RabbitMQ has been configured, all domain events are published
@@ -186,4 +176,3 @@ customize what routing key or exchange to use. Have a look at how
 `EventFlow <https://github.com/rasmus/EventFlow>`__ has done its
 implementation to get started.
 
-.. _RabbitMQ: https://www.rabbitmq.com/

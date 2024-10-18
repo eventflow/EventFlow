@@ -5,8 +5,6 @@ parent: Basics
 nav_order: 2
 ---
 
-.. _identity:
-
 # Identity
 
 The `Identity<>` value object provides generic functionality to create
@@ -35,7 +33,7 @@ public class TestId : Identity<TestId>
    class
    -  `New`: Uses the standard `Guid.NewGuid()`
    -  `NewDeterministic(...)`: Creates a name-based `Guid` using the
-      algorithm from `RFC 4122 <https://www.ietf.org/rfc/rfc4122.txt>`__
+      algorithm from [RFC 4122](https://www.ietf.org/rfc/rfc4122.txt)
       §4.3, which allows identities to be generated based on known data,
       (e.g. an user e-mail). It always returns the same identity for
       the same arguments
@@ -74,5 +72,5 @@ var testId = TestId.NewComb()
 
 !!! note
     Be sure to read the section about
-    :ref:`value objects <value-objects>` as the ``Identity<>`` is basically a
+    [value objects](../additional/value-objects.md) as the ``Identity<>`` is basically a
     value object.

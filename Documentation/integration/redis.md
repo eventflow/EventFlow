@@ -5,8 +5,6 @@ parent: Integration
 nav_order: 3
 ---
 
-.. _setup-redis:
-
 Redis
 ========
 
@@ -24,5 +22,5 @@ To setup Redis together with EventFlow, install the NuGet package `EventFlow.Red
 
 After the setup, you can configure Redis as your _EventStore_, _ReadStore_ and _SnapshotStore_.
 
-- :ref:`Event store <eventstore-redis>`
-- :ref:`Read model store <read-model-redis>`
+- [Event store](event-stores.md#redis)
+- [Read model store](read-stores.md#redis)

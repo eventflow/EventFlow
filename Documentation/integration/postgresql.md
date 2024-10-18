@@ -5,13 +5,10 @@ parent: Integration
 nav_order: 2
 ---
 
-.. _setup-postgresql:
-
-PostgreSql
-====================
+## PostgreSql
 
 To setup EventFlow PostgreSql integration, install the NuGet
-package ``[EventFlow.PostgreSql](https://www.nuget.org/packages/EventFlow.PostgreSql)`` and add this to your EventFlow setup.
+package [EventFlow.PostgreSql](https://www.nuget.org/packages/EventFlow.PostgreSql) and add this to your EventFlow setup.
 
 ```csharp
 IRootResolver rootResolver = EventFlowOptions.New

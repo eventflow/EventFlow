@@ -5,8 +5,6 @@ parent: Basics
 nav_order: 2
 ---
 
-.. _queries:
-
 # Queries
 
 Creating queries in EventFlow is simple.
