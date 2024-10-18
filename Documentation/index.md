@@ -8,6 +8,7 @@ Welcome!
 If you have some suggestions for the documentation, even if it's just a typo, please create an issue or a pull request. Improvements to the documentation is always welcome.
 
 Useful links for updating the documentation:
+
 - [https://squidfunk.github.io/mkdocs-material/reference/](https://squidfunk.github.io/mkdocs-material/reference/)
 
 ---
