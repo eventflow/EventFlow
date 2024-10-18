@@ -1,7 +1,7 @@
 ---
 layout: default
-title: Integration
-parent: Basics
+title: Event stores
+parent: Integration
 nav_order: 2
 ---
 
