@@ -202,13 +202,15 @@ To use the MSSQL snapshot store you need to install the NuGet package
 Configure the MSSQL connection and snapshot store as shown here.
 
 ```csharp
-var rootResolver = EventFlowOptions.New
-  // ...
-  .ConfigureMsSql(MsSqlConfiguration.New
-    .SetConnectionString(@"Server=.\SQLEXPRESS;Database=MyApp;User Id=sa;Password=???"))
-  .UseMsSqlSnapshotStore()
-  // ...
-  .CreateResolver();
+public void ConfigureServices(IServiceCollection services)
+{
+  services.AddEventFlow(ef =>
+  {
+    ef.ConfigureMsSql(MsSqlConfiguration.New
+      .SetConnectionString(@"Server=.\SQLEXPRESS;Database=MyApp;User Id=sa;Password=???"))
+    .UseMsSqlSnapshotStore();
+  });
+}
 ```
 
 Note that if you already use MSSQL for event- or read model store, you
@@ -224,7 +226,7 @@ To make EventFlow create the required tables, execute the following
 code.
 
 ```csharp
-var msSqlDatabaseMigrator = rootResolver.Resolve<IMsSqlDatabaseMigrator>();
+var msSqlDatabaseMigrator = serviceProvider.GetRequiredService<IMsSqlDatabaseMigrator>();
 EventFlowSnapshotStoresMsSql.MigrateDatabase(msSqlDatabaseMigrator);
 ```
 
