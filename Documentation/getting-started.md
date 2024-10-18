@@ -19,16 +19,16 @@ var resolver = EventFlowOptions.New.CreateResolver();
 The above line does configures several important defaults
 
 - Custom internal IoC container
-- In-memory :ref:`event store <eventstores>`
+- In-memory [event store](event-stores.md)
 - Console logger
 - A "null" snapshot store, that merely writes a warning if used (no need to
   do anything before going to production if you aren't planning to use
   snapshots)
 - And lastly, default implementations of all the internal parts of EventFlow
 
-.. IMPORTANT::
-    If you're using ASP.NET Core, you should install the ***EventFlow.AspNetCore*** package and invoke
-    `AddAspNetCoreMetadataProviders` in Startup.
+**IMPORTANT:**
+If you're using ASP.NET Core, you should install the ***EventFlow.AspNetCore*** package and invoke
+`AddAspNetCoreMetadataProviders` in Startup.
 
 
 ```csharp
@@ -47,31 +47,31 @@ public void ConfigureServices(IServiceCollection services)
     alternative **event store**, an alternative **IoC container** and another
     **logger** that sends log messages to your production log store.
 
-    - :ref:`IoC container <ioc-container>`
-    - :ref:`Log <log>`
-    - :ref:`Event store <eventstores>`
-    - :ref:`Snapshots <snapshots>`
+    - [IoC container](../additional/customize.md)
+    - [Log](../additional/customize.md)
+    - [Event store](event-stores.md)
+    - [Snapshots](additional/snapshots.md)
 
 To start using EventFlow, a domain must be configured which consists of the
 following parts
 
-- :ref:`Aggregate <aggregates>`
-- :ref:`Aggregate identity <identity>`
-- :ref:`Aggregate events <events>`
-- :ref:`Commands and command handlers <commands>` (optional, but highly recommended)
+- [Aggregate](basics/aggregates.md)
+- [Aggregate identity](basics/identity.md)
+- [Aggregate events](basics/aggregates.md)
+- [Commands and command handlers](basics/commands.md) (optional, but highly recommended)
 
 In addition to the above, EventFlow provides several optional features. Whether
 or not these features are utilized depends on the application in which
 EventFlow is used.
 
-- :ref:`Read models <read-stores>`
-- :ref:`Subscribers <subscribers>`
-- :ref:`Event upgraders <event-upgrade>`
-- :ref:`Queries <queries>`
-- :ref:`Jobs <jobs>`
-- :ref:`Snapshots <snapshots>`
-- :ref:`Sagas <sagas>`
-- :ref:`Metadata providers <metadata-providers>`
+- [Read models](integration/read-stores.md)
+- [Subscribers](basics/subscribers.md)
+- [Event upgraders](basics/event-upgrade.md)
+- [Queries](basics/queries.md)
+- [Jobs](basics/jobs.md)
+- [Snapshots](additional/snapshots.md)
+- [Sagas](basics/sagas.md)
+- [Metadata providers](basics/metadata.md)
 
 ## Example application
 
@@ -90,11 +90,33 @@ go through each of the individual parts.
 
 All classes create for the example application are prefixed with ``Example``.
 
-.. literalinclude:: ../Source/EventFlow.Documentation/GettingStarted/ExampleTests.cs
-  :linenos:
-  :dedent: 12
-  :language: c#
-  :lines: 38-75
+```csharp
+public class ExampleTests
+{
+  [Test]
+  public async Task ExampleTest()
+  {
+    // Arrange
+    var resolver = EventFlowOptions.New
+      .AddDefaults(typeof(ExampleAggregate).Assembly)
+      .UseInMemoryReadStoreFor<ExampleReadModel>()
+      .CreateResolver();
+
+    var commandBus = resolver.Resolve<ICommandBus>();
+    var queryProcessor = resolver.Resolve<IQueryProcessor>();
+    var exampleId = ExampleId.New;
+
+    // Act
+    await commandBus.PublishAsync(new ExampleCommand(exampleId, 42), CancellationToken.None)
+      .ConfigureAwait(false);
+    var exampleReadModel = await queryProcessor.ProcessAsync(new ReadModelByIdQuery<ExampleReadModel>(exampleId), CancellationToken.None)
+      .ConfigureAwait(false);
+
+    // Assert
+    exampleReadModel.MagicNumber.Should().Be(42);
+  }
+}
+```
 
 The above example publishes the ``ExampleCommand`` to the aggregate with the
 ``exampleId`` identity with the magical value of ``42``. After the command has
@@ -133,7 +155,7 @@ used by the EventFlow event store.
 
 All the built-in metadata is available on each instance of ``IDomainEvent<,,>``,
 which is accessible from event handlers for e.g. read models or subscribers. It is
-also possible to create your own :ref:`metadata providers <metadata-providers-custom>`
+also possible to create your own [metadata providers](basics/metadata.md)
 or add additional EventFlow built-in providers as needed.
 
 
@@ -142,18 +164,18 @@ or add additional EventFlow built-in providers as needed.
 The aggregate ID in EventFlow is represented as a value object that inherits
 from the ``IIdentity`` interface. You can provide your own implementation, but
 EventFlow provides a convenient implementation that will suit most needs.  Be
-sure to read the section about the :ref:`Identity\<\> <identity>` class
+sure to read the section about the [Identity\<\>](basics/identity.md) class
 for details on how to use it.
 
 For our example application we use the built-in class, which makes the implementation
 very simple.
 
-.. literalinclude:: ../Source/EventFlow.Documentation/GettingStarted/ExampleId.cs
-  :linenos:
-  :dedent: 4
-  :language: c#
-  :lines: 29-34
-
+```csharp
+public class ExampleId : Identity<ExampleId>
+{
+  public ExampleId(string value) : base(value) { }
+}
+```
 
 Aggregate
 ---------
@@ -161,19 +183,39 @@ Aggregate
 Now we'll take a look at the ``ExampleAggregate``. It is rather simple as the
 only thing it can do is apply the magic number once.
 
-.. literalinclude:: ../Source/EventFlow.Documentation/GettingStarted/ExampleAggregate.cs
-  :linenos:
-  :dedent: 4
-  :language: c#
-  :lines: 30-55
+```csharp
+public class ExampleAggregate : AggregateRoot<ExampleAggregate, ExampleId>,
+  IEmit<ExampleEvent>
+{
+  private int? _magicNumber;
 
-Be sure to read the section on :ref:`aggregates <aggregates>` to get all the
+  public ExampleAggregate(ExampleId id) : base(id) { }
+
+  public IExecutionResult SetMagicNumber(int magicNumber)
+  {
+    if (_magicNumber.HasValue)
+    {
+      return ExecutionResult.Failed("Magic number already set");
+    }
+
+    Emit(new ExampleEvent(magicNumber));
+    return ExecutionResult.Success();
+  }
+
+  public void Apply(ExampleEvent aggregateEvent)
+  {
+    _magicNumber = aggregateEvent.MagicNumber;
+  }
+}
+```
+
+Be sure to read the section on [aggregates](basics/aggregates.md) to get all the
 details right. For now the most important thing to note, is that the state
 of the aggregate (updating the ``_magicNumber`` variable) happens in the
 ``Apply(ExampleEvent)`` method. This is the event sourcing part of EventFlow in
 effect. As state changes are only saved as events, mutating the aggregate state
 must happen in such a way that the state changes are replayed the next time the
-aggregate is loaded. EventFlow has a :ref:`set of different approaches <aggregates_applying_events>`
+aggregate is loaded. EventFlow has a [set of different approaches](basics/aggregates.md)
 that you can select from. In this example we use the `Apply` methods as
 they are the simplest.
 
@@ -208,11 +250,18 @@ In this example, it's merely that some magic number has been set. Normally
 these events should have a really, really good name and represent something in the
 ubiquitous language for the domain.
 
-.. literalinclude:: ../Source/EventFlow.Documentation/GettingStarted/ExampleEvent.cs
-  :linenos:
-  :dedent: 4
-  :language: c#
-  :lines: 30-41
+```csharp
+[EventVersion("example", 1)]
+public class ExampleEvent : AggregateEvent<ExampleAggregate, ExampleId>
+{
+  public ExampleEvent(int magicNumber)
+  {
+    MagicNumber = magicNumber;
+  }
+
+  public int MagicNumber { get; }
+}
+```
 
 We have applied the ``[EventVersion("example", 1)]`` to our event, marking it
 as the ``example`` event version ``1``, which directly corresponds to the
@@ -237,21 +286,27 @@ a specific .NET type.
 Commands are the entry point to the domain and if you remember from the example
 application, they are published using the ``ICommandBus`` as shown here.
 
-.. literalinclude:: ../Source/EventFlow.Documentation/GettingStarted/ExampleTests.cs
-  :linenos:
-  :dedent: 16
-  :language: c#
-  :lines: 55-59
+```csharp
+await commandBus.PublishAsync(new ExampleCommand(exampleId, 42), CancellationToken.None)
+  .ConfigureAwait(false);
+```
 
 In EventFlow commands are simple value objects that merely house the arguments for
 the command execution. All commands implement the ``ICommand<,>`` interface, but
 EventFlow provides an easy-to-use base class that you can use.
 
-.. literalinclude:: ../Source/EventFlow.Documentation/GettingStarted/ExampleCommand.cs
-  :linenos:
-  :dedent: 4
-  :language: c#
-  :lines: 29-42
+```csharp
+public class ExampleCommand : Command<ExampleAggregate, ExampleId>
+{
+  public ExampleCommand(ExampleId aggregateId, int magicNumber)
+    : base(aggregateId)
+  {
+    MagicNumber = magicNumber;
+  }
+
+  public int MagicNumber { get; }
+}
+```
 
 A command doesn't do anything without a command handler. In fact, EventFlow
 will throw an exception if a command doesn't have exactly **one** command
@@ -264,11 +319,18 @@ The command handler provides the glue between the command, the aggregate and
 the IoC container as it defines how a command is executed. Typically they are
 rather simple, but they could contain more complex logic. How much is up to you.
 
-.. literalinclude:: ../Source/EventFlow.Documentation/GettingStarted/ExampleCommandHandler.cs
-  :linenos:
-  :dedent: 4
-  :language: c#
-  :lines: 31-43
+```csharp
+public class ExampleCommandHandler : CommandHandler<ExampleAggregate, ExampleId, ExampleCommand>
+{
+  public override Task<IExecutionResult> ExecuteCommandAsync(
+    ExampleAggregate aggregate,
+    ExampleCommand command,
+    CancellationToken cancellationToken)
+  {
+    return Task.FromResult(aggregate.SetMagicNumber(command.MagicNumber));
+  }
+}
+```
 
 The ``ExampleCommandHandler`` in our case here merely invokes the
 ``SetMagicNumer`` on the aggregate and returns the execution result. Remember, if
@@ -287,18 +349,27 @@ events the aggregate has emitted.
 ## Read model
 
 If you ever need to access the data in your aggregates efficiently, its important
-that :ref:`read models <read-stores>` are used. Loading aggregates from the
+that [read models](integration/read-stores.md) are used. Loading aggregates from the
 event store takes time and its impossible to query for e.g. aggregates that have
 a specific value in its state.
 
 In our example we merely use the built-in in-memory read model store. It is useful
 in many cases, e.g. executing automated domain tests in a CI build.
 
-.. literalinclude:: ../Source/EventFlow.Documentation/GettingStarted/ExampleReadModel.cs
-  :linenos:
-  :dedent: 4
-  :language: c#
-  :lines: 30-43
+```csharp
+public class ExampleReadModel : IReadModel,
+  IAmReadModelFor<ExampleAggregate, ExampleId, ExampleEvent>
+{
+  public int MagicNumber { get; private set; }
+
+  public void Apply(
+    IReadModelContext context,
+    IDomainEvent<ExampleAggregate, ExampleId, ExampleEvent> domainEvent)
+  {
+    MagicNumber = domainEvent.AggregateEvent.MagicNumber;
+  }
+}
+```
 
 Notice the ``IDomainEvent<ExampleAggrenate, ExampleId, ExampleEvent> domainEvent``
 argument. It's merely a wrapper around the specific event we implemented
@@ -314,14 +385,14 @@ instance wrapped here, is that the event has been committed to the event store.
 Although the implementation in this guide enables you to create a complete
 application, there are several topics that are recommended as next steps.
 
--  Read the :ref:`dos and donts <dos-and-donts>` section
--  Use :ref:`value objects <value-objects>` to produce cleaner JSON
+-  Read the [dos and donts](additional/dos-and-donts.md) section
+-  Use [value objects](additional/value-objects.md) to produce cleaner JSON
 -  If your application need to act on an emitted event, create a
-   :ref:`subscriber <subscribers>`
--  Check the :ref:`configuration <configuration>` to make sure everything
+   [subscriber](basics/subscribers.md)
+-  Check the [configuration](additional/configuration.md) to make sure everything
    is as you would like it
 -  Setup a persistent event store using e.g.
-   :ref:`Microsoft SQL Server <eventstore-mssql>`
--  Create :ref:`read models <read-stores>` for efficient querying
--  Consider the use of :ref:`specifications <specifications>` to ease
+   [Microsoft SQL Server](integration/mssql.md)
+-  Create [read models](integration/read-stores.md) for efficient querying
+-  Consider the use of [specifications](additional/specifications.md) to ease
    creation of business rules
