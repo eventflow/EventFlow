@@ -6,10 +6,7 @@ title: FAQ
 
 ## How can I ensure that only specific users can execute commands?
 
-You should implement a *decorator* for the `ICommandBus` that does the
-authentication. Have a look at the [decorator](customize.md) documentation
-to see how this can be achieved.
-
+You can either replace the implementation of `ICommandBus` with your own implementation, or add a decorator that adds the authentication logic. 
 
 ## Why isn't there a "global sequence number" on domain events?
 
