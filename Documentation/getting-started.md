@@ -19,7 +19,7 @@ var resolver = EventFlowOptions.New.CreateResolver();
 The above line does configures several important defaults
 
 - Custom internal IoC container
-- In-memory [event store](event-stores.md)
+- In-memory [event store](integration/event-stores.md)
 - Console logger
 - A "null" snapshot store, that merely writes a warning if used (no need to
   do anything before going to production if you aren't planning to use
