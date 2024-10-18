@@ -16,6 +16,8 @@ jobs:
           python-version: 3.x
       - run: pip install -r requirements.txt
       - run: mkdocs build --strict --verbose
+        env:
+          MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
 
   build:
     runs-on: ubuntu-20.04
