@@ -1,3 +1,10 @@
+---
+layout: default
+title: From v0.x to v1.x
+parent: Migrations
+nav_order: 2
+---
+
 # Migration guide 0.x to 1.x
 
 EventFlow version 1 introduces carefully considered breaking API changes. Traditionally
@@ -16,16 +23,14 @@ Here is the general motivation for introducing breaking changes to EventFlow.
 - Add obviously missing async/await on critical methods
 - Remove non-async methods wrapper methods related to the bundled `AsyncHelper`
 
-<!-- =========================================================================== -->
-# Data in event stores
+## Data in event stores
 
 Upgrading EventFlow should **never** break existing data in event stores, not even
 between major versions. All data currently in event stores will work with 1.x
 releases. However, it _might_ not be possible to do a rollback from 1.x to 0.x.
 
 
-<!-- =========================================================================== -->
-# Recommended strategy for migrating 0.x to 1.x
+## Recommended strategy for migrating 0.x to 1.x
 
 Here is a few recommendations that might be useful when planning the migration
 of EventFlow from 0.x to 1.x. 
@@ -41,15 +46,14 @@ of EventFlow from 0.x to 1.x.
   overridden, making the switch significantly easier
 
 
-<!-- =========================================================================== -->
-# Notable new features in version 1
+## Notable new features in version 1
 
 While the main focus of version 1 is to bring EventFlow up to speed with the latest
 standards, there some changes/features that has been added as well. Features
 that was not possible to add before as introducing them would cause breaking changes.
 
 
-## Multiple MSSQL connection strings
+### Multiple MSSQL connection strings
 
 It is now possible to have read models
 outside the main database by adding a `[SqlReadModelConnectionStringName]`
@@ -76,14 +80,14 @@ strings at runtime.
 
 This allows for connection strings to be fetched runtime from external sources.
 
-##  Event upgraders are now async and works with the read model populator
+###  Event upgraders are now async and works with the read model populator
 
 In version 0.x, event upgraders aren't applied when events are loaded and
 re-populated to read models using the `IReadModelPopulator`. This is fixed for
 version 1.x, which properly will require some change to upgraders if the
 re-population feature is used.
 
-## Changes to supported .NET versions
+### Changes to supported .NET versions
 
 With the version 1 release, EventFlow limits the amount of supported .NET versions, to
 that of official [.NET (Core) LTS versions](https://dotnet.microsoft.com/en-us/platform/support/policy).
@@ -95,11 +99,12 @@ As of the 1.0 release, EventFlow supports the following framework versions.
 - `netstandard2.1`
 - `netcoreapp3.1`
 - `net6.0`
+- `net8.0`
 
 Note that this enabled the use of `IAsyncEnumerable` which is going to be a key driver
 for some of the upcoming features of EventFlow. 
 
-## NuGet packages removed
+### NuGet packages removed
 
 With the move toward the standardized Microsoft extensions packages and removal
 of support for .NET Framework, there are a few NuGet packages that will no
@@ -121,7 +126,7 @@ longer be supported.
   OWIN support has been removed as ASP.NET Core is introduced.
 
 
-## Aligning with Microsoft extension packages
+### Aligning with Microsoft extension packages
 
 Several types have been removed from EventFlow in order to align
 with the Microsoft extension packages.
@@ -131,7 +136,7 @@ with the Microsoft extension packages.
   from `Microsoft.Extensions.DependencyInjection.Abstractions`
 
 
-## Only one interface for read models
+### Only one interface for read models
 
 The interfaces `IAmAsyncReadModelFor` has replaced the original `IAmReadModelFor`
 leaving only async interface to implement on read models.
@@ -143,7 +148,7 @@ any breaking changes. Now, we remove the one and only have one interface to
 implement.
 
 
-## Removal of non-async method
+### Removal of non-async method
 
 Several non-async methods have been removed as well as the
 `EventFlow.Core.AsyncHelper` which was used to implement these methods
@@ -162,12 +167,12 @@ environments.
 - `IReadModelPopulator.Purge`
 
 
-## Initializing EventFlow
+### Initializing EventFlow
 
 Starting version 1, there are a few ways you can initialize EventFlow.
 
 
-### Fluent as `IServiceCollection` extension
+#### Fluent as `IServiceCollection` extension
 
 ```csharp
 serviceCollection.AddEventFlow(o => 
@@ -175,7 +180,7 @@ serviceCollection.AddEventFlow(o =>
     );
 ```
 
-### Traditionally passing a `IServiceCollection` reference
+#### Traditionally passing a `IServiceCollection` reference
 
 ```csharp
 var eventFlowOptions = EventFlowOptions.New(serviceCollection)
@@ -184,7 +189,7 @@ var eventFlowOptions = EventFlowOptions.New(serviceCollection)
 ```
 
 
-### Let EventFlow create the `IServiceCollection`
+#### Let EventFlow create the `IServiceCollection`
 
 Useful in small tests, but should **NOT** be used in production setups.
 
