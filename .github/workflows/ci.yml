@@ -7,18 +7,6 @@ on:
     branches: [ develop-v1 ]
 
 jobs:
-  docs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v5
-        with:
-          python-version: 3.x
-      - run: pip install -r requirements.txt
-      - run: mkdocs build --strict --verbose
-        env:
-          MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
-
   build:
     runs-on: ubuntu-20.04
     env:
@@ -95,6 +83,8 @@ jobs:
         declare -i REVISION
         REVISION=5000+$GITHUB_RUN_NUMBER
         bake run --build-version 1.0.$REVISION
+      env:
+        MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload NuGet packages
       uses: actions/upload-artifact@v4
