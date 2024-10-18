@@ -1,12 +1,18 @@
 site_name: EventFlow
-site_url: https://example.com/
+site_url: https://geteventflow.net/
 theme: material
 docs_dir: Documentation
 
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: blue grey
+
 markdown_extensions:
-  - admonition
-  - pymdownx.details
-  - pymdownx.superfences
-  - pymdownx.highlight:
-      linenums: true
+- admonition
+- pymdownx.details
+- pymdownx.superfences
+- pymdownx.highlight:
+    linenums: true
 

@@ -4,8 +4,16 @@ title: Configuration
 
 # Configuration
 
-EventFlow can be configured by invoking `eventFlowOptions.Configure(c => ...)`, or
-by providing a custom implementation of `IEventFlowConfiguration`.
+EventFlow configuration can be done via the `.Configure(o => {})` method, which is available on the `EventFlowOptions` object.
 
-Each configuration is using XML documentation. The default values should be good enough
-for most production setups.
+```csharp
+using var serviceCollection = new ServiceCollection()
+    // ...
+    .AddEventFlow(e => e.Configure(o =>
+    {
+        o.IsAsynchronousSubscribersEnabled = true;
+        o.ThrowSubscriberExceptions = true;
+    }))
+    // ...
+    .BuildServiceProvider();
+```
