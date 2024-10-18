@@ -34,8 +34,8 @@ The following list key characteristics of each version as well as its related br
 * `1.x`
 
   Represents the next iteration of EventFlow that aligns EventFlow with the standard
-  packages for .NET (Core). Releases here will only support .NET Standard, .NET Core
-  and .NET versions going forward.
+  packages for .NET. Releases here will only support .NET Standard, .NET Core
+  and .NET versions 6+ going forward.
 
   - Released
   - Still development
@@ -44,10 +44,11 @@ The following list key characteristics of each version as well as its related br
   Read the [migration guide](https://geteventflow.net/migrations/v0-to-v1/) to view the full list of breaking
   changes as well as recommendations on how to migrate.
 
-  ### Documentation (not complete)
+  ### Documentation
   Version 1.x documentation has been pulled into this repository in order to have
-  the code and documentation closer together and (hopefully) have the documentation
-  updated in the same pull-requests as any code changes.
+  the code and documentation closer together and have the documentation
+  updated in the same pull-requests as any code changes. The compiled version of the
+  documentation is available at https://geteventflow.net/.
 
   ### NuGet package status
 
