@@ -1,4 +1,3 @@
 mkdocs-material
-mkdocs-material[imaging]
 mkdocs-git-committers-plugin-2
 
