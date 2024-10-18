@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <IsPackable>False</IsPackable>
+    <NoWarn>NU1903</NoWarn> <!-- MongoDB.Driver is outdated and update requires .NetFramework update -->
   </PropertyGroup>
 
   <ItemGroup>

@@ -20,9 +20,16 @@
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="dbup-core" Version="5.0.37" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
     <PackageReference Include="Dapper" Version="1.50.2" />
     <PackageReference Include="dbup-core" Version="4.1.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Condition="'$(TargetFramework)' == 'netstandard1.6'" Include="System.ComponentModel.Annotations" Version="4.3.0" />
     <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="System.ComponentModel.Annotations" Version="4.7.0" />
