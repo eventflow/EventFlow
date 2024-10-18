@@ -163,12 +163,14 @@ To configure the in-memory read model store, simply call
 your read model as the generic argument.
 
 ```csharp
-var resolver = EventFlowOptions.New
-  ...
-  .UseInMemoryReadStoreFor<UserReadModel>()
-  .UseInMemoryReadStoreFor<UserNicknameReadModel,UserNicknameReadModelLocator>()
-  ...
-  .CreateResolver();
+public void ConfigureServices(IServiceCollection services)
+{
+  services.AddEventFlow(ef =>
+  {
+    ef.UseInMemoryReadStoreFor<UserReadModel>();
+    ef.UseInMemoryReadStoreFor<UserNicknameReadModel, UserNicknameReadModelLocator>();
+  });
+}
 ```
 
 ### Microsoft SQL Server

@@ -30,12 +30,12 @@ existing `ICommandBus` with a decorator class that can collect
 statistics on command execution times.
 
 ```csharp
-void ConfigureEventFlow()
+void ConfigureEventFlow(IServiceCollection services)
 {
-  var resolver = EventFlowOptions.new
+  services.AddEventFlow(o => o
     .RegisterServices(DecorateCommandBus)
     ...
-    .CreateResolver();
+  );
 }
 
 void DecorateCommandBus(IServiceRegistration sr)

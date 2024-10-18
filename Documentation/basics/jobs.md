@@ -60,11 +60,12 @@ public class LogMessageJob : IJob
   public string Message { get; }
 
   public Task ExecuteAsync(
-    IResolver resolver,
+    IServiceProvider serviceProvider,
     CancellationToken cancellationToken)
   {
-    var log = resolver.Resolve<ILog>();
-    log.Debug(Message);
+    var log = serviceProvider.GetRequiredService<ILogger<LogMessageJob>>();
+    log.LogDebug(Message);
+    return Task.CompletedTask;
   }
 }
 ```
@@ -79,16 +80,19 @@ omitted, the name will be the type name and version will be `1`.
 Here's how the job is registered in EventFlow.
 
 ```csharp
-var resolver = EventFlowOptions.new
-  .AddJobs(typeof(LogMessageJob))
-  ...
-  .CreateResolver();
+public void ConfigureServices(IServiceCollection services)
+{
+  services.AddEventFlow(ef =>
+  {
+    ef.AddJobs(typeof(LogMessageJob));
+  });
+}
 ```
 
 Then to schedule the job
 
 ```csharp
-var jobScheduler = resolver.Resolve<IJobScheduler>();
+var jobScheduler = serviceProvider.GetRequiredService<IJobScheduler>();
 var job = new LogMessageJob("Great log message");
 await jobScheduler.ScheduleAsync(
   job,

@@ -13,7 +13,9 @@ very minimum initialization of EventFlow can be done in a single line, but
 wouldn't serve any purpose as no domain has been configured.
 
 ```csharp
-var resolver = EventFlowOptions.New.CreateResolver();
+var services = new ServiceCollection();
+services.AddEventFlow(ef => ef.AddDefaults(typeof(Startup).Assembly));
+var serviceProvider = services.BuildServiceProvider();
 ```
 
 The above line does configures several important defaults
@@ -83,13 +85,14 @@ public class ExampleTests
   public async Task ExampleTest()
   {
     // Arrange
-    var resolver = EventFlowOptions.New
+    var services = new ServiceCollection();
+    services.AddEventFlow(ef => ef
       .AddDefaults(typeof(ExampleAggregate).Assembly)
-      .UseInMemoryReadStoreFor<ExampleReadModel>()
-      .CreateResolver();
+      .UseInMemoryReadStoreFor<ExampleReadModel>());
+    var serviceProvider = services.BuildServiceProvider();
 
-    var commandBus = resolver.Resolve<ICommandBus>();
-    var queryProcessor = resolver.Resolve<IQueryProcessor>();
+    var commandBus = serviceProvider.GetRequiredService<ICommandBus>();
+    var queryProcessor = serviceProvider.GetRequiredService<IQueryProcessor>();
     var exampleId = ExampleId.New;
 
     // Act
