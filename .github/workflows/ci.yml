@@ -83,6 +83,8 @@ jobs:
         declare -i REVISION
         REVISION=5000+$GITHUB_RUN_NUMBER
         bake run --build-version 1.0.$REVISION
+      env:
+        MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload NuGet packages
       uses: actions/upload-artifact@v4
