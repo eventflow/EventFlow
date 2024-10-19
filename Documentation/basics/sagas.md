@@ -132,14 +132,3 @@ public class OrderSaga
 By default, EventFlow is configured to use event sourcing and aggregate
 roots for the storage of sagas. However, you can implement your own storage
 system by implementing `ISagaStore` and registering it.
-
-## Enriching the documentation
-
-To provide more helpful information for developers, consider adding the following tips:
-
-- Use meaningful names for your sagas to make the code more readable and maintainable.
-- Keep your saga payloads small and focused on the essential data needed to perform the task.
-- Avoid using complex data structures in your sagas, as they can make serialization and deserialization more difficult.
-- Use versioning for your sagas to handle changes in your domain model over time.
-- Write tests for your sagas to ensure the correctness of your domain logic.
-- Document your saga model, including the relationships between sagas and other domain entities, to help developers understand the system.
