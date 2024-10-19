@@ -30,10 +30,10 @@ This example is based on the chapter "A Saga on Sagas" from the [CQRS Journey](h
    updates the user, the `OrderAggregate` and the
    `ReservationAggregate`
 
-Next we need an `ISagaLocator` which basically maps domain events to a
+Next, we need an `ISagaLocator` which basically maps domain events to a
 saga identity allowing EventFlow to find it in its store.
 
-In our case we will add the order ID to event metadata of all events
+In our case, we will add the order ID to the event metadata of all events
 related to a specific order.
 
 ```csharp
@@ -51,8 +51,8 @@ public class OrderSagaLocator : ISagaLocator
 }
 ```
 
-Alternatively the order identity could be added to every domain event
-emitted from the `OrderAggregate`, `ReservationAggregate` and
+Alternatively, the order identity could be added to every domain event
+emitted from the `OrderAggregate`, `ReservationAggregate`, and
 `PaymentAggregate` aggregates that the `OrderSaga` subscribes to,
 but this would depend on whether or not the order identity is part of
 the ubiquitous language for your domain.
@@ -129,6 +129,6 @@ public class OrderSaga
 
 ## Alternative saga store
 
-By default EventFlow is configured to use event sourcing and aggregate
-roots for storage of sagas. However, you can implement your own storage
+By default, EventFlow is configured to use event sourcing and aggregate
+roots for the storage of sagas. However, you can implement your own storage
 system by implementing `ISagaStore` and registering it.

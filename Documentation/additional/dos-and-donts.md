@@ -1,5 +1,5 @@
 ---
-title: Dos and don't
+title: Dos and don'ts
 ---
 
 # Do's and don'ts
@@ -35,10 +35,9 @@ event.
 {
   "Username": "root",
   "PasswordHash": "1234567890ABCDEF",
-  "EMail": "root@example.org",
+  "EMail": "root@example.org"
 }
 ```
-
 
 ### Keep old event types
 

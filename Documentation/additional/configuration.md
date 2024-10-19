@@ -17,3 +17,5 @@ using var serviceCollection = new ServiceCollection()
     // ...
     .BuildServiceProvider();
 ```
+
+In this example, we enable asynchronous subscribers and configure EventFlow to throw exceptions for subscriber errors. You can customize the configuration options to suit your needs.

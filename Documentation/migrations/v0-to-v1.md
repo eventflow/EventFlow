@@ -19,7 +19,7 @@ Here is the general motivation for introducing breaking changes to EventFlow.
   EventFlow's custom implementations are removed
 - Focus on LTS versions of .NET (Core) and remove support .NET Framework as many
   of the new C# language features are not available here
-- Fix misssssspelled API
+- Fix misspelled API
 - Add obviously missing async/await on critical methods
 - Remove non-async methods wrapper methods related to the bundled `AsyncHelper`
 
@@ -32,7 +32,7 @@ releases. However, it _might_ not be possible to do a rollback from 1.x to 0.x.
 
 ## Recommended strategy for migrating 0.x to 1.x
 
-Here is a few recommendations that might be useful when planning the migration
+Here are a few recommendations that might be useful when planning the migration
 of EventFlow from 0.x to 1.x. 
 
 - Since there is no change to the underlying storage, creating a release that
@@ -49,8 +49,8 @@ of EventFlow from 0.x to 1.x.
 ## Notable new features in version 1
 
 While the main focus of version 1 is to bring EventFlow up to speed with the latest
-standards, there some changes/features that has been added as well. Features
-that was not possible to add before as introducing them would cause breaking changes.
+standards, there are some changes/features that have been added as well. Features
+that were not possible to add before as introducing them would cause breaking changes.
 
 
 ### Multiple MSSQL connection strings
@@ -80,7 +80,7 @@ strings at runtime.
 
 This allows for connection strings to be fetched runtime from external sources.
 
-###  Event upgraders are now async and works with the read model populator
+###  Event upgraders are now async and work with the read model populator
 
 In version 0.x, event upgraders aren't applied when events are loaded and
 re-populated to read models using the `IReadModelPopulator`. This is fixed for
@@ -89,7 +89,7 @@ re-population feature is used.
 
 ### Changes to supported .NET versions
 
-With the version 1 release, EventFlow limits the amount of supported .NET versions, to
+With the version 1 release, EventFlow limits the number of supported .NET versions, to
 that of official [.NET (Core) LTS versions](https://dotnet.microsoft.com/en-us/platform/support/policy).
 Support for non-LTS versions will be limited, but do expect to have EventFlow lag a little
 behind when cutting support on older versions.
@@ -113,7 +113,7 @@ longer be supported.
 - `EventFlow.Autofac`
    
    Since EventFlow uses the new `Microsoft.Extensions.DependencyInjection` for
-   handling IoC, its possible to install the Autofac adapter package instead,
+   handling IoC, it's possible to install the Autofac adapter package instead,
    thus rendering the package obsolete.
 
 - `EventFlow.DependencyInjection`
@@ -138,12 +138,12 @@ with the Microsoft extension packages.
 
 ### Only one interface for read models
 
-The interfaces `IAmAsyncReadModelFor` has replaced the original `IAmReadModelFor`
+The interfaces `IAmAsyncReadModelFor` have replaced the original `IAmReadModelFor`
 leaving only async interface to implement on read models.
 
 Originally EventFlow only had the non-async version `IAmReadModelFor`, but as it
 became evident that updating read models sometimes requires the invocation of 
-async method, the interface `IAmAsyncReadModelFor` was introduces as not to create
+async method, the interface `IAmAsyncReadModelFor` was introduced as not to create
 any breaking changes. Now, we remove the one and only have one interface to
 implement.
 
