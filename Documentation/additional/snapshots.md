@@ -178,7 +178,7 @@ needs to concern itself with the latest version.
 
 ## Snapshot store implementations
 
-EventFlow has built-in support for some snapshot stores (more *will be
+EventFlow has built-in support for some snapshot stores (more *will* be
 implemented).
 
 ### Null (or none)
