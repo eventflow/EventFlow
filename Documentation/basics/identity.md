@@ -74,13 +74,4 @@ var testId = TestId.NewComb();
     [value objects](../additional/value-objects.md) as the `Identity<>` is basically a
     value object.
 
-## Enriching the documentation
-
-To provide more helpful information for developers, consider adding the following tips:
-
-- Use meaningful names for your identities to make the code more readable and maintainable.
-- Keep your identity values simple and focused on the essential data needed to represent the identity.
-- Avoid using complex data structures in your identities, as they can make serialization and deserialization more difficult.
-- Use versioning for your identities to handle changes in your domain model over time.
-- Write tests for your identities to ensure the correctness of your domain logic.
 - Document your identity model, including the relationships between identities and aggregates, to help developers understand the system.
