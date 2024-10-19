@@ -1,8 +1,19 @@
 $ErrorActionPreference = "Stop"
 
+function Invoke-Call {
+    param (
+        [scriptblock]$ScriptBlock,
+        [string]$ErrorAction = $ErrorActionPreference
+    )
+    & @ScriptBlock
+    if (($lastexitcode -ne 0) -and $ErrorAction -eq "Stop") {
+        exit $lastexitcode
+    }
+}
+
 # Up containers
-docker compose --compatibility -f docker-compose.ci.yml pull
-docker compose --compatibility -f docker-compose.ci.yml up -d
+Invoke-Call -ScriptBlock { docker compose --compatibility -f docker-compose.ci.yml pull } -ErrorAction Stop
+Invoke-Call -ScriptBlock { docker compose --compatibility -f docker-compose.ci.yml up -d } -ErrorAction Stop
 
 # Install curl
 # cinst curl -y --no-progress
