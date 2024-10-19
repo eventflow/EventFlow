@@ -35,21 +35,21 @@ jobs:
     # - name: Install Bake 
     #   run: dotnet tool install -g --version 0.27.40-beta Bake
 
-    # - name: Run Bake
-    #   run: |
-    #     bake run --build-version 0.${{ github.run_number }}.${{ github.run_attempt }}
-    # - name: Upload NuGet packages
-    #   uses: actions/upload-artifact@v4
-    #   if: success() || failure()
-    #   with:
-    #     name: packages
-    #     path: "**/*nupkg"
-    #     if-no-files-found: error
+    - name: Run Bake
+      run: |
+        bake run --build-version 0.${{ github.run_number }}.${{ github.run_attempt }}
+    - name: Upload NuGet packages
+      uses: actions/upload-artifact@v4
+      if: success() || failure()
+      with:
+        name: packages
+        path: "**/*nupkg"
+        if-no-files-found: error
 
-    # - name: Upload test results
-    #   uses: actions/upload-artifact@v4
-    #   if: success() || failure()
-    #   with:
-    #     name: test-results
-    #     path: "**/*.trx"
-    #     if-no-files-found: error
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: success() || failure()
+      with:
+        name: test-results
+        path: "**/*.trx"
+        if-no-files-found: error
