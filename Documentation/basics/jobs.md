@@ -122,3 +122,17 @@ private void RegisterHangfire(IEventFlowOptions eventFlowOptions)
 !!! note
     The `UseHangfireJobScheduler()` doesn't do any Hangfire
     configuration, but merely registers the proper scheduler in EventFlow.
+
+## Fixing restructuredtext links
+
+To fix restructuredtext links into proper markdown syntax, replace the following example:
+
+```restructuredtext
+`Elasticsearch <https://www.elastic.co/products/elasticsearch>`__
+```
+
+with:
+
+```markdown
+[Elasticsearch](https://www.elastic.co/products/elasticsearch)
+```

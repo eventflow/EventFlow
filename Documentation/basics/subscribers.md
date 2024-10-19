@@ -175,4 +175,3 @@ registered message factory service `IRabbitMqMessageFactory` to
 customize what routing key or exchange to use. Have a look at how
 `EventFlow <https://github.com/rasmus/EventFlow>`__ has done its
 implementation to get started.
-

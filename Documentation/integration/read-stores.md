@@ -7,18 +7,17 @@ nav_order: 2
 
 # Read model stores
 
-In order to create query handlers that perform and enable them search
+In order to create query handlers that perform and enable them to search
 across multiple fields, read models or projections are used.
 
-To get started you can use the built-in in-memory read model store, but
+To get started, you can use the built-in in-memory read model store, but
 EventFlow supports a few others as well.
 
 - [In-memory](#in-memory)
 - [Microsoft SQL Server](#microsoft-sql-server)
 - [Elasticsearch](#elasticsearch)
-- [Mongo DB](#mongo-db)
+- [MongoDB](#mongo-db)
 - [Redis](#redis)
-
 
 ## Creating read models
 
@@ -36,12 +35,14 @@ public class UserReadModel : IReadModel,
   public string UserId { get; set; }
   public string Username { get; set; }
 
-  public void Apply(
+  public Task ApplyAsync(
     IReadModelContext context,
-    IDomainEvent<UserAggregate, UserId, UserCreated> domainEvent)
+    IDomainEvent<UserAggregate, UserId, UserCreated> domainEvent,
+    CancellationToken cancellationToken)
   {
     UserId = domainEvent.AggregateIdentity.Value;
     Username = domainEvent.AggregateEvent.Username.Value;
+    return Task.CompletedTask;
   }
 }
 ```
@@ -50,15 +51,14 @@ The read model applies all `UserCreated` events and thereby merely saves
 the latest value instead of the entire history, which makes it much easier to
 store in an efficient manner.
 
-
 ## Read model locators
 
-Typically the ID of read models are the aggregate identity, but
+Typically, the ID of read models is the aggregate identity, but
 sometimes this isn't the case. Here are some examples.
 
--  Items from a collection on the aggregate root
--  Deterministic ID created from event data
--  Entity within the aggregate
+- Items from a collection on the aggregate root
+- Deterministic ID created from event data
+- Entity within the aggregate
 
 To create read models in these cases, use the EventFlow concept of read
 model locators, which is basically a mapping from a domain event to a
@@ -103,18 +103,20 @@ public class UserNicknameReadModel : IReadModel,
   public string UserId { get; set; }
   public string Nickname { get; set; }
 
-  public void Apply(
+  public Task ApplyAsync(
     IReadModelContext context,
-    IDomainEvent<UserAggregate, UserId, UserNicknameAdded> domainEvent)
+    IDomainEvent<UserAggregate, UserId, UserNicknameAdded> domainEvent,
+    CancellationToken cancellationToken)
   {
     UserId = domainEvent.AggregateIdentity.Value;
     Nickname = domainEvent.AggregateEvent.Nickname.Value;
+    return Task.CompletedTask;
   }
 }
 ```
-    
-You may need to assign the id of your read model from a batch of nicknames assigned
-on the creation event of the username. You would then read the assigned read model id
+
+You may need to assign the ID of your read model from a batch of nicknames assigned
+on the creation event of the username. You would then read the assigned read model ID
 acquired from the locator using the 'context' field:
 
 ```csharp
@@ -125,9 +127,10 @@ public class UserNicknameReadModel : IReadModel,
   public string UserId { get; set; }
   public string Nickname { get; set; }
 
-  public void Apply(
+  public Task ApplyAsync(
     IReadModelContext context,
-    IDomainEvent<UserAggregate, UserId, UserCreatedEvent> domainEvent)
+    IDomainEvent<UserAggregate, UserId, UserCreatedEvent> domainEvent,
+    CancellationToken cancellationToken)
   {
     var id = context.ReadModelId;
     UserId = domainEvent.AggregateIdentity.Value;        
@@ -135,19 +138,18 @@ public class UserNicknameReadModel : IReadModel,
     
     Id = nickname.Id;
     Nickname = nickname.Nickname;
+    return Task.CompletedTask;
   }
 }
 ```
 
 We could then use this nickname read model to query all the nicknames
-for a given user by search for read models that have a specific
+for a given user by searching for read models that have a specific
 `UserId`.
-
 
 ## Read store implementations
 
 EventFlow has built-in support for several different read model stores.
-
 
 ### In-memory
 
@@ -155,7 +157,7 @@ EventFlow has built-in support for several different read model stores.
     In-memory event store shouldn't be used for production environments, only for tests.
 
 The in-memory read store is easy to use and easy to configure. All read
-models are stored in-memory, so if EventFlow is restarted all read
+models are stored in-memory, so if EventFlow is restarted, all read
 models are lost.
 
 To configure the in-memory read model store, simply call
@@ -209,7 +211,6 @@ the read model version is stored in.
     before EventFlow is initialized. Or, at least before the read models are
     used in EventFlow.
 
-
 ### Elasticsearch
 
 To configure the
@@ -236,18 +237,17 @@ alternative Elasticsearch configurations.
     Make sure to create any mapping the read model requires in Elasticsearch
     *before* using the read model in EventFlow.
 
-
 If EventFlow receives a request to *purge* a specific read model, it does it
 by deleting the index. This means that a separate index should be created for
 each read model.
 
 If you want to control the index a specific read model is stored in,
 create an implementation of `IReadModelDescriptionProvider` and
-register it in the service collection
+register it in the service collection.
 
-### Mongo DB
+### MongoDB
 
-To configure the Mongo DB read model store, call `UseMongoDbReadModel<>` or
+To configure the MongoDB read model store, call `UseMongoDbReadModel<>` or
 `UseMongoDbReadModel<,>` with your read model as the generic
 argument.
 
@@ -275,5 +275,5 @@ In order to use Redis as your read model store, you need to enable the Redis Sea
   // ...
 ```
 
-`EventFlow.Redis` uses [Redis OM](https://github.com/redis/redis-om-dotnet) to provide a LINQ like querying experience. 
-Keep in mind that in order to query a read model by a field other than the id, you have to add the `[Indexed]` attribute to the field. For more information, check the Redis OM documentation.
+`EventFlow.Redis` uses [Redis OM](https://github.com/redis/redis-om-dotnet) to provide a LINQ-like querying experience. 
+Keep in mind that in order to query a read model by a field other than the ID, you have to add the `[Indexed]` attribute to the field. For more information, check the Redis OM documentation.

@@ -11,8 +11,8 @@ The `Identity<>` value object provides generic functionality to create
 and validate the IDs of aggregate roots. It is basically a wrapper
 around a `Guid`.
 
-Lets say we want to create a new identity named `TestId`. We could do
-it like this.
+Let's say we want to create a new identity named `TestId`. We could do
+it like this:
 
 ```csharp
 public class TestId : Identity<TestId>
@@ -26,34 +26,33 @@ public class TestId : Identity<TestId>
 
 -  The identity follows the form `{classname without "Id"}-{guid}` e.g.
    `test-c93fdb8c-5c9a-4134-bbcd-87c0644ca34f` for the above
-   `TestId` example
+   `TestId` example.
 -  The internal `Guid` can be generated using one of the following
    methods/properties. Note that you can access the `Guid` factories
    directly by accessing the static methods on the `GuidFactories`
-   class
-   -  `New`: Uses the standard `Guid.NewGuid()`
+   class:
+   -  `New`: Uses the standard `Guid.NewGuid()`.
    -  `NewDeterministic(...)`: Creates a name-based `Guid` using the
       algorithm from [RFC 4122](https://www.ietf.org/rfc/rfc4122.txt)
       §4.3, which allows identities to be generated based on known data,
-      (e.g. an user e-mail). It always returns the same identity for
-      the same arguments
+      (e.g., a user e-mail). It always returns the same identity for
+      the same arguments.
    -  `NewComb()`: Creates a sequential `Guid` that can be used to
-      avoid database fragmentation
--  A `string` can be tested to see if its a valid identity using the
-   static `bool IsValid(string)` method
+      avoid database fragmentation.
+-  A `string` can be tested to see if it's a valid identity using the
+   static `bool IsValid(string)` method.
 -  Any validation errors can be gathered using the static
-   `IEnumerable<string> Validate(string)` method
+   `IEnumerable<string> Validate(string)` method.
 
 !!! attention
-    Its very important to name the constructor argument `value`
+    It's very important to name the constructor argument `value`
     as it is significant when the identity type is deserialized.
 
-
-Here are some examples of how we can use our newly created `TestId`
+Here are some examples of how we can use our newly created `TestId`:
 
 ```csharp
 // Uses the default Guid.NewGuid()
-var testId = TestId.New
+var testId = TestId.New;
 ```
 
 ```csharp
@@ -67,10 +66,21 @@ var testId = TestId.NewDeterministic(emailNamespace, "test@example.com");
 ```csharp
 // Creates a new identity every time, but an identity when used in
 // database indexes, minimizes fragmentation
-var testId = TestId.NewComb()
+var testId = TestId.NewComb();
 ```
 
 !!! note
     Be sure to read the section about
-    [value objects](../additional/value-objects.md) as the ``Identity<>`` is basically a
+    [value objects](../additional/value-objects.md) as the `Identity<>` is basically a
     value object.
+
+## Enriching the documentation
+
+To provide more helpful information for developers, consider adding the following tips:
+
+- Use meaningful names for your identities to make the code more readable and maintainable.
+- Keep your identity values simple and focused on the essential data needed to represent the identity.
+- Avoid using complex data structures in your identities, as they can make serialization and deserialization more difficult.
+- Use versioning for your identities to handle changes in your domain model over time.
+- Write tests for your identities to ensure the correctness of your domain logic.
+- Document your identity model, including the relationships between identities and aggregates, to help developers understand the system.
