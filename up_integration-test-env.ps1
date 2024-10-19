@@ -11,6 +11,28 @@ function Invoke-Call {
     }
 }
 
+function Invoke-WebRequestWithRetry {
+    param (
+        [string]$Uri,
+        [int]$TimeoutSec = 60,
+        [int]$RetryIntervalSec = 5,
+        [int]$MaxRetries = 12
+    )
+
+    $retries = 0
+    while ($retries -lt $MaxRetries) {
+        try {
+            Invoke-WebRequest -Uri $Uri -TimeoutSec $TimeoutSec -UseBasicParsing
+            return
+        } catch {
+            Write-Host "Request to $Uri failed. Retrying in $RetryIntervalSec seconds..."
+            Start-Sleep -Seconds $RetryIntervalSec
+            $retries++
+        }
+    }
+    throw "Failed to connect to $Uri after $MaxRetries retries."
+}
+
 # Up containers
 Invoke-Call -ScriptBlock { docker compose --compatibility -f docker-compose.ci.yml pull } -ErrorAction Stop
 Invoke-Call -ScriptBlock { docker compose --compatibility -f docker-compose.ci.yml up -d } -ErrorAction Stop
@@ -25,10 +47,10 @@ $env:EVENTSTORE_URL = "tcp://admin:changeit@localhost:1113"
 
 # Health checks
 # EventStore
-Invoke-WebRequest -Uri "http://localhost:2113" -TimeoutSec 60 -RetryIntervalSec 5 -Method Get -UseBasicParsing
+Invoke-WebRequestWithRetry -Uri "http://localhost:2113"
 
 # Elasticsearch
-Invoke-WebRequest -Uri "http://localhost:9200" -TimeoutSec 60 -RetryIntervalSec 5 -Method Get -UseBasicParsing
+Invoke-WebRequestWithRetry -Uri "http://localhost:9200"
 
 # RabbitMQ
-Invoke-WebRequest -Uri "http://localhost:15672" -TimeoutSec 60 -RetryIntervalSec 5 -Method Get -UseBasicParsing
+Invoke-WebRequestWithRetry -Uri "http://localhost:15672"
