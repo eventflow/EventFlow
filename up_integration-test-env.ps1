@@ -1,3 +1,5 @@
+$ErrorActionPreference = "Stop"
+
 # Up containers
 docker compose --compatibility -f docker-compose.ci.yml pull
 docker compose --compatibility -f docker-compose.ci.yml up -d
