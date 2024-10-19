@@ -65,17 +65,3 @@ public class UpgradeMyEventV1ToMyEventV2 : IEventUpgrader<MyAggregate, MyId>
   }
 }
 ```
-
-## Fixing restructuredtext links
-
-To fix restructuredtext links into proper markdown syntax, replace the following example:
-
-```restructuredtext
-`Elasticsearch <https://www.elastic.co/products/elasticsearch>`__
-```
-
-with:
-
-```markdown
-[Elasticsearch](https://www.elastic.co/products/elasticsearch)
-```
