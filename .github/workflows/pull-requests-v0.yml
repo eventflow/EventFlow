@@ -28,6 +28,7 @@ jobs:
           3.0.x
           3.1.x
           6.0.x
+          8.0.x
 
     - name: Install Bake 
       run: dotnet tool install -g --version 0.27.40-beta Bake
