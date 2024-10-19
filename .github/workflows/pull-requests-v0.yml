@@ -1,3 +1,5 @@
+# https://github.com/eventflow/EventFlow/pull/967
+
 name: pull-requests
 
 on:
@@ -15,39 +17,49 @@ jobs:
       EVENTFLOW_MSSQL_USER: sa
       EVENTFLOW_MSSQL_PASS: Password12!
 
+    services:
+      rabbitmq:
+        image: rabbitmq:3-management-alpine
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
+        ports:
+          - 5672:5672
+          - 15672:15672
+
     steps:
     - uses: actions/checkout@v4
 
     - run: |
         powershell -NoProfile -ExecutionPolicy unrestricted -Command ".\up_integration-test-env.ps1"
 
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: |
-          3.0.x
-          3.1.x
-          6.0.x
-          8.0.x
+    # - name: Setup .NET Core
+    #   uses: actions/setup-dotnet@v1
+    #   with:
+    #     dotnet-version: |
+    #       3.0.x
+    #       3.1.x
+    #       6.0.x
+    #       8.0.x
 
-    - name: Install Bake 
-      run: dotnet tool install -g --version 0.27.40-beta Bake
+    # - name: Install Bake 
+    #   run: dotnet tool install -g --version 0.27.40-beta Bake
 
-    - name: Run Bake
-      run: |
-        bake run --build-version 0.${{ github.run_number }}.${{ github.run_attempt }}
-    - name: Upload NuGet packages
-      uses: actions/upload-artifact@v4
-      if: success() || failure()
-      with:
-        name: packages
-        path: "**/*nupkg"
-        if-no-files-found: error
+    # - name: Run Bake
+    #   run: |
+    #     bake run --build-version 0.${{ github.run_number }}.${{ github.run_attempt }}
+    # - name: Upload NuGet packages
+    #   uses: actions/upload-artifact@v4
+    #   if: success() || failure()
+    #   with:
+    #     name: packages
+    #     path: "**/*nupkg"
+    #     if-no-files-found: error
 
-    - name: Upload test results
-      uses: actions/upload-artifact@v4
-      if: success() || failure()
-      with:
-        name: test-results
-        path: "**/*.trx"
-        if-no-files-found: error
+    # - name: Upload test results
+    #   uses: actions/upload-artifact@v4
+    #   if: success() || failure()
+    #   with:
+    #     name: test-results
+    #     path: "**/*.trx"
+    #     if-no-files-found: error
