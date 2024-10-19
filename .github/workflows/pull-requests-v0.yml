@@ -16,7 +16,7 @@ jobs:
       EVENTFLOW_MSSQL_PASS: Password12!
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - run: |
         powershell -NoProfile -ExecutionPolicy unrestricted -Command ".\up_integration-test-env.ps1"
