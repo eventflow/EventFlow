@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: [self-hosted, windows-10]
     env:
       HELPZ_POSTGRESQL_PASS: postgres
       EVENTFLOW_MSSQL_SERVER: 127.0.0.1,1433
