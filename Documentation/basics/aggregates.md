@@ -69,7 +69,7 @@ Remember not to make any changes to the aggregate with these methods, as the sta
 
 ## Applying events
 
-Currently, EventFlow has three methods of applying events to the aggregate when emitted or loaded from the event store. Which you choose is up to you. Implementing `IEmit<SomeEvent>` is the most convenient, but will expose public `Apply` methods.
+Currently, EventFlow has four methods of applying events to the aggregate when emitted or loaded from the event store. Which you choose is up to you. Implementing `IEmit<SomeEvent>` is the most convenient, but will expose public `Apply` methods.
 
 - Create a method called `Apply` that takes the event as an argument. To get the method signature right, implement the `IEmit<SomeEvent>` on your aggregate. This is the default fallback, and you will get an exception if no other strategies are configured. Although you *can* implement `IEmit<SomeEvent>`, it's optional. The `Apply` methods can be `protected` or `private`.
 - Create a state object by inheriting from `AggregateState<,,>` and registering it using the protected `Register(...)` in the aggregate root constructor.
