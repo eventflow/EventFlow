@@ -38,7 +38,7 @@ Invoke-Call -ScriptBlock { docker ps -q | % { docker stop $_ } } -ErrorAction St
 
 # Up containers
 Invoke-Call -ScriptBlock { docker compose --compatibility -f docker-compose.yml pull } -ErrorAction Stop
-Invoke-Call -ScriptBlock { docker compose --compatibility --force-recreate -f docker-compose.yml up -d } -ErrorAction Stop
+Invoke-Call -ScriptBlock { docker compose --compatibility -f docker-compose.yml up --force-recreate -d } -ErrorAction Stop
 
 # Set connection url to environment variable
 # RabbitMQ
