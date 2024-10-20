@@ -35,7 +35,7 @@ function Invoke-WebRequestWithRetry {
 
 # Up containers
 Invoke-Call -ScriptBlock { docker compose --compatibility -f docker-compose.ci.yml pull } -ErrorAction Stop
-Invoke-Call -ScriptBlock { docker compose --compatibility -f docker-compose.ci.yml up -d } -ErrorAction Stop
+Invoke-Call -ScriptBlock { docker compose --compatibility --force-recreate -f docker-compose.ci.yml up -d } -ErrorAction Stop
 
 # Set connection url to environment variable
 # RabbitMQ
