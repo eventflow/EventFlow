@@ -75,5 +75,3 @@ var testId = TestId.NewComb();
     Be sure to read the section about
     [value objects](../additional/value-objects.md) as the `Identity<>` is basically a
     value object.
-
-- Document your identity model, including the relationships between identities and aggregates, to help developers understand the system.
