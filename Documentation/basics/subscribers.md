@@ -1,7 +1,7 @@
 ---
 layout: default
-title: Aggregates
-parent: Subscribers
+title: Subscribers
+parent: Basics
 nav_order: 2
 ---
 

@@ -187,10 +187,10 @@ to the documentation.
   * SQLite
   * PostgreSQL
   * EventStore - [home page](https://eventstore.org/)
-* **Subscribers:**
+* [**Subscribers:**](https://geteventflow.net/basics/subscribers/)
   Listeners that act on specific domain events. Useful if an specific action
   needs to be triggered after a domain event has been committed.
-* [**Read models:**]https://geteventflow.net/integration/read-stores/)
+* [**Read models:**](https://geteventflow.net/integration/read-stores/)
   Denormalized representation of aggregate events optimized for reading fast.
   Currently there is support for these read model storage types.
   For the SQL storage types the queries are being generated automatically with quoted columns and table names.
