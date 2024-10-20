@@ -71,7 +71,5 @@ var testId = TestId.NewDeterministic(emailNamespace, "test@example.com");
 var testId = TestId.NewComb();
 ```
 
-!!! note
-    Be sure to read the section about
-    [value objects](../additional/value-objects.md) as the `Identity<>` is basically a
-    value object.
+!!! tip
+    Be sure to read the section about [value objects](../additional/value-objects.md) as the `Identity<>` is basically a value object.

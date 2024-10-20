@@ -22,7 +22,7 @@ using either `AddSubscriber(...)`, `AddSubscribers(...)` or
 custom IoC container, you can register the implementations using it
 instead.
 
-!!! note
+!!! warning
     The *synchronous* and *asynchronous* here has nothing to do
     with the .NET framework keywords `async`, `await` or the Task
     Parallel Library. It refers to how the subscribers are executed. Read
@@ -76,30 +76,15 @@ by EventFlow after it has been logged as an error. Depending on the
 application this might be the preferred behavior, but in some cases
 it isn't. If a subscriber exception should be thrown, and thus allowing
 them to be caught in e.g. command handlers, the behaivor can be disabled
-by setting the `ThrowSubscriberExceptions` to `true` as illustrated
-here:
-
-
-```csharp
-using (var resolver = EventFlowOptions.New
-  .Configure(c => c.ThrowSubscriberExceptions = true)
-  .CreateResolver())
-{
-  // ...
-}
-```
+by setting the `ThrowSubscriberExceptions` to `true` when configuring EventFlow.
 
 ## Asynchronous subscribers
 
 Asynchronous subscribers in EventFlow are executed using a scheduled job.
 
-!!! attention
+!!! warning
     Asynchronous subscribers are **disabled by default** and must be
-    enabled using the following configuration.
-
-```csharp
-eventFlowOptions.Configure(c => c.IsAsynchronousSubscribersEnabled = true);
-```
+    enabled using the `IsAsynchronousSubscribersEnabled` configuration.
 
 !!! attention
     Since asynchronous subscribers are executed using a job, its important
@@ -118,12 +103,12 @@ public interface ISubscribeAsynchronousTo<TAggregate, in TIdentity, in TEvent>
   where TEvent : IAggregateEvent<TAggregate, TIdentity>
 {
   Task HandleAsync(
-  IDomainEvent<TAggregate, TIdentity, TEvent> domainEvent,
-  CancellationToken cancellationToken);
+    IDomainEvent<TAggregate, TIdentity, TEvent> domainEvent,
+    CancellationToken cancellationToken);
 }
 ```
 
-!!! note
+!!! danger
     Setting `ThrowSubscriberExceptions = true` has **no effect**
     on asynchronous subscribers.
 

@@ -13,11 +13,9 @@ To setup EventFlow's [RabbitMQ](https://www.rabbitmq.com/) integration, install 
 
 ```csharp
 var uri = new Uri("amqp://localhost");
-
-var resolver = EventFlowOptions.with
-  .PublishToRabbitMq(RabbitMqConfiguration.With(uri))
-  // ...
-  .CreateResolver();
+// ...
+.PublishToRabbitMq(RabbitMqConfiguration.With(uri))
+// ...
 ```
 
 After setting up RabbitMQ support in EventFlow, you can continue to configure it.

@@ -182,12 +182,10 @@ To configure the MSSQL read model store, simply call
 as the generic argument.
 
 ```csharp
-var resolver = EventFlowOptions.New
-  ...
-  .UseMssqlReadModel<UserReadModel>()
-  .UseMssqlReadModel<UserNicknameReadModel,UserNicknameReadModelLocator>()
-  ...
-  .CreateResolver();
+// ...
+.UseMssqlReadModel<UserReadModel>()
+.UseMssqlReadModel<UserNicknameReadModel,UserNicknameReadModelLocator>()
+// ...
 ```
 
 By convention, EventFlow uses the table named `ReadModel-[CLASS NAME]`
@@ -220,14 +218,12 @@ model store, simply call ``UseElasticsearchReadModel<>`` or
 argument.
 
 ```csharp
-var resolver = EventFlowOptions.New
-  // ...
-  .ConfigureElasticsearch(new Uri("http://localhost:9200/"))
-  // ...
-  .UseElasticsearchReadModel<UserReadModel>()
-  .UseElasticsearchReadModel<UserNicknameReadModel,UserNicknameReadModelLocator>()
-  // ...
-  .CreateResolver();
+// ...
+.ConfigureElasticsearch(new Uri("http://localhost:9200/"))
+// ...
+.UseElasticsearchReadModel<UserReadModel>()
+.UseElasticsearchReadModel<UserNicknameReadModel,UserNicknameReadModelLocator>()
+// ...
 ```
 
 Overloads of `ConfigureElasticsearch(...)` are available for
@@ -252,12 +248,10 @@ To configure the MongoDB read model store, call `UseMongoDbReadModel<>` or
 argument.
 
 ```csharp
-var resolver = EventFlowOptions.New
-  // ...
-  .UseMongoDbReadModel<UserReadModel>()
-  .UseMongoDbReadModel<UserNicknameReadModel,UserNicknameReadModelLocator>()
-  // ...
-  .CreateResolver();
+// ...
+.UseMongoDbReadModel<UserReadModel>()
+.UseMongoDbReadModel<UserNicknameReadModel,UserNicknameReadModelLocator>()
+// ...
 ```
 
 ### Redis
@@ -269,10 +263,10 @@ argument.
 In order to use Redis as your read model store, you need to enable the Redis Search and Redis JSON modules, both of which are included in [Redis Stack](https://redis.io/docs/stack/get-started/install/docker/).
 
 ```csharp
-  // ...
-  .UseRedisReadModel<UserReadModel>()
-  .UseRedisReadModel<UserNicknameReadModel,UserNicknameReadModelLocator>()
-  // ...
+// ...
+.UseRedisReadModel<UserReadModel>()
+.UseRedisReadModel<UserNicknameReadModel,UserNicknameReadModelLocator>()
+// ...
 ```
 
 `EventFlow.Redis` uses [Redis OM](https://github.com/redis/redis-om-dotnet) to provide a LINQ-like querying experience. 

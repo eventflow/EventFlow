@@ -164,12 +164,10 @@ The snapshot types and upgraders then only need to be registered in
 EventFlow.
 
 ```csharp
-var resolver = EventFlowOptions.New
   // ...
   .AddSnapshotUpgraders(myAssembly)
   .AddSnapshots(myAssembly)
   // ...
-  .CreateResolver();
 ```
 
 Now, whenever a snapshot is loaded from the snapshot store, it is
@@ -194,11 +192,9 @@ the snapshot store configuration forgotten.
 For testing, or small applications, the in-memory snapshot store is
 configured by merely calling `UseInMemorySnapshotStore()`.
 ```csharp
-var resolver = EventFlowOptions.New
   // ...
   .UseInMemorySnapshotStore()
   // ...
-  .CreateResolver();
 ```
 
 ### Microsoft SQL Server
@@ -250,6 +246,5 @@ However, there are some rules that the snapshot persistence store *must*
 follow:
 
 - It's valid to store snapshots in any order, e.g., first version 3 then 2.
-- It's valid to overwrite existing snapshot versions, e.g., storing
-  version 3 then version 3 again.
+- It's valid to overwrite existing snapshot versions, e.g., storing version 3 then version 3 again.
 - Fallback to old snapshots is allowed.

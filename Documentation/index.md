@@ -17,7 +17,7 @@ Have a look at our [getting started guide](getting-started.md), the [do’s and 
 * **No use of threads or background workers**
 * **MIT licensed:** Easy to understand and use license for enterprise
 
-!!! attention
+!!! example
 
     **Documentation is still in progress for v1**
 

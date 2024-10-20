@@ -18,7 +18,7 @@ A new instance of an event upgrader is created each time an aggregate is loaded.
 
 Note that the *ordering* of event upgraders is important as you might implement two upgraders, one to upgrade an event from V1 to V2 and then another upgrading V2 to V3. EventFlow orders the event upgraders by name before starting the event upgrade.
 
-!!! caution
+!!! warning
     Be careful when working with event upgraders that return zero or more than one event, as this has an influence on the aggregate version and you need to make sure that the aggregate sequence number on upgraded events is valid in regard to the aggregate history.
 
 ## Example - removing a damaged event
