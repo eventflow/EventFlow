@@ -1,7 +1,12 @@
 ### New in 0.84 (not released yet)
 
-* New: Added overload of `MongoDbOptionsExtensions.ConfigureMongoDb` that passes 
-  IResolverContext through to IMongoDatabase factory delegate
+Maintenance release of EventFlow v0 that fixes a few issues and updates dependencies. The update tries to stay as close to the old code base as possible. However, many dependencies have critical vulnerabilities have forced an update. This in turn has again force update on the .NET Framework version for some packages, as the updated dependencies did not support the old ones.
+
+* Breaking: Updated `Npgsql` from `4.0.2` to `4.1.14` due to critical vulnerability, which have forced `EventFlow.PostgreSql` to from `net452` to `net472` 
+* New: Added overload of `MongoDbOptionsExtensions.ConfigureMongoDb` that passes IResolverContext through to IMongoDatabase factory delegate
+* Fix: Updated `System.Data.SqlClient` from `4.3.0` to `4.8.6` due to critical vulnerability
+* Fix: Updated `Newtonsoft.Json` from `11.0.2` to `13.0.3` due to critical vulnerability
+* Fix: Updated `Microsoft.Owin` from `3.1.0` to `4.2.2` due to critical vulnerability
 
 ### New in 0.83.4713 (released 2021-09-07)
 
