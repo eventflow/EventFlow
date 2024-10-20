@@ -16,13 +16,11 @@ using var serviceProvider = services.BuildServiceProvider();
 
 The above line configures several important defaults:
 
-- Custom internal IoC container
 - In-memory [event store](integration/event-stores.md)
-- Console logger
 - A "null" snapshot store, that merely writes a warning if used (no need to do anything before going to production if you aren't planning to use snapshots)
 - And lastly, default implementations of all the internal parts of EventFlow
 
-!!! note
+!!! tip
     If you are setting up small tests, it's possible to use the shorthand `EventFlowOptions.New` to get an already initialized `IServiceCollection` instance that can be used for further configuration. This should only be used for testing and not in production code.
 
 To start using EventFlow, a domain must be configured which consists of the following parts:
@@ -152,7 +150,7 @@ public class ExampleAggregate : AggregateRoot<ExampleAggregate, ExampleId>,
 
 Be sure to read the section on [aggregates](basics/aggregates.md) to get all the details right. For now, the most important thing to note is that the state of the aggregate (updating the `_magicNumber` variable) happens in the `Apply(ExampleEvent)` method. This is the event sourcing part of EventFlow in effect. As state changes are only saved as events, mutating the aggregate state must happen in such a way that the state changes are replayed the next time the aggregate is loaded. EventFlow has a [set of different approaches](basics/aggregates.md) that you can select from. In this example, we use the `Apply` methods as they are the simplest.
 
-!!! attention
+!!! info
     The `Apply(ExampleEvent)` is invoked by the `Emit(...)` method, so after the event has been emitted, the aggregate state has changed.
 
 The `ExampleAggregate` exposes the `SetMagicNumber(int)` method, which is used to expose the business rules for changing the magic number. If the magic number hasn't been set before, the event `ExampleEvent` is emitted and the aggregate state is mutated.
@@ -161,7 +159,7 @@ If the magic number was changed, we return a failed `IExecutionResult` with an e
 
 If you need to return something more useful than a `bool` in an execution result, merely create a new class that implements the `IExecutionResult` interface and specify the type as generic arguments for the command and command handler.
 
-!!! note
+!!! tip
     While possible, do not use the execution results as a method of reading values from the aggregate, that's what the `IQueryProcessor` and read models are for.
 
 ## Event
@@ -183,11 +181,13 @@ public class ExampleEvent : AggregateEvent<ExampleAggregate, ExampleId>
 
 We have applied the `[EventVersion("example", 1)]` to our event, marking it as the `example` event version `1`, which directly corresponds to the `event_name` and `event_version` from the metadata stored alongside the event mentioned. The information is used by EventFlow to tie the name and version to a specific .NET type.
 
-!!! attention
+!!! warning
     Even though using the `EventVersion` attribute is optional, it is **highly recommended**. EventFlow will infer the information if it isn't provided, thus making it vulnerable to type renames among other things.
 
-!!! attention
-    Once you have aggregates in your production environment that have emitted an event, you should never change the .NET implementation. You can deprecate it, but you should never change the type or the data stored in the event store.
+!!! danger
+    Once you have aggregates in your production environment that have emitted an event, you should never change the .NET implementation of the event! You can deprecate it, but you should never change the type or the data stored in the event store. If the event type is changed, EventFlow will not be able to deserialize the event and can produce unexpected results when reading old aggregates.
+
+    To handle changes to events, you can use [event upgraders](basics/event-upgrade.md).
 
 ## Command
 
@@ -234,7 +234,7 @@ public class ExampleCommandHandler : CommandHandler<ExampleAggregate, ExampleId,
 
 The `ExampleCommandHandler` in our case here merely invokes the `SetMagicNumber` on the aggregate and returns the execution result. Remember, if a command handler returns a failed execution result, EventFlow will disregard any events the aggregate has emitted.
 
-!!! attention
+!!! warning
     Everything inside the `ExecuteCommandAsync(...)` method of a command handler **may** be executed more than once if there's an optimistic concurrency exception, i.e., something else has happened to the aggregate since it was loaded from the event store and it's therefore automatically reloaded by EventFlow. It is therefore essential that the command handler doesn't mutate anything other than the aggregate.
 
 ## Read model

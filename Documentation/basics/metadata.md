@@ -36,37 +36,16 @@ its NuGet packages.
 
 ### EventFlow
 
--  **AddEventTypeMetadataProvider**
--  `event_type_assembly_name` - Assembly name of the assembly
-   containing the event.
--  `event_type_assembly_version` - Assembly version of the assembly
-   containing the event.
--  `event_type_fullname` - Full name of the event corresponding to
-   `Type.FullName` for the aggregate event type.
--  **AddGuidMetadataProvider**
--  `guid` - A new `Guid` for each event.
--  **AddMachineNameMetadataProvider**
--  `environment_machinename` - Adds the machine name handling the
-   event from `Environment.MachineName`.
+- **`AddEventTypeMetadataProvider`**
 
-### EventFlow.Owin
+    * `event_type_assembly_name` - Assembly name of the assembly containing the event.
+    * `event_type_assembly_version` - Assembly version of the assembly containing the event.
+    * `event_type_fullname` - Full name of the event corresponding to `Type.FullName` for the aggregate event type.
 
--  **AddRequestHeadersMetadataProvider**
--  `request_header[HEADER]` - Adds all headers from the OWIN request
-   as metadata, each as a separate entry for which `HEADER` is
-   replaced with the name of the header. E.g., the
-   `request_header[Connection]` might contain the value
-   `Keep-Alive`.
--  **AddUriMetadataProvider**
--  `request_uri` - OWIN request URI.
--  `request_method` - OWIN request method.
--  **AddUserHostAddressMetadataProvider**
--  `user_host_address` - The provider tries to find the correct user
-   host address by inspecting request headers, i.e., if you have a load
-   balancer in front of your application, then the request IP is not the
-   real user address, but the load balancer should send the user IP as a
-   header.
--  `user_host_address_source_header` - The header from which the
-   user host address was taken.
--  `remote_ip_address` - The remote IP address. Note that this might
-   be the IP address of your load balancer.
+- **`AddGuidMetadataProvider`**
+
+    * `guid` - A new `Guid` for each event.
+
+- **`AddMachineNameMetadataProvider`**
+
+    * `environment_machinename` - Adds the machine name handling the event from `Environment.MachineName`.

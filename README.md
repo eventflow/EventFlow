@@ -12,6 +12,8 @@ Have a look at our [getting started guide](https://geteventflow.net/getting-star
 the [do’s and don’ts](https://geteventflow.net/additional/dos-and-donts/) and the
 [FAQ](https://geteventflow.net/additional/faq/).
 
+Alternatively, join our [Discord](https://discord.gg/QfgNPs5WxR) server to engage with the community. Its hopefully getting a reboot to kickstart the upcoming release of v1.
+
 ## Features
 
 * **Easy to use**: Designed with sensible defaults and implementations that make it
@@ -185,10 +187,10 @@ to the documentation.
   * SQLite
   * PostgreSQL
   * EventStore - [home page](https://eventstore.org/)
-* **Subscribers:**
+* [**Subscribers:**](https://geteventflow.net/basics/subscribers/)
   Listeners that act on specific domain events. Useful if an specific action
   needs to be triggered after a domain event has been committed.
-* [**Read models:**]https://geteventflow.net/integration/read-stores/)
+* [**Read models:**](https://geteventflow.net/integration/read-stores/)
   Denormalized representation of aggregate events optimized for reading fast.
   Currently there is support for these read model storage types.
   For the SQL storage types the queries are being generated automatically with quoted columns and table names.

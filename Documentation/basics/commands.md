@@ -78,7 +78,7 @@ aggregates to e.g. provide detailed validation results. Merely
 implement the `IExecutionResult` interface and use the type as
 generic arguments on the command and command handler.
 
-!!! note
+!!! tip
     While possible, do not use the execution results as a method of reading
     values from the aggregate, that's what the `IQueryProcessor` and
     read models are for.
@@ -139,7 +139,7 @@ The default `ISourceId` history size of the aggregate root, is ten.
 But it can be configured using the `SetSourceIdHistory(...)` method 
 in the aggregate root constructor.
 
-### Easier ISourceId calculation
+### Easier `ISourceId` calculation
 
 Ensuring the correct calculation of the command `ISourceId` can be
 somewhat cumbersome, which is why EventFlow provides another base
@@ -178,6 +178,5 @@ public class UserUpdatePasswordCommand :
 The `GetBytes()` merely returns the `Encoding.UTF8.GetBytes(...)` of
 the password.
 
-!!! caution
-    Don't use the `GetHashCode()`, as the implementation
-    can be different on 32 bit and 64 bit .NET (e.g. `string`).
+!!! danger
+    Don't use the `GetHashCode()`, as the implementation can be different on 32 bit and 64 bit .NET (e.g. `string`) and can change between .NET versions.

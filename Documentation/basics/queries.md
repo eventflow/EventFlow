@@ -55,8 +55,9 @@ the simple, but cumbersome version. You should use one of the overloads
 that scans an entire assembly.
 
 ```csharp
-EventFlowOptions.New
-  .AddQueryHandler<GetUserByUsernameQueryHandler, GetUserByUsernameQuery, User>();
+//...
+.AddQueryHandler<GetUserByUsernameQueryHandler, GetUserByUsernameQuery, User>();
+//...
 ```
 
 Then, to use the query in your application, you need a reference
@@ -66,8 +67,7 @@ to the `IQueryProcessor`, which in our case is stored in the
 ```csharp
 var user = await _queryProcessor.ProcessAsync(
   new GetUserByUsernameQuery("root"),
-  cancellationToken)
-  .ConfigureAwait(false);
+  cancellationToken);
 ```
 
 ## Queries shipped with EventFlow

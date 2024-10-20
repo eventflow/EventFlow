@@ -31,14 +31,16 @@ public class TestId : Identity<TestId>
    methods/properties. Note that you can access the `Guid` factories
    directly by accessing the static methods on the `GuidFactories`
    class:
-   -  `New`: Uses the standard `Guid.NewGuid()`.
-   -  `NewDeterministic(...)`: Creates a name-based `Guid` using the
-      algorithm from [RFC 4122](https://www.ietf.org/rfc/rfc4122.txt)
-      §4.3, which allows identities to be generated based on known data,
-      (e.g., a user e-mail). It always returns the same identity for
-      the same arguments.
-   -  `NewComb()`: Creates a sequential `Guid` that can be used to
-      avoid database fragmentation.
+
+      *  `New`: Uses the standard `Guid.NewGuid()`.
+      *  `NewDeterministic(...)`: Creates a name-based `Guid` using the
+         algorithm from [RFC 4122](https://www.ietf.org/rfc/rfc4122.txt)
+         §4.3, which allows identities to be generated based on known data,
+         (e.g., a user e-mail). It always returns the same identity for
+         the same arguments.
+      *  `NewComb()`: Creates a sequential `Guid` that can be used to
+         avoid database fragmentation.
+
 -  A `string` can be tested to see if it's a valid identity using the
    static `bool IsValid(string)` method.
 -  Any validation errors can be gathered using the static
@@ -69,9 +71,5 @@ var testId = TestId.NewDeterministic(emailNamespace, "test@example.com");
 var testId = TestId.NewComb();
 ```
 
-!!! note
-    Be sure to read the section about
-    [value objects](../additional/value-objects.md) as the `Identity<>` is basically a
-    value object.
-
-- Document your identity model, including the relationships between identities and aggregates, to help developers understand the system.
+!!! tip
+    Be sure to read the section about [value objects](../additional/value-objects.md) as the `Identity<>` is basically a value object.
