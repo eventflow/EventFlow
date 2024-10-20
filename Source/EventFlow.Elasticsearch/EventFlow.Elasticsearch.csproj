@@ -23,7 +23,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="NEST" Version="7.8.2" />
-    <PackageReference Include="newtonsoft.json" Version="11.0.2" />    
   </ItemGroup>
 
   <ItemGroup>

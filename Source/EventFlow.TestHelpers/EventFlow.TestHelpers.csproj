@@ -32,7 +32,7 @@
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="Moq" Version="4.7.99" />
     <PackageReference Include="NUnit" Version="3.12.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.3.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
     <PackageReference Include="Appveyor.TestLogger" Version="2.0.0" PrivateAssets="All" />
   </ItemGroup>
 
