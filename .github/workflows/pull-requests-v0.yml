@@ -22,14 +22,17 @@ jobs:
       ELASTICSEARCH_URL: "http://localhost:9200"
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-    - run: |
+    - name: Start containers used by integration tests
+      run: |
         powershell -NoProfile -ExecutionPolicy unrestricted -Command ".\up-integration-environment.ps1"
 
     - name: Run Bake
       run: |
         bake run --build-version 0.84.${{ github.run_number }}
+
     - name: Upload NuGet packages
       uses: actions/upload-artifact@v4
       if: success() || failure()
