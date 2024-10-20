@@ -110,6 +110,7 @@ namespace EventFlow.Owin.Tests.IntegrationTests.Site
 
             appBuilder.UseAutofacMiddleware(container);
             appBuilder.UseAutofacWebApi(config);
+            appBuilder.UseWebApi(config);
         }
     }
 }
