@@ -27,18 +27,6 @@ jobs:
     - run: |
         powershell -NoProfile -ExecutionPolicy unrestricted -Command ".\up-integration-environment.ps1"
 
-    # - name: Setup .NET Core
-    #   uses: actions/setup-dotnet@v1
-    #   with:
-    #     dotnet-version: |
-    #       3.0.x
-    #       3.1.x
-    #       6.0.x
-    #       8.0.x
-
-    # - name: Install Bake 
-    #   run: dotnet tool install -g --version 0.27.40-beta Bake
-
     - name: Run Bake
       run: |
         bake run --build-version 0.84.${{ github.run_number }}
