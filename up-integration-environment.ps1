@@ -35,7 +35,7 @@ function Invoke-WebRequestWithRetry {
 
 # Stop any exsiting containers
 Invoke-Call -ScriptBlock { docker ps -q | % { docker stop $_ } } -ErrorAction Stop
-Invoke-Call -ScriptBlock { docker container prune } -ErrorAction Stop
+Invoke-Call -ScriptBlock { docker container prune -f } -ErrorAction Stop
 
 # Up containers
 Invoke-Call -ScriptBlock { docker compose --compatibility -f docker-compose.yml pull } -ErrorAction Stop
