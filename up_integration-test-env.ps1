@@ -33,9 +33,12 @@ function Invoke-WebRequestWithRetry {
     throw "Failed to connect to $Uri after $MaxRetries retries."
 }
 
+# Stop any exsiting containers
+Invoke-Call -ScriptBlock { docker ps -q | % { docker stop $_ } } -ErrorAction Stop
+
 # Up containers
-Invoke-Call -ScriptBlock { docker compose --compatibility -f docker-compose.ci.yml pull } -ErrorAction Stop
-Invoke-Call -ScriptBlock { docker compose --compatibility --force-recreate -f docker-compose.ci.yml up -d } -ErrorAction Stop
+Invoke-Call -ScriptBlock { docker compose --compatibility -f docker-compose.yml pull } -ErrorAction Stop
+Invoke-Call -ScriptBlock { docker compose --compatibility --force-recreate -f docker-compose.yml up -d } -ErrorAction Stop
 
 # Set connection url to environment variable
 # RabbitMQ
