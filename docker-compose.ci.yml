@@ -1,6 +1,12 @@
-version: '2.4'
-
 services:
+  mssql:
+    image: "mcr.microsoft.com/mssql/server"
+    ports:
+    - 1433:1433
+    environment:
+      SA_PASSWORD: "Password12!"
+      ACCEPT_EULA: "Y"
+
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: rabbitmq-ef
