@@ -13,7 +13,7 @@ jobs:
     runs-on: [self-hosted, windows-10]
     env:
       HELPZ_POSTGRESQL_USER: postgres
-      HELPZ_POSTGRESQL_PASS: postgres
+      HELPZ_POSTGRESQL_PASS: Password12!
       EVENTFLOW_MSSQL_SERVER: 127.0.0.1,1433
       EVENTFLOW_MSSQL_USER: sa
       EVENTFLOW_MSSQL_PASS: Password12!
