@@ -21,6 +21,7 @@
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <PackageTags>CQRS ES event sourcing MongoDB</PackageTags>
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
