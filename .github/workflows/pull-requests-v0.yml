@@ -17,6 +17,9 @@ jobs:
       EVENTFLOW_MSSQL_SERVER: 127.0.0.1,1433
       EVENTFLOW_MSSQL_USER: sa
       EVENTFLOW_MSSQL_PASS: Password12!
+      RABBITMQ_URL: "amqp://guest:guest@localhost:5672"
+      EVENTSTORE_URL: "tcp://admin:changeit@localhost:1113"
+      ELASTICSEARCH_URL: "http://localhost:9200"
 
     steps:
     - uses: actions/checkout@v4

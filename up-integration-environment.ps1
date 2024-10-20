@@ -14,9 +14,9 @@ function Invoke-Call {
 function Invoke-WebRequestWithRetry {
     param (
         [string]$Uri,
-        [int]$TimeoutSec = 60,
+        [int]$TimeoutSec = 360,
         [int]$RetryIntervalSec = 5,
-        [int]$MaxRetries = 12
+        [int]$MaxRetries = 24
     )
 
     $retries = 0
