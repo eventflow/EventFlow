@@ -65,9 +65,16 @@ namespace EventFlow.MongoDB.Extensions
             this IEventFlowOptions eventFlowOptions,
             Func<IMongoDatabase> mongoDatabaseFactory)
         {
+            return eventFlowOptions.ConfigureMongoDb(_ => mongoDatabaseFactory());
+        }
+
+        public static IEventFlowOptions ConfigureMongoDb(
+            this IEventFlowOptions eventFlowOptions,
+            Func<IResolverContext, IMongoDatabase> mongoDatabaseFactory)
+        {
             return eventFlowOptions.RegisterServices(sr =>
             {
-                sr.Register(f => mongoDatabaseFactory(), Lifetime.Singleton);
+                sr.Register(f => mongoDatabaseFactory(f), Lifetime.Singleton);
                 sr.Register<IReadModelDescriptionProvider, ReadModelDescriptionProvider>(Lifetime.Singleton, true);
                 sr.Register<IMongoDbEventSequenceStore, MongoDbEventSequenceStore>(Lifetime.Singleton);
             });
