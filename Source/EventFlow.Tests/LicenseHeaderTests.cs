@@ -56,7 +56,7 @@ namespace EventFlow.Tests
             @"Copyright \(c\) (?<from>20\d{2})\-(?<to>20\d{2}) (?<name>.*)",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        private static readonly int CurrentYear = 2023; // Hardcoded, we don't want test failing every January 1'st
+        private static readonly int CurrentYear = 2024; // Hardcoded, we don't want test failing every January 1'st
         private static readonly int EndYearForPastCopyrightHolders = 2022;
 
         [Test]
