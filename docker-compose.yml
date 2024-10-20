@@ -1,10 +1,4 @@
-# Please note, some of the services can be installed on your machine 
-
-version: '2.4'
-
 services:
-
-# If you have MS SQL Server installed locally you can comment this service or bind on different port
   mssql:
     image: mcr.microsoft.com/mssql/server:2017-latest
     container_name: mssql-ef

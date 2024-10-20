@@ -1,0 +1,56 @@
+# https://github.com/eventflow/EventFlow/pull/967
+
+name: release-v0
+
+on:
+  push:
+    branches: [ release-v0 ]
+
+jobs:
+  build:
+    runs-on: [self-hosted, windows-10]
+
+    environment: 
+      name: release
+
+    env:
+      HELPZ_POSTGRESQL_USER: postgres
+      HELPZ_POSTGRESQL_PASS: Password12!
+      EVENTFLOW_MSSQL_SERVER: 127.0.0.1,1433
+      EVENTFLOW_MSSQL_USER: sa
+      EVENTFLOW_MSSQL_PASS: Password12!
+      RABBITMQ_URL: "amqp://guest:guest@localhost:5672"
+      EVENTSTORE_URL: "tcp://admin:changeit@localhost:1113"
+      ELASTICSEARCH_URL: "http://localhost:9200"
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NUGET_APIKEY: ${{ secrets.NUGET_APIKEY }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Start containers used by integration tests
+      run: |
+        powershell -NoProfile -ExecutionPolicy unrestricted -Command ".\up-integration-environment.ps1"
+
+    - name: Run Bake
+      run: |
+        declare -i REVISION
+        REVISION=4714+$GITHUB_RUN_NUMBER
+        bake run --convention=Release --build-version 0.84.$REVISION --destination="nuget>github,nuget,release>github"
+
+    - name: Upload NuGet packages
+      uses: actions/upload-artifact@v4
+      if: success() || failure()
+      with:
+        name: packages
+        path: "**/*nupkg"
+        if-no-files-found: error
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: success() || failure()
+      with:
+        name: test-results
+        path: "**/*.trx"
+        if-no-files-found: error

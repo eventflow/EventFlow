@@ -84,6 +84,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
 
         [Test]
         [Retry(5)]
+        [Ignore("This test is flaky and should be rewritten.")]
         public void MultipleInstancesWithSamePathFail()
         {
             // Arrange
