@@ -7,7 +7,8 @@ EventFlow is a basic CQRS+ES framework designed to be easy to use.
 
 Have a look at our [getting started guide](getting-started.md), the [do’s and don’ts](./additional/dos-and-donts.md), and the [FAQ](./additional/faq.md).
 
-:fontawesome-brands-discord: To engage with the community, please join our [Discord server](https://discord.gg/QfgNPs5WxR).
+- :fontawesome-brands-github: The source code is available on [GitHub](https://github.com/eventflow/EventFlow) and provided under the MIT license.
+- :fontawesome-brands-discord: To engage with the community, please join our [Discord server](https://discord.gg/QfgNPs5WxR).
 
 ### Features
 
