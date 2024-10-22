@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../Common.props" />
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
@@ -19,12 +18,16 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="C:\Work\Picup\git\EventFlow\Source\EventFlow.EventStores.EventStore\..\..\icon-128.png" />
+    <None Remove="C:\Work\Picup\git\EventFlow\Source\EventFlow.EventStores.EventStore\..\..\README.md" />
+  </ItemGroup>
    
   <ItemGroup>
-    <PackageReference Include="EventStore.Client" Version="5.0.1" />
+    <PackageReference Include="EventStore.Client.Grpc.Streams" Version="23.3.5" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
-
+   
   <ItemGroup>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
   </ItemGroup>
