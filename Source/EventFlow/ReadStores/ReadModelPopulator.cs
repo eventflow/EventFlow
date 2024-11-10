@@ -47,6 +47,7 @@ namespace EventFlow.ReadStores
         private readonly IEventStore _eventStore;
         private readonly IServiceProvider _serviceProvider;
         private readonly IEventUpgradeContextFactory _eventUpgradeContextFactory;
+        private readonly IReadModelPopulatorTracker _readModelPopulatorTracker;
         private readonly IMemoryCache _memoryCache;
         private ConcurrentQueue<AllEventsPage> _pipedEvents = new ConcurrentQueue<AllEventsPage>();
 
@@ -56,6 +57,7 @@ namespace EventFlow.ReadStores
             IEventStore eventStore,
             IServiceProvider serviceProvider,
             IEventUpgradeContextFactory eventUpgradeContextFactory,
+            IReadModelPopulatorTracker readModelPopulatorTracker,
             IMemoryCache memoryCache)
         {
             _logger = logger;
@@ -63,6 +65,7 @@ namespace EventFlow.ReadStores
             _eventStore = eventStore;
             _serviceProvider = serviceProvider;
             _eventUpgradeContextFactory = eventUpgradeContextFactory;
+            _readModelPopulatorTracker = readModelPopulatorTracker;
             _memoryCache = memoryCache;
         }
 
@@ -115,19 +118,36 @@ namespace EventFlow.ReadStores
 
         public async Task PopulateAsync(IReadOnlyCollection<Type> readModelTypes, CancellationToken cancellationToken)
         {
+            if (_readModelPopulatorTracker.PopulationInProgress)
+            {
+                throw new InvalidOperationException("Only one rebuild is able to be active at a time");
+            }
+
+            await _readModelPopulatorTracker.PopulationStarted(cancellationToken);
+
             var combinedReadModelTypeString = string.Join(", ", readModelTypes.Select(type => type.PrettyPrint()));
             _logger.LogInformation("Starting populating of {ReadModelTypes}", combinedReadModelTypeString);
 
-            var loadEventsTasks = LoadEvents(cancellationToken);
-            var processEventQueueTask = ProcessEventQueue(readModelTypes, cancellationToken);
-            await Task.WhenAll(loadEventsTasks, processEventQueueTask);
+            try
+            {
+                var loadEventsTasks = LoadEvents(cancellationToken);
+                var processEventQueueTask = ProcessEventQueue(readModelTypes, cancellationToken);
+                await Task.WhenAll(loadEventsTasks, processEventQueueTask);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Population of readmodels failed");
+            }
+            finally
+            {
+                await _readModelPopulatorTracker.PopulationEnded(cancellationToken);
+            }
 
             _logger.LogInformation("Population of readmodels completed");
         }
 
         private async Task LoadEvents(CancellationToken cancellationToken)
         {
-            long totalEvents = 0;
             var currentPosition = GlobalPosition.Start;
             var eventUpgradeContext = await _eventUpgradeContextFactory.CreateAsync(cancellationToken);
 
@@ -147,7 +167,9 @@ namespace EventFlow.ReadStores
                     eventUpgradeContext,
                     cancellationToken)
                     .ConfigureAwait(false);
-                totalEvents += allEventsPage.DomainEvents.Count;
+                
+                await _readModelPopulatorTracker.NewEventsLoaded(currentPosition, allEventsPage.DomainEvents.Count, cancellationToken);
+
                 currentPosition = allEventsPage.NextGlobalPosition;
 
                 _pipedEvents.Enqueue(allEventsPage);
@@ -156,7 +178,7 @@ namespace EventFlow.ReadStores
                 {
                     _logger.LogTrace(
                         "No more events in event store with a total of {EventTotal} events",
-                        totalEvents);
+                        _readModelPopulatorTracker.EventsLoaded);
                     break;
                 }
             }
@@ -164,6 +186,8 @@ namespace EventFlow.ReadStores
 
         private async Task ProcessEventQueue(IReadOnlyCollection<Type> readModelTypes, CancellationToken cancellationToken)
         {
+            var orderedReadModels = readModelTypes.ToLookup(readModel => readModel.GetCustomAttribute<ReadModelOrderAtrribute>()?.ApplyOrder ?? 0, y => y);
+
             var domainEventsToProcess = new List<IDomainEvent>();
             AllEventsPage fetchedEvents;
 
@@ -190,9 +214,15 @@ namespace EventFlow.ReadStores
                 var processEvents = !hasMoreEvents || batchExceedsThreshold;
                 if (processEvents)
                 {
-                    var readModelUpdateTasks = readModelTypes.Select(readModelType => ProcessEvents(readModelType, domainEventsToProcess, cancellationToken));
-                    await Task.WhenAll(readModelUpdateTasks);
+                    foreach (var readModelTypeBatch in orderedReadModels.OrderBy(order => order.Key))
+                    {
+                        var orderedReadModelTypes = readModelTypeBatch.ToList();
 
+                        var readModelUpdateTasks = orderedReadModelTypes.Select(readModelType => ProcessEvents(readModelType, domainEventsToProcess, cancellationToken));
+                        await Task.WhenAll(readModelUpdateTasks);
+                    }
+
+                    await _readModelPopulatorTracker.NewEventsProcessed(domainEventsToProcess.Count, cancellationToken);
                     domainEventsToProcess.Clear();
                 }
             }
@@ -253,8 +283,7 @@ namespace EventFlow.ReadStores
             }
         }
 
-        private IReadOnlyCollection<IReadModelStore> ResolveReadModelStores(
-            Type readModelType)
+        private IReadOnlyCollection<IReadModelStore> ResolveReadModelStores(Type readModelType)
         {
             var readModelStoreType = typeof(IReadModelStore<>).MakeGenericType(readModelType);
             var readModelStores = _serviceProvider.GetServices(readModelStoreType)
@@ -269,8 +298,7 @@ namespace EventFlow.ReadStores
             return readModelStores;
         }
 
-        private IReadOnlyCollection<IReadStoreManager> ResolveReadStoreManagers(
-            Type readModelType)
+        private IReadOnlyCollection<IReadStoreManager> ResolveReadStoreManagers(Type readModelType)
         {
             return _memoryCache.GetOrCreate(CacheKey.With(GetType(), readModelType.ToString(), nameof(ResolveReadStoreManagers)),
                 e =>

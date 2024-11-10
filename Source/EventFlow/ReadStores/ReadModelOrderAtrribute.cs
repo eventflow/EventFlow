@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2024 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
@@ -20,16 +20,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.EventStores;
+using System;
 
 namespace EventFlow.ReadStores
 {
-    public interface IReadModelLocator
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    public class ReadModelOrderAtrribute: Attribute
     {
-        IEnumerable<string> GetReadModelIds(IDomainEvent domainEvent);
+        public virtual int ApplyOrder { get; }
+
+        public ReadModelOrderAtrribute(int applyOrder)
+        {
+            ApplyOrder = applyOrder;
+        }
     }
 }

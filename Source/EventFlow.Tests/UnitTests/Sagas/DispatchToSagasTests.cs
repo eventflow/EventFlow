@@ -24,6 +24,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Commands;
 using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Sagas;

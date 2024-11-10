@@ -25,6 +25,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.Sagas.AggregateSagas;
 using EventFlow.TestHelpers;
@@ -47,9 +48,13 @@ namespace EventFlow.Tests.UnitTests.Sagas.AggregateSagas
             _thingySagaId = A<ThingySagaId>();
             _thingySaga = InjectMock<ThingySaga>(_thingySagaId);
 
-            InjectMock<IServiceProvider>()
-                .Setup(m => m.GetService(typeof(ICommandBus)))
-                .Returns(Mock<ICommandBus>());
+            var serviceMock = InjectMock<IServiceProvider>();
+            
+            serviceMock.Setup(m => m.GetService(typeof(ICommandScheduler)))
+            .Returns(Mock<ICommandScheduler>());
+
+            serviceMock.Setup(m => m.GetService(typeof(ICommandBus)))
+            .Returns(Mock<ICommandBus>());
         }
 
         [Test]

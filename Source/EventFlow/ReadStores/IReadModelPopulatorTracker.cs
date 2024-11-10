@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2024 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
@@ -20,16 +20,22 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 using EventFlow.EventStores;
 
 namespace EventFlow.ReadStores
 {
-    public interface IReadModelLocator
+    public interface IReadModelPopulatorTracker
     {
-        IEnumerable<string> GetReadModelIds(IDomainEvent domainEvent);
+        public bool PopulationInProgress { get; }
+        public GlobalPosition LoadedPosition { get; }
+        public long EventsLoaded { get; }
+        public long EventsProcessed { get; }
+
+        public Task PopulationStarted(CancellationToken token);
+        public Task PopulationEnded(CancellationToken token);
+        public Task NewEventsLoaded(GlobalPosition position, long newEventsLoaded, CancellationToken token);
+        public Task NewEventsProcessed(long newEventsProcessed, CancellationToken token);
     }
 }

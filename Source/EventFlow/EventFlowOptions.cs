@@ -180,7 +180,7 @@ namespace EventFlow
             serviceCollection.TryAddTransient<ISagaUpdateResilienceStrategy, NoSagaUpdateResilienceStrategy>();
             serviceCollection.TryAddTransient<IDispatchToSubscriberResilienceStrategy, NoDispatchToSubscriberResilienceStrategy>();
 
-            serviceCollection.TryAddTransient<IDispatchToReadStores, DispatchToReadStores>();
+            serviceCollection.TryAddSingleton<IDispatchToReadStores, DispatchToReadStores>();
             serviceCollection.TryAddTransient<IEventStore, EventStoreBase>();
             serviceCollection.TryAddSingleton<IEventUpgradeContextFactory, EventUpgradeContextFactory>();
             serviceCollection.TryAddSingleton<IEventPersistence, InMemoryEventPersistence>();
@@ -191,6 +191,7 @@ namespace EventFlow
             serviceCollection.TryAddTransient<ISnapshotPersistence, NullSnapshotPersistence>();
             serviceCollection.TryAddTransient<ISnapshotUpgradeService, SnapshotUpgradeService>();
             serviceCollection.TryAddTransient<IReadModelPopulator, ReadModelPopulator>();
+            serviceCollection.TryAddSingleton<IReadModelPopulatorTracker, ReadModelPopulatorTracker>();
             serviceCollection.TryAddTransient<IEventJsonSerializer, EventJsonSerializer>();
             serviceCollection.TryAddTransient<ICommandJsonSerializer, CommandJsonSerializer>();
             serviceCollection.TryAddTransient<IQueryProcessor, QueryProcessor>();

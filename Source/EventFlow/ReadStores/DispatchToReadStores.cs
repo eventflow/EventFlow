@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -32,52 +33,56 @@ namespace EventFlow.ReadStores
     public class DispatchToReadStores : IDispatchToReadStores
     {
         private readonly IDispatchToReadStoresResilienceStrategy _dispatchToReadStoresResilienceStrategy;
-        private readonly IReadOnlyCollection<IReadStoreManager> _readStoreManagers;
+        private readonly ILookup<int, IReadStoreManager> _orderedReadStoreManagers; 
 
         public DispatchToReadStores(
             IEnumerable<IReadStoreManager> readStoreManagers,
             IDispatchToReadStoresResilienceStrategy dispatchToReadStoresResilienceStrategy)
         {
             _dispatchToReadStoresResilienceStrategy = dispatchToReadStoresResilienceStrategy;
-            _readStoreManagers = readStoreManagers.ToList();
+
+            _orderedReadStoreManagers = readStoreManagers.ToLookup(readModel => readModel.ReadModelType.GetCustomAttribute<ReadModelOrderAtrribute>()?.ApplyOrder ?? 0, y => y);
         }
 
         public async Task DispatchAsync(
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken)
         {
-            var updateReadStoresTasks = _readStoreManagers
-                .Select(async rsm =>
-                {
-                    await _dispatchToReadStoresResilienceStrategy.BeforeUpdateAsync(
-                            rsm,
-                            domainEvents,
-                            cancellationToken)
-                        .ConfigureAwait(false);
-                    try
+            foreach (var readStoreManagers in _orderedReadStoreManagers.OrderBy(order => order.Key))
+            {
+                var updateReadStoresTasks = readStoreManagers
+                    .Select(async rsm =>
                     {
-                        await rsm.UpdateReadStoresAsync(domainEvents, cancellationToken);
-                        await _dispatchToReadStoresResilienceStrategy.UpdateSucceededAsync(
+                        await _dispatchToReadStoresResilienceStrategy.BeforeUpdateAsync(
                                 rsm,
                                 domainEvents,
                                 cancellationToken)
                             .ConfigureAwait(false);
-                    }
-                    catch (Exception e)
-                    {
-                        if (!await _dispatchToReadStoresResilienceStrategy.HandleUpdateFailedAsync(
-                                rsm,
-                                domainEvents,
-                                e,
-                                cancellationToken)
-                            .ConfigureAwait(false))
+                        try
                         {
-                            throw;
+                            await rsm.UpdateReadStoresAsync(domainEvents, cancellationToken);
+                            await _dispatchToReadStoresResilienceStrategy.UpdateSucceededAsync(
+                                    rsm,
+                                    domainEvents,
+                                    cancellationToken)
+                                .ConfigureAwait(false);
                         }
-                    }
-                });
+                        catch (Exception e)
+                        {
+                            if (!await _dispatchToReadStoresResilienceStrategy.HandleUpdateFailedAsync(
+                                    rsm,
+                                    domainEvents,
+                                    e,
+                                    cancellationToken)
+                                .ConfigureAwait(false))
+                            {
+                                throw;
+                            }
+                        }
+                    });
 
-            await Task.WhenAll(updateReadStoresTasks).ConfigureAwait(false);
+                await Task.WhenAll(updateReadStoresTasks).ConfigureAwait(false);
+            }
         }
     }
 }
