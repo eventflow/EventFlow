@@ -38,12 +38,13 @@ using Microsoft.Extensions.Logging;
 
 namespace EventFlow
 {
+
     public class CommandBus : ICommandBus
     {
-        private readonly ILogger<CommandBus> _logger;
-        private readonly IServiceProvider _serviceProvider;
-        private readonly IAggregateStore _aggregateStore;
-        private readonly IMemoryCache _memoryCache;
+        protected readonly ILogger<CommandBus> _logger;
+        protected readonly IServiceProvider _serviceProvider;
+        protected readonly IAggregateStore _aggregateStore;
+        protected readonly IMemoryCache _memoryCache;
 
         public CommandBus(
             ILogger<CommandBus> logger,

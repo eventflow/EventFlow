@@ -8,7 +8,8 @@
 	  <Description>Common value objects available with ClearFlow</Description>
 	  <PackageTags>CQRS ES event sourcing value objects</PackageTags>
 	  <PackageReleaseNotes>Initial release for basic value objects.</PackageReleaseNotes>
-	  <Version>0.1.3</Version>
+	  <Version>0.1.5</Version>
+	  <Product>ClearFlow.ValueObjects</Product>
 	  <IsPackable>true</IsPackable>
 	  <Nullable>enable</Nullable>
   </PropertyGroup>

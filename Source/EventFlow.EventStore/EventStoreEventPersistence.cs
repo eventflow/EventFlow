@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Exceptions;
+using EventFlow.Extensions;
 using EventStore.Client;
 using Microsoft.Extensions.Logging;
 
@@ -140,8 +141,8 @@ namespace EventFlow.EventStores.EventStore
                         var guid = Uuid.NewUuid();
 
                         var eventType = string.Format("{0}.{1}.{2}", e.Metadata[MetadataKeys.AggregateName], e.Metadata.EventName, e.Metadata.EventVersion);
-                        var data = Encoding.UTF8.GetBytes(e.SerializedData);
-                        var meta = Encoding.UTF8.GetBytes(e.SerializedMetadata);
+                        var data = e.SerializedData.GetBytes();
+                        var meta = e.SerializedMetadata.GetBytes();
                         return new EventData(guid, eventType, data, meta);
                     })
                 .ToList();

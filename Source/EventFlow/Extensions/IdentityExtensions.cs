@@ -20,7 +20,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Text;
 using EventFlow.Core;
 
 namespace EventFlow.Extensions
@@ -29,7 +28,7 @@ namespace EventFlow.Extensions
     {
         public static byte[] GetBytes(this IIdentity identity)
         {
-            return Encoding.UTF8.GetBytes(identity.Value);
+            return identity.Value.GetBytes();
         }
     }
 }

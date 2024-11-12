@@ -8,9 +8,14 @@
 	  <Description>Data transfer objects (DTOs) for ClearFlow's Value Objects</Description>
 	  <PackageTags>CQRS ES event sourcing Dtos</PackageTags>
 	  <PackageReleaseNotes>Initial release for basic value objects.</PackageReleaseNotes>
-	  <Version>0.1.3</Version>
+	  <Version>0.1.5</Version>
+	  <Propduct>ClearFlow.ValueObjects.Dto</Propduct>
 	  <IsPackable>true</IsPackable>
 	  <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
+  </ItemGroup>
 
 </Project>

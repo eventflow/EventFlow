@@ -10,7 +10,7 @@
     <PackageTags>CQRS ES event sourcing EF Entity Framework Core</PackageTags>
     <PackageReleaseNotes>Updated to include latest EventFlow</PackageReleaseNotes>
     <IsPackable>true</IsPackable>
-    <Version>0.1.3</Version>
+    <Version>0.1.5</Version>
 	<Product>ClearFlow.EntityFramework</Product>
 	<RepositoryUrl>https://github.com/kyle-bradley/EventFlow</RepositoryUrl>
   </PropertyGroup>

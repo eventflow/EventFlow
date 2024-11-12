@@ -26,7 +26,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow.EventStores.EventStore.Extensions
 {
-    public static class EventFlowOptionsExtensions
+    public static class EventFlowOptionsEventStoreExtensions
     {
         public static IEventFlowOptions UseEventStoreEventStore(
             this IEventFlowOptions eventFlowOptions)

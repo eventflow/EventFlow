@@ -9,7 +9,7 @@ Async/await first CQRS+ES and DDD framework for .NET - https://docs.geteventflow
     <PackageReleaseNotes>Updated to include latest EventFlow changes.&amp; .net 8.0</PackageReleaseNotes>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\EventFlow.xml</DocumentationFile>
     <IsPackable>true</IsPackable>
-    <Version>0.1.3</Version>
+    <Version>0.1.5</Version>
     <Authors>Kyle Bradley, Rasmus Mikkelsen</Authors>
     <Company>Kyle Bradley</Company>
     <Product>ClearFlow</Product>

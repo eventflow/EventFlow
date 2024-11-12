@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	<PackageId>ClearFlow.FluentValidation</PackageId>
+    <Title>ClearFlow.FluentValidation</Title>
+    <Authors>Kyle Bradley</Authors>
+    <Company>Kyle Bradley</Company>
+	<Copyright>Copyright (c) Kyle Bradley 2015 - 2024</Copyright>
+    <Description>FluentValidation support for commands</Description>
+    <PackageTags>CQRS ES event sourcing EventStore FluentValidation</PackageTags>
+    <IsPackable>true</IsPackable>
+    <Version>0.1.5</Version>
+	<Product>ClearFlow.FluentValidation</Product>
+	<RepositoryUrl>https://github.com/kyle-bradley/EventFlow</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="11.10.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
+  </ItemGroup>
+
+</Project>

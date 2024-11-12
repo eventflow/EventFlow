@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	<PackageId>ClearFlow.FluentValidation.Mvc</PackageId>
+    <Title>ClearFlow.FluentValidation.Mvc</Title>
+    <Authors>Kyle Bradley</Authors>
+    <Company>Kyle Bradley</Company>
+	<Copyright>Copyright (c) Kyle Bradley 2015 - 2024</Copyright>
+    <Description>FluentValidation support for commands</Description>
+    <PackageTags>CQRS ES event sourcing EventStore FluentValidation</PackageTags>
+    <IsPackable>true</IsPackable>
+    <Version>0.1.5</Version>
+	<Product>ClearFlow.FluentValidation.Mvc</Product>
+	<RepositoryUrl>https://github.com/kyle-bradley/EventFlow</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MicroElements.Swashbuckle.FluentValidation" Version="6.0.0" />
+    <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Mvc" Version="1.4.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.9.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
+  </ItemGroup>
+
+</Project>

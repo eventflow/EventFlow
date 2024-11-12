@@ -120,7 +120,7 @@ namespace EventFlow.RabbitMQ.Integrations
 
             foreach (var message in messages)
             {
-                var bytes = Encoding.UTF8.GetBytes(message.Message);
+                var bytes = message.Message.GetBytes();
 
                 var basicProperties = model.CreateBasicProperties();
                 basicProperties.Headers = message.Headers.ToDictionary(kv => kv.Key, kv => (object)kv.Value);

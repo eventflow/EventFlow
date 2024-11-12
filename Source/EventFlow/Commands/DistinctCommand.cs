@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Core;
+using static EventFlow.Core.GuidFactories.Deterministic;
 
 namespace EventFlow.Commands
 {
@@ -41,8 +42,7 @@ namespace EventFlow.Commands
         public ISourceId SourceId => _lazySourceId.Value;
         public TIdentity AggregateId { get; }
 
-        protected DistinctCommand(
-            TIdentity aggregateId)
+        protected DistinctCommand(TIdentity aggregateId)
         {
             if (aggregateId == null) throw new ArgumentNullException(nameof(aggregateId));
 
@@ -66,9 +66,25 @@ namespace EventFlow.Commands
             return await commandBus.PublishAsync(this, cancellationToken).ConfigureAwait(false);
         }
 
+        protected static string Deterministic(string baseValue)
+        {
+            return GuidFactories.Deterministic.Create(Namespaces.Commands, baseValue).ToString();
+        }
+
+        protected byte[] Unique() => Guid.NewGuid().ToByteArray();
+
         public ISourceId GetSourceId()
         {
             return SourceId;
+        }
+    }
+
+    public abstract class DistinctCommand<TAggregate, TIdentity> : DistinctCommand<TAggregate, TIdentity, IExecutionResult>
+        where TAggregate : IAggregateRoot<TIdentity>
+        where TIdentity : IIdentity
+    {
+        protected DistinctCommand(TIdentity aggregateId) : base(aggregateId)
+        {
         }
     }
 }

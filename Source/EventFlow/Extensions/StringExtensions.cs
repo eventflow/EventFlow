@@ -38,7 +38,7 @@ namespace EventFlow.Extensions
 
         public static string ToSha256(this string str)
         {
-            var bytes = Encoding.UTF8.GetBytes(str);
+            var bytes = str.GetBytes();
             using (var sha256 = SHA256.Create())
             {
                 var hash = sha256.ComputeHash(bytes);
@@ -46,6 +46,11 @@ namespace EventFlow.Extensions
                     .Aggregate(new StringBuilder(), (sb, b) => sb.Append($"{b:x2}"))
                     .ToString();
             }
+        }
+
+        public static byte[] GetBytes(this string value)
+        {
+            return Encoding.UTF8.GetBytes(value);
         }
     }
 }

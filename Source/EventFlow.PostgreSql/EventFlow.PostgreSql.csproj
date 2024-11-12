@@ -10,7 +10,7 @@
     <PackageTags>CQRS ES event sourcing POSTGRESQL</PackageTags>
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
-	<Version>0.1.3.1</Version>
+	<Version>0.1.5</Version>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 

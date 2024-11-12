@@ -8,7 +8,7 @@
     <Description>Hangfire job scheduling support for EventFlow</Description>
     <PackageTags>CQRS ES event sourcing Hangfire</PackageTags>
     <PackageReleaseNotes>Updated to include latest EventFlow changes.</PackageReleaseNotes>
-    <Version>0.1.3</Version>
+    <Version>0.1.5</Version>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 
