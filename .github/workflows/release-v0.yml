@@ -6,6 +6,9 @@ on:
   push:
     branches: [ release-v0 ]
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: [self-hosted, windows-10]
