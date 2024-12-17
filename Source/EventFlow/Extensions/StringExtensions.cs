@@ -20,6 +20,11 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.Commands;
+using EventFlow.ValueObjects;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -36,6 +41,7 @@ namespace EventFlow.Extensions
             return RegexToSlug.Replace(str, "-$0").ToLowerInvariant();
         }
 
+
         public static string ToSha256(this string str)
         {
             var bytes = str.GetBytes();
@@ -48,9 +54,88 @@ namespace EventFlow.Extensions
             }
         }
 
-        public static byte[] GetBytes(this string value)
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
+        public static byte[] GetBytes(this string? value)
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         {
+            if (string.IsNullOrEmpty(value))
+            {
+                return Array.Empty<byte>();
+            }
+
             return Encoding.UTF8.GetBytes(value);
+        }
+    }
+
+    public static class CommandBytesExtensions
+    {
+        public static byte[] GetCommandBytes<T>(this T value)
+            where T : notnull, ICommand
+        {
+            var possibleNullType = typeof(T).FullName;
+            if (possibleNullType == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
+            return possibleNullType.GetBytes();
+        }
+
+        public static byte[] GetUniqueBytes<T>(this T value)
+            where T : notnull, ICommand
+        {
+            return Guid.NewGuid().GetBytes();
+        }
+
+        public static byte[] GetBytes(this Guid value)
+        {
+            return value.ToByteArray();
+        }
+
+        public static byte[] GetBytes(this int value)
+        {
+            return BitConverter.GetBytes(value);
+        }
+
+        public static byte[] CombineBytes(this byte[] value, byte[] otherValue)
+        {
+            return value.Concat(otherValue).ToArray();
+        }
+
+        public static byte[] GetBytes(this long value)
+        {
+            return BitConverter.GetBytes(value);
+        }
+
+        public static byte[] GetBytes(this double value)
+        {
+            return BitConverter.GetBytes(value);
+        }
+        public static byte[] GetBytes(this bool value)
+        {
+            return value == true ? new byte[] { 0x1 } : new byte[] { 0x0 };
+        }
+
+        public static byte[] GetBytesEnum<T>(this T value)
+            where T : struct, IConvertible
+        {
+            return value.ToString(CultureInfo.InvariantCulture).GetBytes();
+        }
+
+        public static byte[] GetBytesEnum<T>(this IReadOnlyList<T> value)
+            where T : struct, IConvertible
+        {
+            return value.Select(x => x.GetBytesEnum()).SelectMany(x => x).ToArray();
+        }
+
+        public static byte[] GetBytes(this IReadOnlyList<Guid> value)
+        {
+            return value.Select(x => x.GetBytes()).SelectMany(x => x).ToArray();
+        }
+
+        public static byte[] GetBytes(this IReadOnlyList<string> value)
+        {
+            return value.Select(x => x.GetBytes()).SelectMany(x => x).ToArray();
         }
     }
 }

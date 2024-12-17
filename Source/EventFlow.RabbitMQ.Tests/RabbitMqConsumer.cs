@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using EventFlow.RabbitMQ.Integrations;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -35,8 +36,13 @@ namespace EventFlow.RabbitMQ.Tests
     public class RabbitMqConsumer : IDisposable
     {
         private readonly IConnection _connection;
+#if NET8_0_OR_GREATER
+        private readonly IChannel _model;
+        private readonly AsyncEventingBasicConsumer _eventingBasicConsumer;
+#else
         private readonly IModel _model;
         private readonly EventingBasicConsumer _eventingBasicConsumer;
+#endif
         private readonly BlockingCollection<BasicDeliverEventArgs> _receivedMessages = new BlockingCollection<BasicDeliverEventArgs>(); 
 
         public RabbitMqConsumer(Uri uri, Exchange exchange, IEnumerable<string> routingKeys)
@@ -45,6 +51,34 @@ namespace EventFlow.RabbitMQ.Tests
                 {
                     Uri = uri,
                 };
+#if NET8_0_OR_GREATER
+            _connection = connectionFactory.CreateConnectionAsync().Result;
+            _model = _connection.CreateChannelAsync().Result;
+
+            _model.ExchangeDeclareAsync(exchange.Value, ExchangeType.Topic, false).RunSynchronously();
+
+            var queueName = $"test-{Guid.NewGuid():N}";
+            _model.QueueDeclareAsync(
+                queueName,
+                false,
+                false,
+                true,
+                null).RunSynchronously();
+
+            foreach (var routingKey in routingKeys)
+            {
+                _model.QueueBindAsync(
+                    queueName,
+                    exchange.Value,
+                    routingKey,
+                    null).RunSynchronously();
+            }
+
+            _eventingBasicConsumer = new AsyncEventingBasicConsumer(_model);
+            _eventingBasicConsumer.ReceivedAsync += OnReceivedAsync;
+
+            _model.BasicConsumeAsync(queueName, false, _eventingBasicConsumer);
+#else
             _connection = connectionFactory.CreateConnection();
             _model = _connection.CreateModel();
 
@@ -71,12 +105,22 @@ namespace EventFlow.RabbitMQ.Tests
             _eventingBasicConsumer.Received += OnReceived;
 
             _model.BasicConsume(queueName, false, _eventingBasicConsumer);
-        }
+#endif
 
+        }
+#if NET8_0_OR_GREATER
+        private Task OnReceivedAsync(object sender, BasicDeliverEventArgs basicDeliverEventArgs)
+        {
+            _receivedMessages.Add(basicDeliverEventArgs);
+
+            return Task.CompletedTask;
+        }
+#else
         private void OnReceived(object sender, BasicDeliverEventArgs basicDeliverEventArgs)
         {
             _receivedMessages.Add(basicDeliverEventArgs);
         }
+#endif
 
         public IReadOnlyCollection<RabbitMqMessage> GetMessages(TimeSpan timeout, int count = 1)
         {
@@ -117,7 +161,11 @@ namespace EventFlow.RabbitMQ.Tests
 
         public void Dispose()
         {
-            _eventingBasicConsumer.Received -= OnReceived;
+#if NET8_0_OR_GREATER
+            _eventingBasicConsumer.ReceivedAsync -= OnReceivedAsync;
+#else
+        _eventingBasicConsumer.Received -= OnReceived;
+#endif
             _model.Dispose();
             _connection.Dispose();
             _receivedMessages.Dispose();

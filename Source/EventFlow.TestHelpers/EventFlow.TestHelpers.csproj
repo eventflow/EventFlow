@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
     <Title>EventFlow.TestHelpers</Title>
     <Authors>Rasmus Mikkelsen</Authors>
     <Company>Rasmus Mikkelsen</Company>
@@ -14,18 +14,18 @@
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
     <IsTestProject>false</IsTestProject>
     <IsPackable>true</IsPackable>
+	<WarningsNotAsErrors>NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoFixture.AutoMoq" Version="4.18.1" />
-    <PackageReference Include="FluentAssertions" Version="6.12.1" />
+    <PackageReference Include="FluentAssertions" Version="7.0.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="NUnit" Version="4.2.2" />
 	<PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
 	<PackageReference Include="Appveyor.TestLogger" Version="2.0.0" PrivateAssets="All" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
   </ItemGroup>

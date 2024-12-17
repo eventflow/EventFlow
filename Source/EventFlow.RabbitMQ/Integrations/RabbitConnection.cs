@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,16 +38,56 @@ namespace EventFlow.RabbitMQ.Integrations
         private readonly ILogger<RabbitConnection> _log;
         private readonly IConnection _connection;
         private readonly AsyncLock _asyncLock;
-        private readonly ConcurrentBag<IModel> _models; 
 
-        public RabbitConnection(ILogger<RabbitConnection> log, int maxModels, IConnection connection)
+#if NET8_0_OR_GREATER
+        private readonly ConcurrentBag<IChannel> _models;
+#else
+        private readonly ConcurrentBag<IModel> _models;
+#endif
+
+#if NET8_0_OR_GREATER
+        public RabbitConnection(ILogger<RabbitConnection> log, IReadOnlyList<IChannel> models, int maxModels, IConnection connection)
         {
             _connection = connection;
             _log = log;
             _asyncLock = new AsyncLock(maxModels);
-            _models = new ConcurrentBag<IModel>(Enumerable.Range(0, maxModels).Select(_ => connection.CreateModel()));
+            _models = new ConcurrentBag<IChannel>(models);
         }
+#else
+        public RabbitConnection(ILogger<RabbitConnection> log, IEnumerable<IModel> models, int maxModels, IConnection connection)
+        {
+            _connection = connection;
+            _log = log;
+            _asyncLock = new AsyncLock(maxModels);
+            _models = new ConcurrentBag<IModel>(models);
+        }
+#endif
 
+#if NET8_0_OR_GREATER
+        public async Task<int> WithModelAsync(Func<IChannel, Task> action, CancellationToken cancellationToken)
+        {
+            using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
+            {
+                IChannel model;
+                if (!_models.TryTake(out model))
+                {
+                    throw new InvalidOperationException(
+                        "This should NEVER happen! If it does, please report a bug.");
+                }
+
+                try
+                {
+                    await action(model).ConfigureAwait(false);
+                }
+                finally
+                {
+                    _models.Add(model);
+                }
+            }
+
+            return 0;
+        }
+#else
         public async Task<int> WithModelAsync(Func<IModel, Task> action, CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
@@ -70,6 +111,8 @@ namespace EventFlow.RabbitMQ.Integrations
 
             return 0;
         }
+#endif
+
 
         public void Dispose()
         {

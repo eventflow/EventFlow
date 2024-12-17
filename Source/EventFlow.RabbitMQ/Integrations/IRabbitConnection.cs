@@ -29,6 +29,11 @@ namespace EventFlow.RabbitMQ.Integrations
 {
     public interface IRabbitConnection : IDisposable
     {
+#if NET8_0_OR_GREATER
+        Task<int> WithModelAsync(Func<IChannel, Task> action, CancellationToken cancellationToken);     
+#else   
         Task<int> WithModelAsync(Func<IModel, Task> action, CancellationToken cancellationToken);
+#endif
+
     }
 }

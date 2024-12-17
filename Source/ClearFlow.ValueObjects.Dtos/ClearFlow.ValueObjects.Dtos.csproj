@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+	  <TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
 	  <PackageId>ClearFlow.ValueObjects.Dto</PackageId>
 	  <Title>ClearFlow.ValueObjects.Dto</Title>
 	  <Authors>Kyle Bradley</Authors>
 	  <Description>Data transfer objects (DTOs) for ClearFlow's Value Objects</Description>
 	  <PackageTags>CQRS ES event sourcing Dtos</PackageTags>
 	  <PackageReleaseNotes>Initial release for basic value objects.</PackageReleaseNotes>
-	  <Version>0.1.5</Version>
+	  <Version>0.2.2</Version>
 	  <Propduct>ClearFlow.ValueObjects.Dto</Propduct>
 	  <IsPackable>true</IsPackable>
 	  <Nullable>enable</Nullable>

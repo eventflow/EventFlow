@@ -28,7 +28,6 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Core;
-using static EventFlow.Core.GuidFactories.Deterministic;
 
 namespace EventFlow.Commands
 {
@@ -65,13 +64,6 @@ namespace EventFlow.Commands
         {
             return await commandBus.PublishAsync(this, cancellationToken).ConfigureAwait(false);
         }
-
-        protected static string Deterministic(string baseValue)
-        {
-            return GuidFactories.Deterministic.Create(Namespaces.Commands, baseValue).ToString();
-        }
-
-        protected byte[] Unique() => Guid.NewGuid().ToByteArray();
 
         public ISourceId GetSourceId()
         {

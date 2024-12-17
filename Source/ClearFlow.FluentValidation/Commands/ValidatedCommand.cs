@@ -3,10 +3,10 @@ using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands.Serialization;
 using EventFlow.Core;
 using FluentValidation;
-using System.Text;
 using EventFlow.Extensions;
 using EventFlow;
-using System.Data;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace ClearFlow.FluentValidation.Commands;
 
@@ -15,20 +15,26 @@ public abstract class ValidatedCommand<TCommand, TAggregate, TIdentity> : Serial
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : class, IIdentity
 {
+    [JsonIgnore]
+    protected abstract AbstractValidator<TCommand> validator { get; }
+
+    [JsonIgnore]
+    [ValidateNever]
+    protected new ISourceId SourceId => base.SourceId;
+
+    [JsonIgnore]
+    [ValidateNever]
+    protected new TIdentity AggregateId => base.AggregateId;
 
     protected ValidatedCommand(string aggregateValue)
         : base(aggregateValue)
-    {
-    }
+    { }
 
-    protected abstract AbstractValidator<TCommand> GetAssociatedValidator();
-    protected static byte[] GetTypeBytes() => typeof(TCommand).FullName.GetBytes();
-    
+
     public new async Task<IExecutionResult> PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
     {
-        var validator = GetAssociatedValidator();
         var currentType = this as TCommand;
-        if(currentType == null)
+        if (currentType == null)
         {
             throw new InvalidOperationException(string.Format(
                     "Assigned validator '{0}' is not the same as the commands model '{1}'",
@@ -45,4 +51,3 @@ public abstract class ValidatedCommand<TCommand, TAggregate, TIdentity> : Serial
         return await base.PublishAsync(commandBus, cancellationToken);
     }
 }
-

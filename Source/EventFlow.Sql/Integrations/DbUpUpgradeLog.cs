@@ -22,6 +22,7 @@
 
 using DbUp.Engine.Output;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace EventFlow.Sql.Integrations
 {
@@ -48,6 +49,36 @@ namespace EventFlow.Sql.Integrations
         public void WriteError(string format, params object[] args)
         {
             _logger.LogError(format, args);
+        }
+
+        public void LogTrace(string format, params object[] args)
+        {
+            _logger.LogTrace(format, args);
+        }
+
+        public void LogDebug(string format, params object[] args)
+        {
+            _logger.LogDebug(format, args);
+        }
+
+        public void LogInformation(string format, params object[] args)
+        {
+            WriteInformation(format, args);
+        }
+
+        public void LogWarning(string format, params object[] args)
+        {
+            WriteWarning(format, args);
+        }
+
+        public void LogError(string format, params object[] args)
+        {
+            WriteError(format, args);
+        }
+
+        public void LogError(Exception ex, string format, params object[] args)
+        {
+            _logger.LogError(ex, format, args);
         }
     }
 }

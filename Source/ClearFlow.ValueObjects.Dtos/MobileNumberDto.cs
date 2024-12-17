@@ -3,9 +3,9 @@
 namespace ClearFlow.ValueObjects.Dtos;
 public class MobileNumberDto
 {
-    [ExampleStringDisplayValue("US")]
+    [StringDisplayValue("US")]
     public string CountryCode { get; }
-    [ExampleStringDisplayValue("+14156667777")]
+    [StringDisplayValue("+14156667777")]
     public string MobileNumber { get; }
     public MobileNumberDto(string countryCode, string mobileNumber)
     {

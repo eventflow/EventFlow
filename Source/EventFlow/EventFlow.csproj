@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
 	<PackageId>ClearFlow</PackageId>
 	<Title>ClearFlow</Title>
     <Description>Forked project based on EventFlow:
@@ -9,7 +9,7 @@ Async/await first CQRS+ES and DDD framework for .NET - https://docs.geteventflow
     <PackageReleaseNotes>Updated to include latest EventFlow changes.&amp; .net 8.0</PackageReleaseNotes>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\EventFlow.xml</DocumentationFile>
     <IsPackable>true</IsPackable>
-    <Version>0.1.5</Version>
+    <Version>0.2.2</Version>
     <Authors>Kyle Bradley, Rasmus Mikkelsen</Authors>
     <Company>Kyle Bradley</Company>
     <Product>ClearFlow</Product>
@@ -20,7 +20,7 @@ Async/await first CQRS+ES and DDD framework for .NET - https://docs.geteventflow
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
-	  <PackageReference Include="JetBrains.Annotations" Version="2024.2.0">
+	  <PackageReference Include="JetBrains.Annotations" Version="2024.3.0">
 		  <PrivateAssets>All</PrivateAssets>
 	  </PackageReference>
   </ItemGroup>
@@ -34,11 +34,11 @@ Async/await first CQRS+ES and DDD framework for .NET - https://docs.geteventflow
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-	  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.2" />
-	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
-	  <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-	  <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
-	  <PackageReference Include="System.Text.Json" Version="8.0.5" />
+	  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.0" />
+	  <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
@@ -56,4 +56,11 @@ Async/await first CQRS+ES and DDD framework for .NET - https://docs.geteventflow
 	  <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
 	  <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.0" />
+		<PackageReference Include="System.Text.Json" Version="9.0.0" />
+	</ItemGroup>
 </Project>

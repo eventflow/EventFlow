@@ -1,11 +1,9 @@
-﻿using ClearFlow.FluentValidation.Mvc.Attributes;
-using EventFlow.Aggregates;
-using EventFlow.Attributes;
+﻿using EventFlow.Attributes;
 using EventFlow.Core;
-using EventFlow.Extensions;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace ClearFlow.FluentValidation.Mvc.Filters;
 
@@ -20,52 +18,33 @@ public class ExampleValueSchemaFilter : ISchemaFilter
 
     public void Apply(OpenApiSchema schema, SchemaFilterContext context)
     {
-        var declaringType = context.Type;
-        if (declaringType != null && declaringType.IsEnum)
+        if (schema == null)
         {
-            var testType = declaringType.GetEnumValues();
-            var testValue = testType.GetValue(testType.Length - 1)?.ToString() ?? string.Empty;
-            schema.Example = OpenApiAnyFactory.CreateFromJson(serializer.Serialize(testValue));
+            return;
         }
 
-        var schemaFilterAttribute = context.MemberInfo?.GetCustomAttributes() ?? new List<Attribute>();
-        var exampleValues = schemaFilterAttribute.Where(filter => filter.GetType().IsAssignableTo(typeof(IExampleDisplayValue))).ToList();
-        var hasValues = exampleValues.Any();
-        if (hasValues)
+        var source = (context.MemberInfo?.GetCustomAttributes() ?? new List<Attribute>())
+            .Where((filter) => filter.GetType().IsAssignableTo(typeof(IDisplayValue))).ToList();
+        if (!source.Any())
         {
-            var attribute = exampleValues.First() as IExampleDisplayValue;
-            schema.Example = OpenApiAnyFactory.CreateFromJson(serializer.Serialize(attribute!.Example));
+            return;
         }
 
-        var aggregateDescription = context.MemberInfo?.GetCustomAttributes<AggregateValueDescriptionAttribute>()
-            .FirstOrDefault();
-        if (aggregateDescription != null)
+        var isAggregateValue = source.First() is AggregateIdDisplayValueAttribute;
+        if (isAggregateValue)
         {
-            var baseType = context.MemberInfo?.ReflectedType?.BaseType; // By convention this is how we implement commands via EventFlow
-            if (baseType != null)
+            var identityType = context.MemberInfo?.DeclaringType?.GetGenericArguments().FirstOrDefault(arguments => arguments.IsAssignableTo(typeof(IIdentity)));
+            if (identityType != null)
             {
-                if (!SetExample(baseType, schema))
-                {
-                    var baseTypeInner = baseType.BaseType;
-                    if (baseTypeInner != null) // Lets check one level deeper as well (inheritance)
-                    {
-                        SetExample(baseTypeInner, schema);
-                    }
-                }
+                var identityName = new Regex("Id$").Replace(identityType.Name, string.Empty).ToLowerInvariant();
+                var example = $"{identityName}-{GuidFactories.Comb.CreateForString()}";
+                schema.Example = OpenApiAnyFactory.CreateFromJson(serializer.Serialize(example));
+                return;
             }
         }
-    }
 
-    private bool SetExample(Type type, OpenApiSchema schema)
-    {
-        var aggregate = type.GetGenericArguments().FirstOrDefault(p => p.GetInterfaces().Any(q => q == typeof(IAggregateRoot)));
-        if (aggregate != null)
-        {
-            var aggregateName = aggregate.GetAggregateName().Value.ToLower();
-            schema.Example = OpenApiAnyFactory.CreateFromJson(serializer.Serialize($"{aggregateName}-{Guid.NewGuid()}"));
-            return true;
-        }
-
-        return false;
+        var attribute = source.First() as IDisplayValue;
+        schema.Example = OpenApiAnyFactory.CreateFromJson(serializer.Serialize(attribute?.Example));
+        return;
     }
 }

@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>net6.0;net7.0;net8.0;</TargetFrameworks>
     <IsPackable>False</IsPackable>
+	  <WarningsNotAsErrors>NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+	  <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
 	  <PackageReference Include="NUnit" Version="4.2.2" />
 	<PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
   </ItemGroup>

@@ -41,7 +41,11 @@ namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
         private Mock<IRabbitMqConnectionFactory> _rabbitMqConnectionFactoryMock;
         private Mock<IRabbitMqConfiguration> _rabbitMqConfigurationMock;
         private Mock<ILogger<TransientFaultHandler<IRabbitMqRetryStrategy>>> _logMock;
+#if NET8_0_OR_GREATER
+            private Mock<IChannel> _modelMock;
+#else
         private Mock<IModel> _modelMock;
+#endif
         private Mock<IRabbitConnection> _rabbitConnectionMock;
 
         [SetUp]
@@ -56,7 +60,13 @@ namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
                 new RabbitMqRetryStrategy()));
 
             var basicPropertiesMock = new Mock<IBasicProperties>();
+#if NET8_0_OR_GREATER
+            _modelMock = new Mock<IChannel>();
+#else
             _modelMock = new Mock<IModel>();
+#endif
+
+
             _rabbitConnectionMock = new Mock<IRabbitConnection>();
 
             _rabbitMqConnectionFactoryMock
@@ -65,28 +75,47 @@ namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
             _rabbitMqConfigurationMock
                 .Setup(c => c.Uri)
                 .Returns(new Uri("amqp://localhost"));
+#if NET8_0_OR_GREATER
+#else
             _modelMock
                 .Setup(m => m.CreateBasicProperties())
                 .Returns(basicPropertiesMock.Object);
+#endif
         }
 
         private void ArrangeWorkingConnection()
         {
+#if NET8_0_OR_GREATER
             _rabbitConnectionMock
-                .Setup(c => c.WithModelAsync(It.IsAny<Func<IModel, Task>>(), It.IsAny<CancellationToken>()))
-                .Callback<Func<IModel, Task>, CancellationToken>((a, c) =>
+                .Setup(c => c.WithModelAsync(It.IsAny<Func<IChannel, Task>>(), It.IsAny<CancellationToken>()))
+                .Callback<Func<IChannel, Task>, CancellationToken>((a, c) =>
                     {
                         a(_modelMock.Object).Wait(c);
                     })
                 .Returns(Task.FromResult(0));
+#else
+            _rabbitConnectionMock
+                .Setup(c => c.WithModelAsync(It.IsAny<Func<IModel, Task>>(), It.IsAny<CancellationToken>()))
+                .Callback<Func<IModel, Task>, CancellationToken>((a, c) =>
+                {
+                    a(_modelMock.Object).Wait(c);
+                })
+                .Returns(Task.FromResult(0));
+#endif
         }
 
         private void ArrangeBrokenConnection<TException>()
             where TException : Exception, new()
         {
+#if NET8_0_OR_GREATER
+            _rabbitConnectionMock
+                .Setup(c => c.WithModelAsync(It.IsAny<Func<IChannel, Task>>(), It.IsAny<CancellationToken>()))
+                .Throws<TException>();
+#else
             _rabbitConnectionMock
                 .Setup(c => c.WithModelAsync(It.IsAny<Func<IModel, Task>>(), It.IsAny<CancellationToken>()))
                 .Throws<TException>();
+#endif
         }
 
         [Test]
@@ -98,11 +127,17 @@ namespace EventFlow.RabbitMQ.Tests.UnitTests.Integrations
 
             // Act
             await Sut.PublishAsync(rabbitMqMessages, CancellationToken.None);
-
+#if NET8_0_OR_GREATER
+            // Assert
+            _modelMock.Verify(
+                m => m.BasicPublishAsync(It.IsAny<string>(), It.IsAny<string>(), false, It.IsAny<BasicProperties>(), It.IsAny<ReadOnlyMemory<byte>>(), CancellationToken.None),
+                Times.Exactly(rabbitMqMessages.Count));
+#else
             // Assert
             _modelMock.Verify(
                 m => m.BasicPublish(It.IsAny<string>(), It.IsAny<string>(), false, It.IsAny<IBasicProperties>(), It.IsAny<ReadOnlyMemory<byte>>()),
                 Times.Exactly(rabbitMqMessages.Count));
+#endif
             _rabbitConnectionMock.Verify(c => c.Dispose(), Times.Never);
         }
 

@@ -9,13 +9,13 @@
     <Description>Generic SQL support for EventFlow</Description>
     <PackageTags>CQRS ES event sourcing SQL</PackageTags>
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
-	<Version>0.1.5</Version>
+	<Version>0.2.2</Version>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.35" />
-    <PackageReference Include="dbup-core" Version="5.0.87" />
+    <PackageReference Include="dbup-core" Version="6.0.3" />
 	<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 	<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>

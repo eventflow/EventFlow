@@ -66,12 +66,20 @@ namespace EventFlow.RabbitMQ.Integrations
             try
             {
                 rabbitConnection = await GetRabbitMqConnectionAsync(uri, cancellationToken).ConfigureAwait(false);
-
-                await _transientFaultHandler.TryAsync(
+#if NET8_0_OR_GREATER
+          await _transientFaultHandler.TryAsync(
                     c => rabbitConnection.WithModelAsync(m => PublishAsync(m, rabbitMqMessages), c),
                     Label.Named("rabbitmq-publish"),
                     cancellationToken)
                     .ConfigureAwait(false);
+#else
+                await _transientFaultHandler.TryAsync(
+          c => rabbitConnection.WithModelAsync(m => PublishAsync(m, rabbitMqMessages), c),
+          Label.Named("rabbitmq-publish"),
+          cancellationToken)
+          .ConfigureAwait(false);
+#endif
+
             }
             catch (OperationCanceledException)
             {
@@ -108,6 +116,35 @@ namespace EventFlow.RabbitMQ.Integrations
                 return rabbitConnection;
             }
         }
+#if NET8_0_OR_GREATER
+        private async Task<int> PublishAsync(
+            IChannel model,
+            IReadOnlyCollection<RabbitMqMessage> messages)
+        {
+            _log.LogTrace(
+                "Publishing {0} domain events to RabbitMQ host '{1}'",
+                messages.Count,
+                _configuration.Uri.Host);
+
+            foreach (var message in messages)
+            {
+                var bytes = message.Message.GetBytes();
+
+                var basicProperties = new BasicProperties();
+                basicProperties.Headers = message.Headers.ToDictionary(kv => kv.Key, kv => (object)kv.Value);
+                basicProperties.Persistent = _configuration.Persistent;
+                basicProperties.Timestamp = new AmqpTimestamp(DateTimeOffset.Now.ToUnixTime());
+                basicProperties.ContentEncoding = "utf-8";
+                basicProperties.ContentType = "application/json";
+                basicProperties.MessageId = message.MessageId.Value;
+
+                await model.BasicPublishAsync(message.Exchange.Value, message.RoutingKey.Value, false, basicProperties, bytes);
+            }
+
+            return 0;
+        }
+
+#else
 
         private Task<int> PublishAsync(
             IModel model,
@@ -142,6 +179,7 @@ namespace EventFlow.RabbitMQ.Integrations
             model.BasicPublish(message.Exchange.Value, message.RoutingKey.Value, false, basicProperties, bytes);
         }
 
+#endif
         public void Dispose()
         {
             foreach (var rabbitConnection in _connections.Values)

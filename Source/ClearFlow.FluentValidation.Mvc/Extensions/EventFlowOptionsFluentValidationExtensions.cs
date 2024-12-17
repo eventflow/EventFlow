@@ -12,6 +12,7 @@ public static class EventFlowOptionsFluentValidationMvcExtensions
 
         return serviceCollection;
     }
+
     public static IServiceCollection UseEventFlowFluentValidationMvcWithSwagger(this IServiceCollection serviceCollection)
     {
         serviceCollection.UseEventFlowFluentValidationMvc();

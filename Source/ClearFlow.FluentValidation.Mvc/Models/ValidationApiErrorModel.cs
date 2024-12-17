@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Http;
 namespace ClearFlow.FluentValidation.Mvc.Models;
 public class ValidationApiErrorModel
 {
-    [ExampleStringDisplayValue("https://tools.ietf.org/html/rfc9110#section-15.5.1")]
+    [StringDisplayValue("https://tools.ietf.org/html/rfc9110#section-15.5.1")]
     public string Type { get; }
-    [ExampleStringDisplayValue("One or more validation errors occured.")]
+    [StringDisplayValue("One or more validation errors occured.")]
     public string Title { get; }
-    [ExampleIntDisplayValue(400)]
+    [IntDisplayValue(400)]
     public int Status { get; }
     public Dictionary<string, List<string>> Errors { get; }
     public string TraceId { get; }

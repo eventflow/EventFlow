@@ -1,6 +1,6 @@
 ﻿namespace EventFlow.Attributes;
 
-public interface IExampleDisplayValue
+public interface IDisplayValue
 {
     public object Example { get; }
 }

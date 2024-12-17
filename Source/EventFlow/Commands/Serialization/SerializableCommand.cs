@@ -23,25 +23,63 @@
 
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
+using EventFlow.Attributes;
 using EventFlow.Core;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+using static EventFlow.Core.GuidFactories.Deterministic;
 
 namespace EventFlow.Commands.Serialization
 {
-    public abstract class SerializableCommand<TAggregate, TIdentity, TExecutionResult> : DistinctCommand<TAggregate, TIdentity, TExecutionResult>
+    public abstract class SerializableCommand<TAggregate, TIdentity, TExecutionResult> : ICommand<TAggregate, TIdentity, TExecutionResult>
         where TAggregate : IAggregateRoot<TIdentity>
         where TIdentity : class, IIdentity
         where TExecutionResult : IExecutionResult
     {
+
+        private readonly Lazy<ISourceId> lazySourceId;
+        private readonly Lazy<TIdentity> lazyAggregateId;
         [JsonIgnore]
-        public new ISourceId SourceId => base.SourceId;
+        public ISourceId SourceId => lazySourceId.Value;
         [JsonIgnore]
-        public new TIdentity AggregateId => base.AggregateId;
-        public abstract string AggregateValue { get; protected set; }
-        protected SerializableCommand(string aggregateValue) : base(CreateAggregateId(aggregateValue))
-        {}
+        public TIdentity AggregateId => lazyAggregateId.Value;
+        
+        [AggregateIdDisplayValue]
+        public string AggregateValue { get; }
+        protected SerializableCommand(string aggregateValue)
+        {
+            AggregateValue = aggregateValue;
+
+            lazySourceId = new Lazy<ISourceId>(CalculateSourceId, LazyThreadSafetyMode.PublicationOnly);
+            lazyAggregateId = new Lazy<TIdentity>(CreateAggregateId, LazyThreadSafetyMode.PublicationOnly);
+        }
+
+        private CommandId CalculateSourceId()
+        {
+            var bytes = GetSourceIdComponents().SelectMany(b => b).ToArray();
+            return CommandId.NewDeterministic(
+                GuidFactories.Deterministic.Namespaces.Commands,
+                bytes);
+        }
+
+        private TIdentity CreateAggregateId()
+        {
+            if (AggregateValue == null) throw new ArgumentNullException(nameof(AggregateValue));
+            return CreateAggregateId(AggregateValue);
+        }
+
+        protected abstract IEnumerable<byte[]> GetSourceIdComponents();
+
+        public async Task<IExecutionResult> PublishAsync(ICommandBus commandBus, CancellationToken cancellationToken)
+        {
+            return await commandBus.PublishAsync(this, cancellationToken).ConfigureAwait(false);
+        }
 
         protected static TIdentity CreateAggregateId(string aggregateValue)
         {
@@ -54,6 +92,22 @@ namespace EventFlow.Commands.Serialization
             }
 
             return createdIdentity;
+        }
+
+        protected static string NewAggregateValue()
+        {
+            var identityName = new Regex("Id$").Replace(typeof(TIdentity).Name, string.Empty).ToLowerInvariant();
+            return $"{identityName}-{GuidFactories.Comb.CreateForString()}";
+        }
+
+        protected static string NewDeterministic(string baseValue)
+        {
+            return GuidFactories.Deterministic.Create(Namespaces.Commands, baseValue).ToString();
+        }
+
+        public ISourceId GetSourceId()
+        {
+            return SourceId;
         }
     }
 

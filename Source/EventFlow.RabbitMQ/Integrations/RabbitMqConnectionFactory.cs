@@ -21,7 +21,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,9 +51,15 @@ namespace EventFlow.RabbitMQ.Integrations
         public async Task<IRabbitConnection> CreateConnectionAsync(Uri uri, CancellationToken cancellationToken)
         {
             var connectionFactory = await CreateConnectionFactoryAsync(uri, cancellationToken).ConfigureAwait(false);
+#if NET8_0_OR_GREATER
+            var connection = await connectionFactory.CreateConnectionAsync(cancellationToken);
+            var modelTasks = Enumerable.Range(0, _configuration.ModelsPrConnection).Select(_ => connection.CreateChannelAsync());
+            var models = (await Task.WhenAll(modelTasks)).ToList();
+#else
             var connection = connectionFactory.CreateConnection();
-
-            return new RabbitConnection(_log, _configuration.ModelsPrConnection, connection);
+            var models = Enumerable.Range(0, _configuration.ModelsPrConnection).Select(_ => connection.CreateModel()).ToList();
+#endif
+            return new RabbitConnection(_log, models, _configuration.ModelsPrConnection, connection);
         }
 
         private async Task<ConnectionFactory> CreateConnectionFactoryAsync(Uri uri, CancellationToken cancellationToken)

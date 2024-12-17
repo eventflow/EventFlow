@@ -5,6 +5,7 @@ using FluentValidation;
 using FluentValidation.Results;
 
 namespace ClearFlow.ValueObjects.Core;
+
 public abstract class ValidatedSingleValueObject<TValue, TValidator> : SingleValueObject<TValue>
     where TValue : IComparable
     where TValidator : ValueObjectValidator<TValue>, new()
