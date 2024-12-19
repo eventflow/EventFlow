@@ -38,31 +38,31 @@ using MongoDB.Driver;
 
 namespace EventFlow.MongoDB.ReadStores
 {
-    public class MongoDbReadModelStore<TReadModel> : IMongoDbReadModelStore<TReadModel>
+    public class MongoDbReadModelStore<TReadModel> : ReadModelStore<TReadModel>, IMongoDbReadModelStore<TReadModel>
         where TReadModel : class, IMongoDbReadModel
     {
-        private readonly ILogger<MongoDbReadModelStore<TReadModel>> _logger;
         private readonly IMongoDatabase _mongoDatabase;
         private readonly IReadModelDescriptionProvider _readModelDescriptionProvider;
         private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
 
         public MongoDbReadModelStore(
+            IReadStoreCachingStrategy memoryCacheStrategy,
             ILogger<MongoDbReadModelStore<TReadModel>> logger,
             IMongoDatabase mongoDatabase,
             IReadModelDescriptionProvider readModelDescriptionProvider,
             ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
+            : base(memoryCacheStrategy, logger)
         {
-            _logger = logger;
             _mongoDatabase = mongoDatabase;
             _readModelDescriptionProvider = readModelDescriptionProvider;
             _transientFaultHandler = transientFaultHandler;
         }
 
-        public async Task DeleteAsync(string id, CancellationToken cancellationToken)
+        protected async override Task DeleteReadModelAsync(string id, CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
 
-            _logger.LogInformation(
+            Logger.LogInformation(
                 "Deleting '{ReadModelType}' with id '{Id}', from '{@RootCollectionName}'!",
                 typeof(TReadModel).PrettyPrint(),
                 id,
@@ -72,11 +72,11 @@ namespace EventFlow.MongoDB.ReadStores
             await collection.DeleteOneAsync(x => x.Id == id, cancellationToken);
         }
 
-        public async Task DeleteAllAsync(CancellationToken cancellationToken)
+        protected async override Task DeleteAllReadModelsAsync(CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
 
-            _logger.LogInformation(
+            Logger.LogInformation(
                 "Deleting ALL '{ReadModelType}' by DROPPING COLLECTION '{@RootCollectionName}'!",
                 typeof(TReadModel).PrettyPrint(),
                 readModelDescription.RootCollectionName);
@@ -84,11 +84,11 @@ namespace EventFlow.MongoDB.ReadStores
             await _mongoDatabase.DropCollectionAsync(readModelDescription.RootCollectionName.Value, cancellationToken);
         }
 
-        public async Task<ReadModelEnvelope<TReadModel>> GetAsync(string id, CancellationToken cancellationToken)
+        protected async override Task<ReadModelEnvelope<TReadModel>> GetReadModelAsync(string id, CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
 
-            _logger.LogTrace(
+            Logger.LogTrace(
                 "Fetching read model '{ReadModelType}' with _id '{Id}' from collection '{@RootCollectionName}'",
                 typeof(TReadModel).PrettyPrint(),
                 id,
@@ -113,7 +113,7 @@ namespace EventFlow.MongoDB.ReadStores
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
             var collection = _mongoDatabase.GetCollection<TReadModel>(readModelDescription.RootCollectionName.Value);
 
-            _logger.LogTrace(
+            Logger.LogTrace(
                 "Finding read model '{ReadModelType}' with expression '{Filter}' from collection '{RootCollectionName}'",
                 typeof(TReadModel).PrettyPrint(),
                 filter.ToString(),
@@ -122,7 +122,7 @@ namespace EventFlow.MongoDB.ReadStores
             return await collection.FindAsync(filter, options, cancellationToken);
         }
 
-        private async Task UpdateReadModelAsync(ReadModelDescription readModelDescription,
+        private async Task<ReadModelUpdateResult<TReadModel>> UpdateReadModelAsync(ReadModelDescription readModelDescription,
             ReadModelUpdate readModelUpdate,
             IReadModelContextFactory readModelContextFactory,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
@@ -146,13 +146,13 @@ namespace EventFlow.MongoDB.ReadStores
 
             if (!readModelUpdateResult.IsModified)
             {
-                return;
+                return readModelUpdateResult;
             }
 
             if (readModelContext.IsMarkedForDeletion)
             {
                 await DeleteAsync(readModelUpdate.ReadModelId, cancellationToken);
-                return;
+                return ReadModelUpdateResult<TReadModel>.WithDeleted(readModelUpdate.ReadModelId);
             }
 
             readModelEnvelope = readModelUpdateResult.Envelope;
@@ -165,6 +165,8 @@ namespace EventFlow.MongoDB.ReadStores
                     readModelEnvelope.ReadModel,
                     new ReplaceOptions { IsUpsert = true },
                     cancellationToken);
+
+                return readModelUpdateResult;
             }
             catch (MongoWriteException e)
             {
@@ -174,23 +176,28 @@ namespace EventFlow.MongoDB.ReadStores
             }
         }
 
-        public async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
+        protected override async Task<IReadOnlyCollection<ReadModelUpdateResult<TReadModel>>> UpdateReadModelsAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
             IReadModelContextFactory readModelContextFactory,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
                 Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
+            var readModelUpdateResults = new List<ReadModelUpdateResult<TReadModel>>();
 
             foreach (var readModelUpdate in readModelUpdates)
             {
-                await _transientFaultHandler.TryAsync(
+                var result = await _transientFaultHandler.TryAsync(
                         c => UpdateReadModelAsync(readModelDescription, readModelUpdate, readModelContextFactory,
                             updateReadModel, c),
                         Label.Named("mongodb-read-model-update"),
                         cancellationToken)
                     .ConfigureAwait(false);
+
+               readModelUpdateResults.Add(result);
             }
+
+            return readModelUpdateResults;
         }
 
         public IQueryable<TReadModel> AsQueryable()

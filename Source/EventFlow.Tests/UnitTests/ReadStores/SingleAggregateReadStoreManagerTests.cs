@@ -156,7 +156,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             Action a = () =>
             {
                 var _ = new SingleAggregateReadStoreManager<ThingyAggregate, ThingyId, InMemoryReadStore<ReadModelWithoutEvents>,
-                    ReadModelWithoutEvents>(null, null, null, null, null, null);
+                    ReadModelWithoutEvents>(null, null, null, null, null, null, null);
             };
 
             a.Should().Throw<TypeInitializationException>().WithInnerException<Exception>().WithMessage("*does not implement any*");

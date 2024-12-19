@@ -34,7 +34,7 @@ using NUnit.Framework;
 using System;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
-namespace EventFlow.Tests.IntegrationTests.ResilienceStrategies
+namespace EventFlow.Tests.IntegrationTests.Strategies
 {
     [Category(Categories.Integration)]
     public class CreateAndDeleteStateEnforcedTests : IntegrationTest

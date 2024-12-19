@@ -44,8 +44,8 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.QueryHandlers
         public async Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query, CancellationToken cancellationToken)
         {
             var thingyId = query.ThingyId.ToString();
-            var asyncCursor = await _readStore.FindAsync(f => string.Equals(f.Id, thingyId), cancellationToken: cancellationToken).ConfigureAwait(false);
-            var thingyReadModel = await asyncCursor.FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+            var envelope = await _readStore.GetAsync(thingyId, cancellationToken: cancellationToken).ConfigureAwait(false);
+            var thingyReadModel = envelope.ReadModel;
             return thingyReadModel?.ToThingy();
         }
     }

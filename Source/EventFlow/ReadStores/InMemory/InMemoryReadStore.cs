@@ -38,12 +38,12 @@ namespace EventFlow.ReadStores.InMemory
         private readonly AsyncLock _asyncLock = new AsyncLock();
 
         public InMemoryReadStore(
+            IReadStoreCachingStrategy memoryCacheStrategy,
             ILogger<InMemoryReadStore<TReadModel>> logger)
-            : base(logger)
+            : base(memoryCacheStrategy, logger)
         {
         }
-
-        public override async Task<ReadModelEnvelope<TReadModel>> GetAsync(
+        protected override async Task<ReadModelEnvelope<TReadModel>> GetReadModelAsync(
             string id,
             CancellationToken cancellationToken)
         {
@@ -68,7 +68,7 @@ namespace EventFlow.ReadStores.InMemory
             }
         }
 
-        public override async Task DeleteAsync(
+        protected override async Task DeleteReadModelAsync(
             string id,
             CancellationToken cancellationToken)
         {
@@ -78,7 +78,7 @@ namespace EventFlow.ReadStores.InMemory
             }
         }
 
-        public override async Task DeleteAllAsync(
+        protected override async Task DeleteAllReadModelsAsync(
             CancellationToken cancellationToken)
         {
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
@@ -87,11 +87,13 @@ namespace EventFlow.ReadStores.InMemory
             }
         }
 
-        public override async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
+        protected override async Task<IReadOnlyCollection<ReadModelUpdateResult<TReadModel>>> UpdateReadModelsAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
             IReadModelContextFactory readModelContextFactory,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
+            var readModelUpdateResults = new List<ReadModelUpdateResult<TReadModel>>();
+
             using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
             {
                 foreach (var readModelUpdate in readModelUpdates)
@@ -99,7 +101,6 @@ namespace EventFlow.ReadStores.InMemory
                     var readModelId = readModelUpdate.ReadModelId;
 
                     var isNew = !_readModels.TryGetValue(readModelId, out var readModelEnvelope);
-
                     if (isNew)
                     {
                         readModelEnvelope = ReadModelEnvelope<TReadModel>.Empty(readModelId);
@@ -115,6 +116,7 @@ namespace EventFlow.ReadStores.InMemory
                         .ConfigureAwait(false);
                     if (!readModelUpdateResult.IsModified)
                     {
+                        readModelUpdateResults.Add(readModelUpdateResult);
                         continue;
                     }
                     
@@ -123,13 +125,18 @@ namespace EventFlow.ReadStores.InMemory
                     if (readModelContext.IsMarkedForDeletion)
                     {
                         _readModels.Remove(readModelId);
+                        readModelUpdateResults.Add(ReadModelUpdateResult<TReadModel>.WithDeleted(readModelUpdate.ReadModelId)); 
+                    
                     }
                     else
                     {
                         _readModels[readModelId] = readModelEnvelope;
+                        readModelUpdateResults.Add(readModelUpdateResult);
                     }
                 }
             }
+
+            return readModelUpdateResults;
         }
     }
 }

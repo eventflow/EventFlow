@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2024 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
@@ -20,27 +20,37 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Core;
-using EventFlow.Core.RetryStrategies;
-using EventFlow.PostgreSql.Connections;
 using EventFlow.ReadStores;
-using EventFlow.Sql.ReadModels;
-using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace EventFlow.PostgreSql.ReadStores
+namespace EventFlow.Strategies
 {
-    public class PostgreSqlReadModelStore<TReadModel> : SqlReadModelStore<IPostgreSqlConnection, TReadModel>, IPostgresReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel
+    public class NoReadStoreCachingStrategy : IReadStoreCachingStrategy
     {
-        public PostgreSqlReadModelStore(
-            IReadStoreCachingStrategy memoryCacheStrategy,
-            ILogger<PostgreSqlReadModelStore<TReadModel>> log,
-            IPostgreSqlConnection connection,
-            IReadModelSqlGenerator readModelSqlGenerator,
-            IReadModelFactory<TReadModel> readModelFactory,
-            ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
-            : base(memoryCacheStrategy, log, connection, readModelSqlGenerator, readModelFactory, transientFaultHandler)
+        public Task DeleteReadModel<TReadModel>(string readModelId, CancellationToken cancellationToken)
         {
+            return Task.CompletedTask;
         }
+
+        public Task DeleteAllReadModels(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task<ReadModelEnvelope<TReadModel>> QueryReadStoreModel<TReadModel>(string readModelId, CancellationToken cancellationToken)
+            where TReadModel : class, IReadModel
+        {
+            return Task.FromResult(ReadModelEnvelope<TReadModel>.Empty(readModelId));
+        }
+
+        public Task UpdateReadStoreModel<TReadModel>(IReadOnlyCollection<ReadModelUpdateResult<TReadModel>> updatedModels,
+            CancellationToken cancellationToken)
+            where TReadModel : class, IReadModel
+        {
+            return Task.CompletedTask;
+        }
+
     }
 }

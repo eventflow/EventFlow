@@ -32,26 +32,61 @@ namespace EventFlow.ReadStores
     public abstract class ReadModelStore<TReadModel> : IReadModelStore<TReadModel>
         where TReadModel : class, IReadModel
     {
+        private readonly IReadStoreCachingStrategy memoryCacheStrategy;
+
         protected ILogger Logger { get; }
 
-        protected ReadModelStore(
-            ILogger logger)
+        protected ReadModelStore(IReadStoreCachingStrategy memoryCacheStrategy, ILogger logger)
         {
+            this.memoryCacheStrategy = memoryCacheStrategy;
             Logger = logger;
         }
 
-        public abstract Task<ReadModelEnvelope<TReadModel>> GetAsync(
+        public async Task<ReadModelEnvelope<TReadModel>> GetAsync(string id, CancellationToken cancellationToken)
+        {
+            var cachedResult = await memoryCacheStrategy.QueryReadStoreModel<TReadModel>(id, cancellationToken);
+            if (cachedResult.IsEmpty)
+            {
+                return await GetReadModelAsync(id, cancellationToken);
+            }
+
+            return cachedResult;
+        }
+
+        public async Task DeleteAsync(string id, CancellationToken cancellationToken)
+        {
+            await memoryCacheStrategy.DeleteReadModel<TReadModel>(id, cancellationToken);
+            await DeleteReadModelAsync(id, cancellationToken);
+        }
+
+        public async Task DeleteAllAsync(CancellationToken cancellationToken)
+        {
+            await memoryCacheStrategy.DeleteAllReadModels(cancellationToken);
+            await DeleteAllReadModelsAsync(cancellationToken);
+        }
+
+        public async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
+            IReadModelContextFactory readModelContextFactory,
+            Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
+                Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
+            CancellationToken cancellationToken)
+        {
+            var updates = await UpdateReadModelsAsync(readModelUpdates, readModelContextFactory, updateReadModel, cancellationToken);
+            await memoryCacheStrategy.UpdateReadStoreModel(updates, cancellationToken);
+        }
+
+        protected abstract Task<ReadModelEnvelope<TReadModel>> GetReadModelAsync(
             string id,
             CancellationToken cancellationToken);
 
-        public abstract Task DeleteAsync(
+        protected abstract Task DeleteReadModelAsync(
             string id,
             CancellationToken cancellationToken);
 
-        public abstract Task DeleteAllAsync(
+        protected abstract Task DeleteAllReadModelsAsync(
             CancellationToken cancellationToken);
 
-        public abstract Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
+        protected abstract Task<IReadOnlyCollection<ReadModelUpdateResult<TReadModel>>> UpdateReadModelsAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
             IReadModelContextFactory readModelContextFactory,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
                 Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,

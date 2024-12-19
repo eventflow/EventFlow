@@ -20,15 +20,15 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.Aggregates;
+using EventFlow.Extensions;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
-using EventFlow.Extensions;
-using Microsoft.Extensions.Logging;
 
 namespace EventFlow.ReadStores
 {
@@ -39,7 +39,10 @@ namespace EventFlow.ReadStores
         // ReSharper disable StaticMemberInGenericType
         private static readonly Type StaticReadModelType = typeof(TReadModel);
         private static readonly ISet<Type> AggregateEventTypes;
+
         // ReSharper enable StaticMemberInGenericType
+
+        private readonly IReadStoreCachingStrategy cachingStrategy;
 
         protected ILogger Logger { get; }
         protected IServiceProvider ServiceProvider { get; }
@@ -48,7 +51,7 @@ namespace EventFlow.ReadStores
         protected IReadModelFactory<TReadModel> ReadModelFactory { get; }
 
         public Type ReadModelType => StaticReadModelType;
-
+        
         static ReadStoreManager()
         {
             var iAmReadModelForInterfaceTypes = StaticReadModelType
@@ -86,13 +89,15 @@ namespace EventFlow.ReadStores
             IServiceProvider serviceProvider,
             TReadModelStore readModelStore,
             IReadModelDomainEventApplier readModelDomainEventApplier,
-            IReadModelFactory<TReadModel> readModelFactory)
+            IReadModelFactory<TReadModel> readModelFactory,
+            IReadStoreCachingStrategy cachingStrategy)
         {
             Logger = logger;
             ServiceProvider = serviceProvider;
             ReadModelStore = readModelStore;
             ReadModelDomainEventApplier = readModelDomainEventApplier;
             ReadModelFactory = readModelFactory;
+            this.cachingStrategy = cachingStrategy;
         }
 
         public async Task UpdateReadStoresAsync(

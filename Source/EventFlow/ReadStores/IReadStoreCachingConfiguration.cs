@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2024 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
@@ -20,27 +20,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Core;
-using EventFlow.Core.RetryStrategies;
-using EventFlow.PostgreSql.Connections;
-using EventFlow.ReadStores;
-using EventFlow.Sql.ReadModels;
-using Microsoft.Extensions.Logging;
+using System;
 
-namespace EventFlow.PostgreSql.ReadStores
+namespace EventFlow.ReadStores
 {
-    public class PostgreSqlReadModelStore<TReadModel> : SqlReadModelStore<IPostgreSqlConnection, TReadModel>, IPostgresReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel
+    public interface IReadStoreCachingConfiguration
     {
-        public PostgreSqlReadModelStore(
-            IReadStoreCachingStrategy memoryCacheStrategy,
-            ILogger<PostgreSqlReadModelStore<TReadModel>> log,
-            IPostgreSqlConnection connection,
-            IReadModelSqlGenerator readModelSqlGenerator,
-            IReadModelFactory<TReadModel> readModelFactory,
-            ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
-            : base(memoryCacheStrategy, log, connection, readModelSqlGenerator, readModelFactory, transientFaultHandler)
-        {
-        }
+        public TimeSpan ReadModelCachePeriodOnWrite { get; }
+        public TimeSpan ReadModelCachePeriodOnRead { get; }
     }
 }

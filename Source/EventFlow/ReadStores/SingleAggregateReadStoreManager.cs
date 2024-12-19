@@ -43,13 +43,14 @@ namespace EventFlow.ReadStores
         private readonly IEventStore _eventStore;
 
         public SingleAggregateReadStoreManager(
+            IReadStoreCachingStrategy memoryCacheStrategy,
             ILogger<SingleAggregateReadStoreManager<TAggregate, TIdentity, TReadModelStore, TReadModel>> logger,
             IServiceProvider serviceProvider,
             TReadModelStore readModelStore,
             IReadModelDomainEventApplier readModelDomainEventApplier,
             IReadModelFactory<TReadModel> readModelFactory,
             IEventStore eventStore)
-            : base(logger, serviceProvider, readModelStore, readModelDomainEventApplier, readModelFactory)
+            : base(logger, serviceProvider, readModelStore, readModelDomainEventApplier, readModelFactory, memoryCacheStrategy)
         {
             _eventStore = eventStore;
         }

@@ -20,27 +20,39 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Core;
-using EventFlow.Core.RetryStrategies;
-using EventFlow.PostgreSql.Connections;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using EventFlow.Aggregates;
 using EventFlow.ReadStores;
-using EventFlow.Sql.ReadModels;
-using Microsoft.Extensions.Logging;
 
-namespace EventFlow.PostgreSql.ReadStores
+namespace EventFlow.Strategies
 {
-    public class PostgreSqlReadModelStore<TReadModel> : SqlReadModelStore<IPostgreSqlConnection, TReadModel>, IPostgresReadModelStore<TReadModel>
-        where TReadModel : class, IReadModel
+    public class NoDispatchToReadStoresResilienceStrategy : IDispatchToReadStoresResilienceStrategy
     {
-        public PostgreSqlReadModelStore(
-            IReadStoreCachingStrategy memoryCacheStrategy,
-            ILogger<PostgreSqlReadModelStore<TReadModel>> log,
-            IPostgreSqlConnection connection,
-            IReadModelSqlGenerator readModelSqlGenerator,
-            IReadModelFactory<TReadModel> readModelFactory,
-            ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
-            : base(memoryCacheStrategy, log, connection, readModelSqlGenerator, readModelFactory, transientFaultHandler)
+        public Task BeforeUpdateAsync(
+            IReadStoreManager readStoreManager,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
         {
+            return Task.CompletedTask;
+        }
+
+        public Task<bool> HandleUpdateFailedAsync(IReadStoreManager readStoreManager,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            Exception exception,
+            CancellationToken cancellationToken)
+        {
+            return Task.FromResult(false);
+        }
+
+        public Task UpdateSucceededAsync(
+            IReadStoreManager readStoreManager,
+            IReadOnlyCollection<IDomainEvent> domainEvents,
+            CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
         }
     }
 }

@@ -35,6 +35,7 @@ using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.ReadStores;
 using EventFlow.ReadStores.InMemory;
+using EventFlow.Strategies;
 using EventFlow.Subscribers;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
@@ -295,16 +296,10 @@ namespace EventFlow.Tests.IntegrationTests
 
             public ManualReadStore(IInMemoryReadStore<InMemoryThingyReadModel> inner = null)
             {
-                _inner = inner ?? new InMemoryReadStore<InMemoryThingyReadModel>(Logger<InMemoryReadStore<InMemoryThingyReadModel>>());
+                _inner = inner ?? new InMemoryReadStore<InMemoryThingyReadModel>(new NoReadStoreCachingStrategy(), Logger<InMemoryReadStore<InMemoryThingyReadModel>>());
             }
 
             public TaskCompletionSource<bool> UpdateCompletionSource { get; } = new TaskCompletionSource<bool>();
-
-            public Task<IReadOnlyCollection<InMemoryThingyReadModel>> FindAsync(
-                Predicate<InMemoryThingyReadModel> predicate, CancellationToken cancellationToken)
-            {
-                return _inner.FindAsync(predicate, cancellationToken);
-            }
 
             public Task DeleteAsync(string id, CancellationToken cancellationToken)
             {
@@ -326,7 +321,12 @@ namespace EventFlow.Tests.IntegrationTests
                 Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<InMemoryThingyReadModel>, CancellationToken, Task<ReadModelUpdateResult<InMemoryThingyReadModel>>> updateReadModel, CancellationToken cancellationToken)
             {
                 await _inner.UpdateAsync(readModelUpdates, readModelContextFactory, updateReadModel, cancellationToken);
-                await UpdateCompletionSource.Task;
+                await UpdateCompletionSource.Task;;
+            }
+
+            public Task<IReadOnlyCollection<InMemoryThingyReadModel>> FindAsync(Predicate<InMemoryThingyReadModel> predicate, CancellationToken cancellationToken)
+            {
+                return _inner.FindAsync(predicate, cancellationToken);
             }
         }
 

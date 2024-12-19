@@ -53,6 +53,7 @@ namespace EventFlow.ReadStores
         }
 
         public TReadModel ReadModel { get; }
+        public bool IsEmpty => ReadModel == null && Version == null;
 
         public static ReadModelEnvelope<TReadModel> Empty(string readModelId)
         {

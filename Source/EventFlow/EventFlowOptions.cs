@@ -44,6 +44,7 @@ using EventFlow.Sagas.AggregateSagas;
 using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
 using EventFlow.Snapshots.Stores.Null;
+using EventFlow.Strategies;
 using EventFlow.Subscribers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -179,6 +180,8 @@ namespace EventFlow
             serviceCollection.TryAddTransient<IDispatchToReadStoresResilienceStrategy, NoDispatchToReadStoresResilienceStrategy>();
             serviceCollection.TryAddTransient<ISagaUpdateResilienceStrategy, NoSagaUpdateResilienceStrategy>();
             serviceCollection.TryAddTransient<IDispatchToSubscriberResilienceStrategy, NoDispatchToSubscriberResilienceStrategy>();
+            serviceCollection.TryAddSingleton<IReadStoreCachingStrategy, InMemoryReadStoreCachingStrategy>();
+            serviceCollection.TryAddTransient<IReadStoreCachingConfiguration, ReadStoreCachingConfiguration>();
 
             serviceCollection.TryAddSingleton<IDispatchToReadStores, DispatchToReadStores>();
             serviceCollection.TryAddTransient<IEventStore, EventStoreBase>();

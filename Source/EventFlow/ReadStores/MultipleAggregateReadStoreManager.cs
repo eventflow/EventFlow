@@ -40,13 +40,14 @@ namespace EventFlow.ReadStores
         private readonly TReadModelLocator _readModelLocator;
 
         public MultipleAggregateReadStoreManager(
+            IReadStoreCachingStrategy memoryCacheStrategy,
             ILogger<MultipleAggregateReadStoreManager<TReadStore, TReadModel, TReadModelLocator>> logger,
             IServiceProvider serviceProvider,
             TReadStore readModelStore,
             IReadModelDomainEventApplier readModelDomainEventApplier,
             TReadModelLocator readModelLocator,
             IReadModelFactory<TReadModel> readModelFactory)
-            : base(logger, serviceProvider, readModelStore, readModelDomainEventApplier, readModelFactory)
+            : base(logger, serviceProvider, readModelStore, readModelDomainEventApplier, readModelFactory, memoryCacheStrategy)
         {
             _readModelLocator = readModelLocator;
         }

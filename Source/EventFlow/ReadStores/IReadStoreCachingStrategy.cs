@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2024 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
@@ -20,38 +20,20 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 
 namespace EventFlow.ReadStores
 {
-    public class NoDispatchToReadStoresResilienceStrategy : IDispatchToReadStoresResilienceStrategy
+    public interface IReadStoreCachingStrategy
     {
-        public Task BeforeUpdateAsync(
-            IReadStoreManager readStoreManager,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
+        Task DeleteReadModel<TReadModel>(string readModelId, CancellationToken cancellationToken);
+        Task DeleteAllReadModels(CancellationToken cancellationToken);
+        Task<ReadModelEnvelope<TReadModel>> QueryReadStoreModel<TReadModel>(string readModelId, CancellationToken cancellationToken)
+            where TReadModel : class, IReadModel;
 
-        public Task<bool> HandleUpdateFailedAsync(IReadStoreManager readStoreManager,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            Exception exception,
-            CancellationToken cancellationToken)
-        {
-            return Task.FromResult(false);
-        }
-
-        public Task UpdateSucceededAsync(
-            IReadStoreManager readStoreManager,
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
+        Task UpdateReadStoreModel<TReadModel>(IReadOnlyCollection<ReadModelUpdateResult<TReadModel>> updatedModels, CancellationToken cancellationToken)
+            where TReadModel : class, IReadModel;
     }
 }

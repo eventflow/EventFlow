@@ -156,9 +156,15 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                                     throw e.InnerException;
                                 }
                             })
-                .Returns(Task.FromResult(0));
+                .Returns(GetResult());
 
             return resultingReadModelUpdateResults;
+        }
+
+        private async Task<IReadOnlyCollection<ReadModelUpdateResult<TestReadModel>>> GetResult()
+        {
+            var result = await Task.FromResult(new List<ReadModelUpdateResult<TestReadModel>>());
+            return result;
         }
     }
 }

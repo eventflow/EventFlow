@@ -55,6 +55,11 @@ namespace EventFlow.ReadStores
                 isModified);
         }
 
+        public static ReadModelUpdateResult<TReadModel> WithDeleted(string readModelId)
+        {
+            return new ReadModelUpdateResult<TReadModel>(ReadModelEnvelope<TReadModel>.Empty(readModelId), true);
+        }
+
         public static ReadModelUpdateResult<TReadModel> With(
             string readModelId,
             TReadModel readModel,
