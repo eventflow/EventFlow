@@ -1,23 +1,47 @@
-name: CI
+name: pipeline
 
 on:
-  push:
-    branches: [ develop-v1 ]
-  pull_request:
-    branches: [ develop-v1 ]
+  workflow_call:
+    inputs:
+      # REQUIRED ============================
+      version:
+        required: true
+        type: string
+      # OPTIONAL ============================
+      bake-convention:
+        required: false
+        default: 'default'
+        type: string
+      bake-version:
+        required: false
+        type: string
+        default: '0.30.43-beta'
+      environment:
+        required: false
+        type: string
+        default: 'develop'
+    secrets:
+      nuget-api-key:
+        required: false
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on:
+    - ubuntu-20.04
+
+    environment: 
+      name: ${{ inputs.environment }}
+
     env:
       HELPZ_POSTGRESQL_PASS: Password12!
       EVENTFLOW_MSSQL_SERVER: 127.0.0.1,1433
       EVENTFLOW_MSSQL_USER: sa
-      EVENTFLOW_MSSQL_PASS: Password12!      
+      EVENTFLOW_MSSQL_PASS: Password12!
+      NUGET_APIKEY: ${{ secrets.nuget-api-key }}
 
     services:
       rabbitmq:
-        image: rabbitmq:3.12.0-management-alpine
+        image: rabbitmq:3-management-alpine
         env:
           RABBITMQ_DEFAULT_USER: guest
           RABBITMQ_DEFAULT_PASS: guest
@@ -65,7 +89,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version:
+        dotnet-version: |
           3.1.x
           6.0.x
           8.0.x
@@ -76,19 +100,21 @@ jobs:
 
     # https://github.com/rasmus/Bake
     - name: Install Bake 
-      run: dotnet tool install -g --version 0.23.36-beta Bake
+      run: dotnet tool install -g --version ${{ inputs.bake-version }} Bake 
 
     - name: Run Bake
-      run: |
-        declare -i REVISION
-        REVISION=5000+$GITHUB_RUN_NUMBER
-        bake run --build-version 1.0.$REVISION
       env:
         MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        bake run \
+          --convention=${{ inputs.bake-convention }} \
+          --build-version ${{ inputs.version }} \
+          --destination="nuget>github,nuget,release>github"
 
     - name: Upload NuGet packages
       uses: actions/upload-artifact@v4
-      if: success() || failure()
+      if: success()
       with:
         name: packages
         path: "**/*nupkg"

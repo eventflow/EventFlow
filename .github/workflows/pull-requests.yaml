@@ -1,0 +1,16 @@
+name: pull-requests
+
+on:
+  push:
+    branches: [ develop-v1 ]
+  pull_request:
+    branches: [ develop-v1 ]
+
+permissions:
+  contents: read
+
+jobs:
+  pipeline:
+    uses: ./.github/workflows/pipeline.yaml
+    with:
+      version: "1.1.0-pr${{ github.event.number }}-b${{ github.run_number }}"

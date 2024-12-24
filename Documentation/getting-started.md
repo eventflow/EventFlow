@@ -179,10 +179,10 @@ public class ExampleEvent : AggregateEvent<ExampleAggregate, ExampleId>
 }
 ```
 
-We have applied the `[EventVersion("example", 1)]` to our event, marking it as the `example` event version `1`, which directly corresponds to the `event_name` and `event_version` from the metadata stored alongside the event mentioned. The information is used by EventFlow to tie the name and version to a specific .NET type.
+We have applied the `[EventVersion("example", 1)]` to our event, marking it as the `example` event version `1`, which directly corresponds to the `event_name` and `event_version` from the metadata stored alongside the event mentioned. The information is used by EventFlow to tie the name and version to a specific .NET type. This is important when reading events from the event store as EventFlow needs to know which type to deserialize the event to. If an alternative default naming convention is needed, read our section on [event naming strategies](additional/event-naming-strategies.md).
 
 !!! warning
-    Even though using the `EventVersion` attribute is optional, it is **highly recommended**. EventFlow will infer the information if it isn't provided, thus making it vulnerable to type renames among other things.
+    Even though using the `EventVersion` attribute is optional, it is **highly recommended**. EventFlow will infer the information if it isn't provided, thus making it vulnerable to type renames among other things. Read our section on [event naming strategies](additional/event-naming-strategies.md) if an alternative default naming convention is needed.
 
 !!! danger
     Once you have aggregates in your production environment that have emitted an event, you should never change the .NET implementation of the event! You can deprecate it, but you should never change the type or the data stored in the event store. If the event type is changed, EventFlow will not be able to deserialize the event and can produce unexpected results when reading old aggregates.

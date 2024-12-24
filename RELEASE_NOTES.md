@@ -1,4 +1,10 @@
-### New in 1.0-alpha (not properly released yet)
+### New in 1.1.0 (released 2024-12-16)
+
+* New: More control of event naming by introducing the interface `IEventNamingStrategy`, see the
+  updated documentation at https://geteventflow.net/additional/event-naming-strategies/ for more
+  information (thanks @SeWaS)
+
+### New in 1.0.5007 (released 2024-11-16)
 
 Read the complete migration guide to get the full list of changes as well as recommendations
 on how to do the migration.

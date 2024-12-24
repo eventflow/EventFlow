@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
+    <NuGetAudit>false</NuGetAudit>
     <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
     <NoWarn>1701;1702;1705;1591;NU1901;NU1902;NU1903;NU1904</NoWarn>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>

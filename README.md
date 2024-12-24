@@ -462,13 +462,8 @@ category.
 
 ## Thanks
 
-<table border="0" cellpadding="0" cellspacing="0">
-  <tr>
-    <td width="25%">
-      <a href="https://www.jetbrains.com/"><img src="./Resources/jetbrains-128x128.png" /></a>
-    </td>
-  </tr>
-</table>
+
+![JetBrains logo](https://raw.githubusercontent.com/eventflow/EventFlow/develop-v1/Resources/jetbrains-128x128.png)
 
 * [Contributors](https://github.com/eventflow/EventFlow/graphs/contributors)
 * [JetBrains](https://www.jetbrains.com/resharper/): OSS licenses
