@@ -1,22 +1,28 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.1;net6.0;net8.0</TargetFrameworks>
+    <Title>EventFlow</Title>
+    <Description>Async/await first CQRS+ES and DDD framework for .NET - https://docs.geteventflow.net/</Description>
+    <PackageTags>CQRS ES event sourcing</PackageTags>
+    <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\EventFlow.xml</DocumentationFile>
+    <IsPackable>true</IsPackable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable> 
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\EventFlow\EventFlow.csproj"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\EventFlow\EventFlow.csproj"/>
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Redis.OM" Version="0.7.6"/>
+    <PackageReference Include="StackExchange.Redis" Version="2.8.24"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Redis.OM" Version="0.2.1"/>
-        <PackageReference Include="StackExchange.Redis" Version="2.6.48"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <InternalsVisibleTo Include="EventFlow.Redis.Tests"/>
-    </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="EventFlow.Redis.Tests"/>
+  </ItemGroup>
 
 </Project>
