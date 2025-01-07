@@ -22,20 +22,25 @@
 
 using EventFlow.EventStores;
 
-namespace EventFlow.Redis.EventStore;
-
-internal class RedisCommittedDomainEvent : ICommittedDomainEvent
+namespace EventFlow.Redis.EventStore
 {
-    public RedisCommittedDomainEvent(string aggregateId, string data, string metadata, int aggregateSequenceNumber)
+    internal class RedisCommittedDomainEvent : ICommittedDomainEvent
     {
-        AggregateId = aggregateId;
-        Data = data;
-        Metadata = metadata;
-        AggregateSequenceNumber = aggregateSequenceNumber;
-    }
+        public RedisCommittedDomainEvent(
+            string aggregateId,
+            string data,
+            string metadata,
+            int aggregateSequenceNumber)
+        {
+            AggregateId = aggregateId;
+            Data = data;
+            Metadata = metadata;
+            AggregateSequenceNumber = aggregateSequenceNumber;
+        }
 
-    public string AggregateId { get; init; }
-    public string Data { get; init; }
-    public string Metadata { get; init; }
-    public int AggregateSequenceNumber { get; init; }
+        public string AggregateId { get; }
+        public string Data { get; }
+        public string Metadata { get; }
+        public int AggregateSequenceNumber { get; }
+    }
 }

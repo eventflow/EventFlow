@@ -22,12 +22,13 @@
 
 using StackExchange.Redis;
 
-namespace EventFlow.Redis.ReadStore;
-
-internal static class Extensions
+namespace EventFlow.Redis.ReadStore
 {
-    internal static IEnumerable<HashEntry> ToHashEntries(this IReadOnlyDictionary<string, string> dict)
+    internal static class Extensions
     {
-        return dict.ToArray().Select(kv => new HashEntry(kv.Key, kv.Value));
+        internal static IEnumerable<HashEntry> ToHashEntries(this IReadOnlyDictionary<string, string> dict)
+        {
+            return dict.ToArray().Select(kv => new HashEntry(kv.Key, kv.Value));
+        }
     }
 }

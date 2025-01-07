@@ -9,7 +9,6 @@
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\EventFlow.Redis.xml</DocumentationFile>
     <IsPackable>true</IsPackable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable> 
   </PropertyGroup>
   
   <ItemGroup>
