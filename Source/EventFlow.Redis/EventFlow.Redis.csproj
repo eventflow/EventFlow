@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;net6.0;net8.0</TargetFrameworks>
-    <Title>EventFlow</Title>
+    <Title>EventFlow.Redis</Title>
     <Description>Async/await first CQRS+ES and DDD framework for .NET - https://docs.geteventflow.net/</Description>
-    <PackageTags>CQRS ES event sourcing</PackageTags>
+    <PackageTags>CQRS ES event sourcing Redis</PackageTags>
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\EventFlow.xml</DocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\EventFlow.Redis.xml</DocumentationFile>
     <IsPackable>true</IsPackable>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable> 
