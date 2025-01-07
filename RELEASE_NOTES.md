@@ -1,12 +1,12 @@
 ### New in 1.1.1 (working version, not released yet)
 
 * New: NuGet `EventFlow.SQLite` is now released as part of v1 and enables support for SQLite
+* New: NuGet `EventFlow.Redis` is now (properly) released as part of v1 and enables support for Redis
 * Fix: Invoking `UseEventPersistence` now removes any previously registered event persistence. This
   fixes a service ordering issue in the following event store configurations
   - MongoDB
   - MSSQL
   - PostgreSQL
-
 
 ### New in 1.1.0 (released 2024-12-16)
 
