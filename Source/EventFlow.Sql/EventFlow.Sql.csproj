@@ -4,7 +4,7 @@
     <Title>EventFlow.Sql</Title>
     <Authors>Rasmus Mikkelsen</Authors>
     <Company>Rasmus Mikkelsen</Company>
-    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2021</Copyright>
+    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2025</Copyright>
     <Description>Generic SQL support for EventFlow</Description>
     <PackageTags>CQRS ES event sourcing SQL</PackageTags>
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
@@ -13,9 +13,24 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.35" />
-    <PackageReference Include="dbup-core" Version="5.0.37" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="dbup-core" Version="[6.0.0,)" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="dbup-core" Version="[6.0.0,)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="dbup-core" Version="5.0.87" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+    <PackageReference Include="dbup-core" Version="5.0.87" />
   </ItemGroup>
 
   <ItemGroup>

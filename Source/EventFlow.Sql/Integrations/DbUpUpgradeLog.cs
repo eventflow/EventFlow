@@ -20,12 +20,55 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using DbUp.Engine.Output;
 using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Sql.Integrations
 {
+#if NET6_0_OR_GREATER
     public class DbUpUpgradeLog : IUpgradeLog
+    {
+        private readonly ILogger _logger;
+
+        public DbUpUpgradeLog(
+            ILogger logger)
+        {
+            _logger = logger;
+        }
+
+        public void LogTrace(string format, params object[] args)
+        {
+            _logger.LogError(format, args);
+        }
+
+        public void LogDebug(string format, params object[] args)
+        {
+            _logger.LogError(format, args);
+        }
+
+        public void LogInformation(string format, params object[] args)
+        {
+            _logger.LogError(format, args);
+        }
+
+        public void LogWarning(string format, params object[] args)
+        {
+            _logger.LogError(format, args);
+        }
+
+        public void LogError(string format, params object[] args)
+        {
+            _logger.LogError(format, args);
+        }
+
+        public void LogError(Exception ex, string format, params object[] args)
+        {
+            _logger.LogError(format, args);
+        }
+    }
+#else
+public class DbUpUpgradeLog : IUpgradeLog
     {
         private readonly ILogger _logger;
 
@@ -50,4 +93,5 @@ namespace EventFlow.Sql.Integrations
             _logger.LogError(format, args);
         }
     }
+#endif
 }
