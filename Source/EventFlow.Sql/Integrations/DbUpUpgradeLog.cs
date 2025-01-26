@@ -64,7 +64,7 @@ namespace EventFlow.Sql.Integrations
 
         public void LogError(Exception ex, string format, params object[] args)
         {
-            _logger.LogError(format, args);
+            _logger.LogError(ex, format, args);
         }
     }
 #else
