@@ -26,7 +26,6 @@ using Microsoft.Extensions.Logging;
 
 namespace EventFlow.Sql.Integrations
 {
-#if NET6_0_OR_GREATER
     public class DbUpUpgradeLog : IUpgradeLog
     {
         private readonly ILogger _logger;
@@ -66,17 +65,6 @@ namespace EventFlow.Sql.Integrations
         {
             _logger.LogError(ex, format, args);
         }
-    }
-#else
-public class DbUpUpgradeLog : IUpgradeLog
-    {
-        private readonly ILogger _logger;
-
-        public DbUpUpgradeLog(
-            ILogger logger)
-        {
-            _logger = logger;
-        }
 
         public void WriteInformation(string format, params object[] args)
         {
@@ -93,5 +81,4 @@ public class DbUpUpgradeLog : IUpgradeLog
             _logger.LogError(format, args);
         }
     }
-#endif
 }

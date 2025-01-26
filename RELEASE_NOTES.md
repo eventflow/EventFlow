@@ -10,6 +10,7 @@
   - MongoDB
   - MSSQL
   - PostgreSQL
+* Breaking: `EventFlow.Sql` from .NET 6 and above uses dbup version 6 to migrate databases.
 
 *Sorry for the delay.*
 

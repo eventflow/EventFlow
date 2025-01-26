@@ -26,11 +26,11 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="dbup-core" Version="5.0.87" />
+    <PackageReference Include="dbup-core" Version="5.0.37" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-    <PackageReference Include="dbup-core" Version="5.0.87" />
+    <PackageReference Include="dbup-core" Version="5.0.37" />
   </ItemGroup>
 
   <ItemGroup>
