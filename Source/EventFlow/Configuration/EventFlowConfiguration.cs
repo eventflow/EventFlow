@@ -22,6 +22,7 @@
 
 using System;
 using EventFlow.Configuration.Cancellation;
+using EventFlow.Configuration.EventNamingStrategy;
 
 namespace EventFlow.Configuration
 {

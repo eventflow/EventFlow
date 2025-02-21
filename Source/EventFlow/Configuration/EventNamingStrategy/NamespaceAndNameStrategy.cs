@@ -21,36 +21,12 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Aggregates;
-using EventFlow.Configuration;
-using EventFlow.Configuration.EventNamingStrategy;
-using EventFlow.Core.VersionedTypes;
-using Microsoft.Extensions.Logging;
 
-namespace EventFlow.EventStores
+namespace EventFlow.Configuration.EventNamingStrategy
 {
-    public class EventDefinitionService :
-        VersionedTypeDefinitionService<IAggregateEvent, EventVersionAttribute, EventDefinition>,
-        IEventDefinitionService
+    public class NamespaceAndNameStrategy : IEventNamingStrategy
     {
-        private readonly IEventNamingStrategy _eventNamingStrategy;
-        
-        public EventDefinitionService(
-            ILogger<EventDefinitionService> logger,
-            ILoadedVersionedTypes loadedVersionedTypes,
-            IEventNamingStrategy eventNamingStrategy)
-            : base(logger)
-        {
-            _eventNamingStrategy = eventNamingStrategy;
-
-            Load(loadedVersionedTypes.Events);
-        }
-
-        protected override EventDefinition CreateDefinition(int version, Type type, string name)
-        {
-            var strategyAppliedName = _eventNamingStrategy.CreateEventName(version, type, name);
-            
-            return new EventDefinition(version, type, strategyAppliedName);
-        }
+        public string CreateEventName(int version, Type eventType, string name) 
+            => $"{eventType.Namespace}.{name}";
     }
 }

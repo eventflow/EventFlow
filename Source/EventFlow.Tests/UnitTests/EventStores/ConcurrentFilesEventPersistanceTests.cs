@@ -29,6 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Configuration.EventNamingStrategy;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.EventStores.Files;
@@ -63,7 +64,8 @@ namespace EventFlow.Tests.UnitTests.EventStores
             var factory = new DomainEventFactory();
             var definitionService = new EventDefinitionService(
                 Mock<ILogger<EventDefinitionService>>(),
-                Mock<ILoadedVersionedTypes>());
+                Mock<ILoadedVersionedTypes>(),
+                new NamespaceAndNameStrategy());
             definitionService.Load(typeof(ThingyPingEvent));
 
             _serializer = new EventJsonSerializer(new JsonSerializer(), definitionService, factory);

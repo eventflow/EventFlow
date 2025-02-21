@@ -1,9 +1,10 @@
-name: Test report
+name: test reports
+
 on:
   workflow_run:
     workflows:
-    - 'CI'
-    - 'Release'
+    - 'pull-requests'
+    - 'release'
     types:
     - completed
 

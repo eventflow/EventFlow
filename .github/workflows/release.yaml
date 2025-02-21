@@ -1,0 +1,19 @@
+name: release
+
+on:
+  push:
+    branches: [ release-v1 ]
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  pipeline:
+    uses: ./.github/workflows/pipeline.yaml
+    with:
+      bake-convention: 'Release'
+      environment: 'release'
+      version: "1.1.0"
+    secrets:
+      nuget-api-key: ${{ secrets.NUGET_APIKEY }}

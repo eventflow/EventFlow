@@ -20,37 +20,28 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Configuration.EventNamingStrategy;
-using EventFlow.Core.VersionedTypes;
-using Microsoft.Extensions.Logging;
+using EventFlow.EventStores;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.EventStores
+namespace EventFlow.Tests.UnitTests.Configuration.EventNamingStrategy
 {
-    public class EventDefinitionService :
-        VersionedTypeDefinitionService<IAggregateEvent, EventVersionAttribute, EventDefinition>,
-        IEventDefinitionService
+    public class NamespaceAndNameStrategyTest
     {
-        private readonly IEventNamingStrategy _eventNamingStrategy;
+        private class Any {}
         
-        public EventDefinitionService(
-            ILogger<EventDefinitionService> logger,
-            ILoadedVersionedTypes loadedVersionedTypes,
-            IEventNamingStrategy eventNamingStrategy)
-            : base(logger)
+        [Test]
+        public void EventNameShouldBeNamespaceAndClassName()
         {
-            _eventNamingStrategy = eventNamingStrategy;
-
-            Load(loadedVersionedTypes.Events);
-        }
-
-        protected override EventDefinition CreateDefinition(int version, Type type, string name)
-        {
-            var strategyAppliedName = _eventNamingStrategy.CreateEventName(version, type, name);
+            // Arrange
+            var strategy = new NamespaceAndNameStrategy();
             
-            return new EventDefinition(version, type, strategyAppliedName);
+            // Act
+            var name = strategy.CreateEventName(1, typeof(Any), "NameFromAttribute");
+            
+            // Assert
+            name.Should().Be(GetType().Namespace + ".NameFromAttribute");
         }
     }
 }
