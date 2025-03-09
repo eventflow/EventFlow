@@ -1,4 +1,8 @@
-### New in 1.2.0 (working version, not released yet)
+### New in 1.2.1 (working version, not released yet)
+
+* *Nothing yet...*
+
+### New in 1.2.0 (released 2025-03-09)
 
 * New: New NuGet package `EventFlow.SourceGenerators` created by @alexeyfv. See
   [documentation](https://geteventflow.net/additional/source-generation/) for details

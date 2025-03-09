@@ -2,6 +2,8 @@
 
 ![EventFlow logo](https://raw.githubusercontent.com/eventflow/EventFlow/develop-v1/icon-128.png)
 
+![NuGet downloads](https://img.shields.io/nuget/dt/EventFlow)
+
 ```
 $ dotnet add package EventFlow
 ```
