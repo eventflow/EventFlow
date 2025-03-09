@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
@@ -20,15 +20,42 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Sql.ReadModels;
+using System;
+using EventFlow.PostgreSql.ReadModels;
+using EventFlow.PostgreSql.ReadStores.Attributes;
+using EventFlow.ReadStores;
+using EventFlow.TestHelpers;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace EventFlow.PostgreSql.ReadModels
+namespace EventFlow.PostgreSql.Tests.UnitTests
 {
-    public class PostgresReadModelSqlGenerator : ReadModelSqlGenerator
+    public class ReadModelSqlGeneratorTests : TestsFor<PostgresReadModelSqlGenerator>
     {
-        public PostgresReadModelSqlGenerator()
-            : base(new ReadModelSqlGeneratorConfiguration("\"", "\"", "\"", "\""))
+        [Test]
+        public void CreateSelectSql()
         {
+            // Act
+            var sql = Sut.CreateSelectSql<ReadModelA>();
+
+            // Assert
+            sql.Should().Be("SELECT * FROM \"ReadModel-A\" WHERE \"Id\" = @EventFlowReadModelId");
+        }
+
+        [Test]
+        public void CreateDeleteSql()
+        {
+            // Act
+            var sql = Sut.CreateDeleteSql<ReadModelA>();
+
+            // Assert
+            sql.Should().Be("DELETE FROM \"ReadModel-A\" WHERE \"Id\" = @EventFlowReadModelId");
+        }
+
+        public class ReadModelA : IReadModel
+        {
+            [PostgreSqlReadModelIdentityColumn]
+            public Guid Id { get; set; }
         }
     }
 }

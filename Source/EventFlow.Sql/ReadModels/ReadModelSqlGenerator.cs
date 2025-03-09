@@ -99,7 +99,7 @@ namespace EventFlow.Sql.ReadModels
             }
 
             var tableName = GetTableName<TReadModel>();
-            var identityColumn = GetIdentityColumn<TReadModel>();
+            var identityColumn = GetIdentityColumn<TReadModel>(true);
 
             sql = $"SELECT * FROM {tableName} WHERE {identityColumn} = @EventFlowReadModelId";
 
@@ -116,8 +116,7 @@ namespace EventFlow.Sql.ReadModels
                 return sql;
             }
 
-            sql =
-                $"DELETE FROM {GetTableName<TReadModel>()} WHERE {Configuration.ColumnQuotedIdentifierPrefix}{GetIdentityColumn<TReadModel>()}{Configuration.ColumnQuotedIdentifierSuffix} = @EventFlowReadModelId";
+            sql = $"DELETE FROM {GetTableName<TReadModel>()} WHERE {GetIdentityColumn<TReadModel>(true)} = @EventFlowReadModelId";
             _deleteSqls[readModelType] = sql;
 
             return sql;
@@ -131,7 +130,7 @@ namespace EventFlow.Sql.ReadModels
                 return sql;
             }
 
-            var identityColumn = GetIdentityColumn<TReadModel>();
+            var identityColumn = GetIdentityColumn<TReadModel>(true);
             var versionColumn = GetVersionColumn<TReadModel>();
             var versionCheck = string.IsNullOrEmpty(versionColumn)
                 ? string.Empty
@@ -145,7 +144,7 @@ namespace EventFlow.Sql.ReadModels
 
             var tableName = GetTableName<TReadModel>();
 
-            sql = $"UPDATE {tableName} SET {updateColumns} WHERE {Configuration.ColumnQuotedIdentifierPrefix}{identityColumn}{Configuration.ColumnQuotedIdentifierSuffix} = @{identityColumn} {versionCheck}";
+            sql = $"UPDATE {tableName} SET {updateColumns} WHERE {identityColumn} = @{identityColumn} {versionCheck}";
 
             _updateSqls[readModelType] = sql;
 
@@ -164,7 +163,7 @@ namespace EventFlow.Sql.ReadModels
 
         protected IEnumerable<string> GetUpdateColumns<TReadModel>() where TReadModel : IReadModel
         {
-            var identityColumn = GetIdentityColumn<TReadModel>();
+            var identityColumn = GetIdentityColumn<TReadModel>(false);
             return GetInsertColumns<TReadModel>().Where(c => c != identityColumn);
         }
 
@@ -192,9 +191,9 @@ namespace EventFlow.Sql.ReadModels
                 });
         }
 
-        private string GetIdentityColumn<TReadModel>()
+        private string GetIdentityColumn<TReadModel>(bool quoted)
         {
-            return IdentityColumns.GetOrAdd(
+            var identityColumn = IdentityColumns.GetOrAdd(
                 typeof(TReadModel),
                 t =>
                 {
@@ -203,6 +202,10 @@ namespace EventFlow.Sql.ReadModels
                             pi => pi.GetCustomAttributes().Any(a => a is SqlReadModelIdentityColumnAttribute));
                     return propertyInfo?.Name ?? "AggregateId";
                 });
+
+            return quoted
+                ? $"{Configuration.TableQuotedIdentifierPrefix}{identityColumn}{Configuration.TableQuotedIdentifierSuffix}"
+                : identityColumn;
         }
 
         private string GetVersionColumn<TReadModel>()
