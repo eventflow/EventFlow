@@ -1,6 +1,5 @@
 ### New in 1.2.1 (working version, not released yet)
-
-* *Nothing yet...*
+* New: NuGet `EventFlow.Elasticsearch` now ported to v1 (thanks @MMonrad)
 
 ### New in 1.2.0 (released 2025-03-09)
 

@@ -21,6 +21,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers.Aggregates;
@@ -28,49 +30,54 @@ using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Events;
 using Nest;
 
-namespace EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels
+namespace EventFlow.Elasticsearch.Tests.IntegrationTests.ReadModels;
+
+[ElasticsearchType(IdProperty = "Id", RelationName = "message")]
+public class ElasticsearchThingyMessageReadModel : IReadModel,
+    IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageAddedEvent>,
+    IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageHistoryAddedEvent>
 {
-    [ElasticsearchType(IdProperty = "Id", RelationName = "message")]
-    public class ElasticsearchThingyMessageReadModel : IReadModel,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageAddedEvent>,
-        IAmReadModelFor<ThingyAggregate, ThingyId, ThingyMessageHistoryAddedEvent>
+    public string Id { get; set; }
+
+    [Keyword(
+        Name = "ThingyId",
+        Index = true)]
+    public string ThingyId { get; set; }
+
+    [Text(
+        Name = "Message",
+        Index = false)]
+    public string Message { get; set; }
+
+    public Task ApplyAsync(IReadModelContext context,
+        IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent,
+        CancellationToken cancellationToken)
     {
-        public string Id { get; set; }
+        ThingyId = domainEvent.AggregateIdentity.Value;
 
-        [Keyword(
-            Name = "ThingyId",
-            Index = true)]
-        public string ThingyId { get; set; }
+        var thingyMessage = domainEvent.AggregateEvent.ThingyMessage;
+        Id = thingyMessage.Id.Value;
+        Message = thingyMessage.Message;
+        return Task.CompletedTask;
+    }
 
-        [Text(
-            Name = "Message",
-            Index = false)]
-        public string Message { get; set; }
+    public Task ApplyAsync(IReadModelContext context,
+        IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageHistoryAddedEvent> domainEvent,
+        CancellationToken cancellationToken)
+    {
+        ThingyId = domainEvent.AggregateIdentity.Value;
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent)
-        {
-            ThingyId = domainEvent.AggregateIdentity.Value;
+        var messageId = new ThingyMessageId(context.ReadModelId);
+        var thingyMessage = domainEvent.AggregateEvent.ThingyMessages.Single(m => m.Id == messageId);
+        Id = messageId.Value;
+        Message = thingyMessage.Message;
+        return Task.CompletedTask;
+    }
 
-            var thingyMessage = domainEvent.AggregateEvent.ThingyMessage;
-            Id = thingyMessage.Id.Value;
-            Message = thingyMessage.Message;
-        }
-
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageHistoryAddedEvent> domainEvent)
-        {
-            ThingyId = domainEvent.AggregateIdentity.Value;
-
-            var messageId = new ThingyMessageId(context.ReadModelId);
-            var thingyMessage = domainEvent.AggregateEvent.ThingyMessages.Single(m => m.Id == messageId);
-            Id = messageId.Value;
-            Message = thingyMessage.Message;
-        }
-
-        public ThingyMessage ToThingyMessage()
-        {
-            return new ThingyMessage(
-                ThingyMessageId.With(Id),
-                Message);
-        }
+    public ThingyMessage ToThingyMessage()
+    {
+        return new ThingyMessage(
+            ThingyMessageId.With(Id),
+            Message);
     }
 }

@@ -32,8 +32,8 @@ using EventFlow.Core.RetryStrategies;
 using EventFlow.Elasticsearch.ValueObjects;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
-using EventFlow.Logs;
 using EventFlow.ReadStores;
+using Microsoft.Extensions.Logging;
 using Nest;
 
 namespace EventFlow.Elasticsearch.ReadStores
@@ -42,13 +42,13 @@ namespace EventFlow.Elasticsearch.ReadStores
         IElasticsearchReadModelStore<TReadModel>
         where TReadModel : class, IReadModel
     {
-        private readonly ILog _log;
+        private readonly ILogger<ElasticsearchReadModelStore<TReadModel>> _log;
         private readonly IElasticClient _elasticClient;
         private readonly IReadModelDescriptionProvider _readModelDescriptionProvider;
         private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
 
         public ElasticsearchReadModelStore(
-            ILog log,
+            ILogger<ElasticsearchReadModelStore<TReadModel>> log,
             IElasticClient elasticClient,
             IReadModelDescriptionProvider readModelDescriptionProvider,
             ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
@@ -65,7 +65,7 @@ namespace EventFlow.Elasticsearch.ReadStores
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
 
-            _log.Verbose(() => $"Fetching read model '{typeof(TReadModel).PrettyPrint()}' with ID '{id}' from index '{readModelDescription.IndexName}'");
+            _log.LogTrace("Fetching read model '{TReadModel}' with ID '{Id}' from index '{IndexName}'", typeof(TReadModel).PrettyPrint(), id, readModelDescription.IndexName);
 
             var getResponse = await _elasticClient.GetAsync<TReadModel>(
                 id,
@@ -108,9 +108,10 @@ namespace EventFlow.Elasticsearch.ReadStores
         {
             var readModelDescription = _readModelDescriptionProvider.GetReadModelDescription<TReadModel>();
 
-            _log.Information($"Deleting ALL '{typeof(TReadModel).PrettyPrint()}' by DELETING INDEX '{readModelDescription.IndexName}'!");
+            _log.LogInformation("Deleting ALL '{TReadModel}' by DELETING INDEX '{IndexName}'!", typeof(TReadModel).PrettyPrint(), readModelDescription.IndexName);
 
-            var indices = _elasticClient.GetIndicesPointingToAlias(readModelDescription.IndexName.Value);
+            var indices = await _elasticClient.GetIndicesPointingToAliasAsync(readModelDescription.IndexName.Value)
+                .ConfigureAwait(false);
 
             foreach (var indexKey in indices)
             {

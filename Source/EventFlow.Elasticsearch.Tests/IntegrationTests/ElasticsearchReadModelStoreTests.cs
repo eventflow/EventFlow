@@ -37,6 +37,7 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Suites;
+using Microsoft.Extensions.DependencyInjection;
 using Nest;
 using NUnit.Framework;
 using IndexName = EventFlow.Elasticsearch.ValueObjects.IndexName;
@@ -52,7 +53,7 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
 
         private readonly List<string> _indexes = new List<string>();
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
             var elasticsearchUrl = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL") ?? "http://localhost:9200";
 
@@ -63,25 +64,25 @@ namespace EventFlow.Elasticsearch.Tests.IntegrationTests
                 .SniffLifeSpan(TimeSpan.FromMinutes(5))
                 .DisablePing();
            
-            var resolver = eventFlowOptions
-                .RegisterServices(sr => { sr.RegisterType(typeof(ThingyMessageLocator)); })
+            var options = eventFlowOptions
+                .RegisterServices(sr => { sr.AddTransient<ThingyMessageLocator>(); })
                 .ConfigureElasticsearch(connectionSettings)
                 .UseElasticsearchReadModel<ElasticsearchThingyReadModel>()
                 .UseElasticsearchReadModel<ElasticsearchThingyMessageReadModel, ThingyMessageLocator>()
                 .AddQueryHandlers(
                     typeof(ElasticsearchThingyGetQueryHandler),
                     typeof(ElasticsearchThingyGetVersionQueryHandler),
-                    typeof(ElasticsearchThingyGetMessagesQueryHandler))
-                .CreateResolver();
+                    typeof(ElasticsearchThingyGetMessagesQueryHandler));
 
-            PrepareIndexes(resolver);
+            PrepareIndexes(options);
 
-            return resolver;
+            return base.Configure(eventFlowOptions);
         }
 
-        private void PrepareIndexes(IRootResolver resolver)
+        private void PrepareIndexes(IEventFlowOptions options)
         {
-            _elasticClient = resolver.Resolve<IElasticClient>();
+            using var provider = options.ServiceCollection.BuildServiceProvider();
+            _elasticClient = provider.GetRequiredService<IElasticClient>();
 
             var readModelTypes =
                 GetLoadableTypes<ElasticsearchTypeAttribute>(typeof(ElasticsearchThingyReadModel).Assembly);
