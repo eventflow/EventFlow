@@ -1,6 +1,9 @@
 ### New in 1.2.1 (working version, not released yet)
 
-* *Nothing yet...*
+* Fix: `PostgresReadModelSqlGenerator` now correctly uses the `ColumnQuotedIdentifierSuffix` and
+  `ColumnQuotedIdentifierPrefix` from the `PostgresConfiguration` when generating SQL `SELECT` queries
+* Fix: `PostgresReadModelSqlGenerator` now uses a default value of `"` for `ColumnQuotedIdentifierSuffix` and
+  `ColumnQuotedIdentifierPrefix`
 
 ### New in 1.2.0 (released 2025-03-09)
 
