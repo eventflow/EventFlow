@@ -16,7 +16,7 @@ sourced systems, stores its events using JSON.
 ## Making pretty and clean JSON
 
 You might wonder "but, why?", and the reason is somewhat similar to the
-reasoning behind [semantic URLs](https://en.wikipedia.org/wiki/Semantic_URL>).
+reasoning behind [semantic URLs](https://en.wikipedia.org/wiki/Semantic_URL).
 
 Consider the following value object used to validate and contain
 usernames in an application.

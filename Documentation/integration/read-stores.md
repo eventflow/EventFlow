@@ -196,11 +196,11 @@ above example, the read model `UserReadModel` would be stored in a
 table called `ReadModel-UserReadModel` unless stated otherwise.
 
 To allow EventFlow to find the read models stored, a single column is
-required to have the `MsSqlReadModelIdentityColumn` attribute. This
+required to have the `SqlReadModelIdentityColumn` attribute. This
 will be used to store the read model ID.
 
 You should also create an `int` column that has the
-`MsSqlReadModelVersionColumn` attribute to tell EventFlow which column
+`SqlReadModelVersionColumn` attribute to tell EventFlow which column
 the read model version is stored in.
 
 !!! attention

@@ -110,7 +110,9 @@ The `IAggregateStore.UpdateAsync` method allows to load, modify and save the agg
 ```csharp 
 public class TestController(IAggregateStore aggregateStore) : ControllerBase
 {
-  public async Task Ping(Guid id)
+  public async Task Ping(
+    Guid id,
+    CancellationToken cancellationToken)
   {    
     var testId = TestId.With(id);
     var sourceId = TestId.New;
@@ -123,7 +125,7 @@ public class TestController(IAggregateStore aggregateStore) : ControllerBase
           aggregate.Ping("ping");
           return Task.CompletedTask;
         },
-        CancellationToken.None);
+        cancellationToken);
   }
 }
 ```
@@ -157,14 +159,16 @@ await aggregateStore.StoreAsync<TestAggregate, TestId>(
   CancellationToken.None);
 ```
 
-### Using the CQRS approach.
+### Using the CQRS approach
 
 Another way to change the aggregate is by following the CQRS (Command Query Responsibility Segregation) pattern.
 
 ```csharp
 public class TestController(ICommandBus commandBus) : ControllerBase
 {
-  public async Task Ping(Guid id)
+  public async Task Ping(
+    Guid id,
+    CancellationToken cancellationToken)
   {
     var testId = TestId.With(id);
 
@@ -175,10 +179,75 @@ public class TestController(ICommandBus commandBus) : ControllerBase
     };
 
     // Publish the command using the command bus
-    await commandBus.PublishAsync(command, CancellationToken.None);
+    await commandBus.PublishAsync(command, cancellationToken);
   }
 }
 ```
 
 For more details on commands and command handlers, check the [documentation](../basics/commands.md).
 
+## Reading aggregate events
+
+To read events for a specific aggregate, you can use the `IEventStore` interface. This allows you to load events for an aggregate by its identity.
+
+### Load all events
+
+In the example below, the `GetAuditLog` method loads **all events** for the specified aggregate and maps them to a DTO.
+
+```csharp
+public class TestController(IEventStore eventStore) : ControllerBase
+{
+  public async Task<IEnumerable<EventDto>> GetAuditLog(
+    Guid id,
+    CancellationToken cancellationToken)
+  {
+    var testId = TestId.With(id);
+
+    var events = await eventStore.LoadEventsAsync<TestAggregate, TestId>(
+        testId,
+        cancellationToken);
+
+    return events.Select(e => new EventDto
+    {
+      EventType = e.EventType.Name,
+      Timestamp = e.Timestamp
+    });
+  }
+}
+
+public class EventDto
+{
+  public required string EventType { get; init; }
+  public required DateTimeOffset Timestamp { get; init; }
+}
+```
+
+### Load events for a specific range
+
+You can also load events for a specific range. In the example below, `from` and `to` represent the range of sequence numbers for the events you want to load. This can be useful for pagination or retrieving a specific subset of events for an aggregate.
+
+```csharp
+public class TestController(IEventStore eventStore) : ControllerBase
+{
+  public async Task<IEnumerable<EventDto>> GetEventsInRange(
+    Guid id,
+    int from,
+    int to,
+    CancellationToken cancellationToken)
+  {
+    var testId = TestId.With(id);
+
+    var events = await eventStore.LoadEventsAsync<TestAggregate, TestId>(
+        testId,
+        from,
+        to,
+        cancellationToken);
+
+    return events.Select(e => new EventDto
+    {
+      EventType = e.EventType.Name,
+      Timestamp = e.Timestamp
+    });
+  }
+}
+```

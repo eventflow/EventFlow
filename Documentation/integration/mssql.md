@@ -18,7 +18,7 @@ public void ConfigureServices(IServiceCollection services)
   {
     ef.ConfigureMsSql(MsSqlConfiguration.New
       .SetConnectionString(@"Server=.\SQLEXPRESS;Database=MyApp;User Id=sa;Password=???"))
-    .UseMsSqlEventStore();
+    .UseMssqlEventStore();
   });
 }
 ```

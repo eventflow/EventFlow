@@ -473,10 +473,6 @@ category.
 * [iconmonstr](https://iconmonstr.com/network-6-icon/): First logo
 * [JC008](https://github.com/JC008): License for Navicat Essentials for SQLite
 
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=eventflow/EventFlow&type=Date)](https://star-history.com/#eventflow/EventFlow&Date)
-
 ## License
 
 EventFlow was originally developed <u>in my spare time</u> while I worked at both
