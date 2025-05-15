@@ -62,10 +62,7 @@ namespace EventFlow.ValueObjects
 
             return Activator.CreateInstance(objectType, value);
         }
-
-        public override bool CanConvert(Type objectType)
-        {
-            return typeof(ISingleValueObject).GetTypeInfo().IsAssignableFrom(objectType);
-        }
+        public override bool CanConvert(Type objectType) => typeof(ISingleValueObject).GetTypeInfo().IsAssignableFrom(objectType);
+       
     }
 }

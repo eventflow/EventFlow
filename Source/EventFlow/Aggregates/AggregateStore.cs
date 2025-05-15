@@ -52,6 +52,7 @@ namespace EventFlow.Aggregates
         private readonly ICancellationConfiguration _cancellationConfiguration;
         private readonly IAggregateStoreResilienceStrategy _aggregateStoreResilienceStrategy;
         private readonly IEventFlowConfiguration _eventFlowConfiguration;
+        private readonly IDomainEventPublisher _domainEventPublisher;
 
         public AggregateStore(
             ILogger<AggregateStore> logger,
@@ -62,7 +63,8 @@ namespace EventFlow.Aggregates
             ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler,
             ICancellationConfiguration cancellationConfiguration,
             IAggregateStoreResilienceStrategy aggregateStoreResilienceStrategy,
-            IEventFlowConfiguration eventFlowConfiguration)
+            IEventFlowConfiguration eventFlowConfiguration,
+            IDomainEventPublisher domainEventPublisher)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
@@ -73,6 +75,7 @@ namespace EventFlow.Aggregates
             _cancellationConfiguration = cancellationConfiguration;
             _aggregateStoreResilienceStrategy = aggregateStoreResilienceStrategy;
             _eventFlowConfiguration = eventFlowConfiguration;
+            _domainEventPublisher = domainEventPublisher;
         }
 
         public async Task<TAggregate> LoadAsync<TAggregate, TIdentity>(
@@ -206,8 +209,7 @@ namespace EventFlow.Aggregates
                     .ConfigureAwait(false);
                 try
                 {
-                    var domainEventPublisher = _serviceProvider.GetRequiredService<IDomainEventPublisher>();
-                    await domainEventPublisher.PublishAsync(
+                    await _domainEventPublisher.PublishAsync(
                             aggregateUpdateResult.DomainEvents,
                             cancellationToken)
                         .ConfigureAwait(false);
