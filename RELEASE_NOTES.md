@@ -1,6 +1,6 @@
 ### New in 0.85 (not released yet)
 
-* New: Update from `System.Data.SqlClient` to `Microsoft.Data.SqlClient`
+* New: Update from `System.Data.SqlClient` to `Microsoft.Data.SqlClient` (thanks @janrybka)
 
 ### New in 0.84.4 (released 2024-11-26)
 
