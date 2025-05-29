@@ -15,7 +15,7 @@
     <Description>Source Generators for EventFlow</Description>
     <PackageTags>CQRS ES event sourcing</PackageTags>
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
-    <IsPackable>true</IsPackable>
+    <IsPackable>false</IsPackable>
     <SymbolPackageFormat></SymbolPackageFormat>
     <IncludeSymbols>false</IncludeSymbols>
   </PropertyGroup>

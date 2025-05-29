@@ -14,6 +14,6 @@ jobs:
     with:
       bake-convention: 'Release'
       environment: 'release'
-      version: "1.2.1"
+      version: "1.2.2"
     secrets:
       nuget-api-key: ${{ secrets.NUGET_APIKEY }}

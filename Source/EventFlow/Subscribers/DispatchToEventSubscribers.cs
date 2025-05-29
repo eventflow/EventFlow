@@ -127,6 +127,8 @@ namespace EventFlow.Subscribers
                 .ConfigureAwait(false);
             var subscribers = _serviceProvider.GetServices(subscriberInformation.SubscriberType)
                 .Cast<ISubscribe>()
+                .GroupBy(s => s.GetType())
+                .Select(g => g.First())
                 .OrderBy(s => s.GetType().Name)
                 .ToList();
 

@@ -7,7 +7,6 @@
     <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2021</Copyright>
     <Description>POSTGRESQL support for EventFlow</Description>
     <PackageTags>CQRS ES event sourcing POSTGRESQL</PackageTags>
-    <NeutralLanguage>en-US</NeutralLanguage>
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
@@ -32,7 +31,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EventFlow.Sql\EventFlow.Sql.csproj" />
-    <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
   </ItemGroup>
 
 </Project>

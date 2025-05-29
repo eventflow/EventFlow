@@ -122,6 +122,20 @@ namespace EventFlow.Tests.UnitTests.Subscribers
             _logMock.VerifyNoProblems();
         }
 
+        [Test]
+        public async Task OnlyOneAsynchronousSubscriberGetCalled()
+        {
+            // Arrange
+            var subscriberMock = ArrangeMultipleAsynchronousSubscribers<ThingyPingEvent>();
+
+            // Act
+            await Sut.DispatchToAsynchronousSubscribersAsync(A<DomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>(), CancellationToken.None).ConfigureAwait(false);
+
+            // Assert
+            subscriberMock.Verify(s => s.HandleAsync(It.IsAny<IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>(), It.IsAny<CancellationToken>()), Times.Once);
+            _logMock.VerifyNoProblems();
+        }
+
         private Mock<ISubscribeSynchronousTo<ThingyAggregate, ThingyId, TEvent>> ArrangeSynchronousSubscriber<TEvent>()
             where TEvent : IAggregateEvent<ThingyAggregate, ThingyId>
         {
@@ -143,6 +157,18 @@ namespace EventFlow.Tests.UnitTests.Subscribers
             _serviceProviderMock
                 .Setup(r => r.GetService(typeof(IEnumerable<ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, TEvent>>)))
                 .Returns(new object[] { subscriberMock.Object });
+
+            return subscriberMock;
+        }
+
+        private Mock<ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, TEvent>> ArrangeMultipleAsynchronousSubscribers<TEvent>()
+            where TEvent : IAggregateEvent<ThingyAggregate, ThingyId>
+        {
+            var subscriberMock = new Mock<ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, TEvent>>();
+
+            _serviceProviderMock
+                .Setup(r => r.GetService(typeof(IEnumerable<ISubscribeAsynchronousTo<ThingyAggregate, ThingyId, TEvent>>)))
+                .Returns(new object[] { subscriberMock.Object, subscriberMock.Object, subscriberMock.Object });
 
             return subscriberMock;
         }

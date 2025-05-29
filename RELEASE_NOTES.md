@@ -1,5 +1,11 @@
-### New in 1.2.1 (working version, not released yet)
+### New in 1.2.2 (working version, not released yet)
+
 * New: NuGet `EventFlow.Elasticsearch` now ported to v1 (thanks @MMonrad)
+
+### New in 1.2.1 (released 2025-05-29)
+
+* Fix: Prevent multiple calls of the same async subscribers when dispatching events (by @alexeyfv)
+* Fix: Better exception handling and propagation in `ReadModelPopulator`
 
 ### New in 1.2.0 (released 2025-03-09)
 

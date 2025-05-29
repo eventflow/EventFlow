@@ -13,4 +13,4 @@ jobs:
   pipeline:
     uses: ./.github/workflows/pipeline.yaml
     with:
-      version: "1.2.1-pr${{ github.event.number }}-b${{ github.run_number }}"
+      version: "1.2.2-pr${{ github.event.number }}-b${{ github.run_number }}"
