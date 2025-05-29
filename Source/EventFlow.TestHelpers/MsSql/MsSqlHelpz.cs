@@ -21,7 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Linq;
 
 namespace EventFlow.TestHelpers.MsSql
@@ -49,7 +49,8 @@ namespace EventFlow.TestHelpers.MsSql
                 {
                     DataSource = FirstNonEmpty(
                         Environment.GetEnvironmentVariable("EVENTFLOW_MSSQL_SERVER"),
-                        ".")
+                        "."),
+                    Encrypt = false
                 };
 
             var password = Environment.GetEnvironmentVariable("EVENTFLOW_MSSQL_PASS");
@@ -82,9 +83,10 @@ namespace EventFlow.TestHelpers.MsSql
 
             connectionStringBuilder.InitialCatalog = databaseName;
 
-            Console.WriteLine($"Using connection string for tests: {connectionStringBuilder.ConnectionString}");
+            var connectionString = connectionStringBuilder.ConnectionString;
+            Console.WriteLine($"Using connection string for tests: {connectionString}");
 
-            return new MsSqlConnectionString(connectionStringBuilder.ConnectionString);
+            return new MsSqlConnectionString(connectionString);
         }
 
         private static bool IsGoodConnectionString(string connectionString)

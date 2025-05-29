@@ -21,7 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 namespace EventFlow.TestHelpers.MsSql
 {

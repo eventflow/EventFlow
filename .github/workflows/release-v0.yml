@@ -39,7 +39,7 @@ jobs:
 
     - name: Run Bake
       run: |
-        bake run --convention=Release --build-version 0.84.${{ github.run_number }} --destination="nuget>github,nuget,release>github"
+        bake run --convention=Release --build-version 0.85.${{ github.run_number }} --destination="nuget>github,nuget,release>github"
 
     - name: Upload NuGet packages
       uses: actions/upload-artifact@v4

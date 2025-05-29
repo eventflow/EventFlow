@@ -1,4 +1,8 @@
-### New in 0.84 (not released yet)
+### New in 0.85 (not released yet)
+
+* New: Update from `System.Data.SqlClient` to `Microsoft.Data.SqlClient` (thanks @janrybka)
+
+### New in 0.84.4 (released 2024-11-26)
 
 Maintenance release of EventFlow v0 that fixes a few issues and updates dependencies. The update tries to stay as close to the old code base as possible. However, many dependencies have critical vulnerabilities have forced an update. This in turn has again force update on the .NET Framework version for some packages, as the updated dependencies did not support the old ones.
 

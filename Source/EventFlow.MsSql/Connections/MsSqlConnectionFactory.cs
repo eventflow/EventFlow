@@ -21,7 +21,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System.Data;
+#if NETSTANDARD2_0_OR_GREATER
+using Microsoft.Data.SqlClient;
+#else
 using System.Data.SqlClient;
+#endif
 using System.Threading;
 using System.Threading.Tasks;
 
