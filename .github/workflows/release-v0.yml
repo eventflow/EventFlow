@@ -40,7 +40,7 @@ jobs:
       run: |
         declare -i REVISION
         REVISION=4714+$GITHUB_RUN_NUMBER
-        bake run --convention=Release --build-version 0.84.$REVISION --destination="nuget>github,nuget,release>github"
+        bake run --convention=Release --build-version 0.85.$REVISION --destination="nuget>github,nuget,release>github"
 
     - name: Upload NuGet packages
       uses: actions/upload-artifact@v4
