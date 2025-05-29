@@ -82,7 +82,7 @@ namespace EventFlow.Core
                 throw new ArgumentException("Incorrect number of arguments");
             }
 
-            var instanceArgument = Expression.Parameter(genericArguments[0]);;
+            var instanceArgument = Expression.Parameter(genericArguments[0]);
 
             var argumentPairs = funcArgumentList.Zip(methodArgumentList, (s, d) => new {Source = s, Destination = d}).ToList();
             if (argumentPairs.All(a => a.Source == a.Destination))
