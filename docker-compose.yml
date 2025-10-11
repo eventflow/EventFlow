@@ -52,7 +52,3 @@ services:
       POSTGRES_PASSWORD: Password12!
     ports:
       - "5432:5432"
-
-volumes:
-  kurrentdb-volume-data:
-  kurrentdb-volume-logs:
