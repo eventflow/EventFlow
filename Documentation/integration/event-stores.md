@@ -27,7 +27,7 @@ Using the in-memory event store is easy as it's enabled by default, so there is 
 
 See the [KurrentDB quick start](https://docs.kurrent.io/clients/dotnet/v1.0/getting-started.html) for details on running the server and working with connection strings.
 
-Install the `EventFlow.Kurrent` package and configure EventFlow with either a connection string or a prebuilt `EventStoreClientSettings` instance.
+Install the `EventFlow.Kurrent` package and configure EventFlow with either a connection string or a prebuilt `KurrentDBClientSettings` instance.
 
 ```csharp
 var connectionString = "kurrentdb://localhost:2113?tls=false";
@@ -40,7 +40,7 @@ serviceCollection.AddEventFlow(eventFlowOptions =>
 });
 ```
 
-When additional configuration is required (for example TLS certificates, keep-alive tuning, or custom credentials), create an `EventStoreClientSettings` object and pass it to `UseKurrentEventStore(settings)` instead of the connection string overload.
+When additional configuration is required (for example TLS certificates, keep-alive tuning, or custom credentials), create an `KurrentDBClientSettings` object and pass it to `UseKurrentEventStore(settings)` instead of the connection string overload.
 
 ## MSSQL event store
 
