@@ -27,7 +27,7 @@ on:
 jobs:
   build:
     runs-on:
-    - ubuntu-22.04
+    - ubuntu-24.04
 
     concurrency:
       group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
