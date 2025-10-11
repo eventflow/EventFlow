@@ -16,6 +16,10 @@ on:
         required: false
         type: string
         default: '0.37.51'
+      cancel-in-progress:
+        required: false
+        type: boolean
+        default: true        
       environment:
         required: false
         type: string
