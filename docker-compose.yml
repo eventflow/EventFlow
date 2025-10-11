@@ -32,11 +32,17 @@ services:
       - "5672:5672"
       - "15672:15672"
 
-  eventstore:
-    image: eventstore/eventstore:release-4.1.3
-    container_name: eventstore-ef
+  kurrentdb:
+    image: docker.kurrent.io/kurrent-latest/kurrentdb:latest
+    container_name: kurrentdb-ef
+    environment:
+      - KURRENTDB_CLUSTER_SIZE=1
+      - KURRENTDB_RUN_PROJECTIONS=All
+      - KURRENTDB_START_STANDARD_PROJECTIONS=true
+      - KURRENTDB_NODE_PORT=2113
+      - KURRENTDB_INSECURE=true
+      - KURRENTDB_ENABLE_ATOM_PUB_OVER_HTTP=true
     ports:
-      - "1113:1113"
       - "2113:2113"
 
   postgres:
@@ -46,3 +52,7 @@ services:
       POSTGRES_PASSWORD: Password12!
     ports:
       - "5432:5432"
+
+volumes:
+  kurrentdb-volume-data:
+  kurrentdb-volume-logs:

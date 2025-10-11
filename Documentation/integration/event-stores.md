@@ -10,6 +10,7 @@ nav_order: 2
 By default, EventFlow uses an in-memory event store. However, EventFlow provides support for several alternatives.
 
 - [In-memory](#in-memory) (for testing)
+- [KurrentDB](#kurrentdb)
 - [Microsoft SQL Server](#mssql-event-store)
 - [MongoDB](#mongo-db)
 - [Redis](#redis)
@@ -21,6 +22,25 @@ By default, EventFlow uses an in-memory event store. However, EventFlow provides
     The in-memory event store should not be used for production environments, only for testing purposes.
 
 Using the in-memory event store is easy as it's enabled by default, so there is no need to do anything.
+
+## KurrentDB
+
+See the [KurrentDB quick start](https://docs.kurrent.io/clients/dotnet/v1.0/getting-started.html) for details on running the server and working with connection strings.
+
+Install the `EventFlow.Kurrent` package and configure EventFlow with either a connection string or a prebuilt `EventStoreClientSettings` instance.
+
+```csharp
+var connectionString = "kurrentdb://localhost:2113?tls=false";
+
+serviceCollection.AddEventFlow(eventFlowOptions =>
+{
+  // Other details are omitted for clarity
+
+  eventFlowOptions.UseKurrentEventStore(connectionString);
+});
+```
+
+When additional configuration is required (for example TLS certificates, keep-alive tuning, or custom credentials), create an `EventStoreClientSettings` object and pass it to `UseKurrentEventStore(settings)` instead of the connection string overload.
 
 ## MSSQL event store
 

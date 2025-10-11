@@ -1,6 +1,6 @@
-### New in 1.2.3 (not released yet)
+### New in 1.3.0 (not released yet)
 
-- *Nothing yet...*
+- New: Added `EventFlow.Kurrent` as a new event store option. This is a replacement of the `EventFlow.EventStores.EventStore` package after the product got renamed. See [Event stores](https://geteventflow.net/integration/event-stores/#kurrentdb) for details.
 
 ### New in 1.2.2 (released 2025-10-11)
 

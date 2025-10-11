@@ -20,47 +20,35 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
-using System.Threading.Tasks;
-using EventFlow.Configuration;
-using EventFlow.EventStores.EventStore.Extensions;
 using EventFlow.Extensions;
+using EventFlow.Kurrent.Extensions;
 using EventFlow.MetadataProviders;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
-using EventStore.ClientAPI;
-using EventStore.ClientAPI.SystemData;
+using KurrentDB.Client;
 using NUnit.Framework;
+using System;
+using System.Threading.Tasks;
 
-namespace EventFlow.EventStores.EventStore.Tests.IntegrationTests
+namespace EventFlow.Kurrent.Tests.IntegrationTests
 {
     [TestFixture]
     [Category(Categories.Integration)]
-    public class EventStoreEventStoreTests : TestSuiteForEventStore
+    public class KurrentEventStoreTests : TestSuiteForEventStore
     {
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)
         {
-            var eventStoreUri = new Uri(Environment.GetEnvironmentVariable("EVENTSTORE_URL") ?? "tcp://admin:changeit@localhost:1113");
+            var connectionString = Environment.GetEnvironmentVariable("KURRENTDB_CONNECTION_STRING") ?? "kurrentdb://localhost:2113?tls=false";
+            var settings = KurrentDBClientSettings.Create(connectionString);
 
-            var connectionSettings = ConnectionSettings.Create()
-                .EnableVerboseLogging()
-                .KeepReconnecting()
-                .KeepRetrying()
-                .SetDefaultUserCredentials(new UserCredentials("admin", "changeit"))
-                .Build();
-
-            var resolver = eventFlowOptions
+            return eventFlowOptions
                 .AddMetadataProvider<AddGuidMetadataProvider>()
-                .UseEventStoreEventStore(eventStoreUri, connectionSettings)
-                .CreateResolver();
-
-            return resolver;
+                .UseKurrentEventStore(settings);
         }
 
         public override Task LoadAllEventsAsyncFindsEventsAfterLargeGaps()
         {
-            // Need to reset DB in order to make this test work.
-
+            // Resetting the database is required to guarantee this scenario.
             return Task.CompletedTask;
         }
     }
