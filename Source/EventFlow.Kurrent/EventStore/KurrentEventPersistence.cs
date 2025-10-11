@@ -31,11 +31,10 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
-using EventStore.Client;
 using KurrentDB.Client;
 using Microsoft.Extensions.Logging;
 
-namespace EventFlow.Kurrent
+namespace EventFlow.Kurrent.EventStore
 {
     public class KurrentEventPersistence : IEventPersistence
     {

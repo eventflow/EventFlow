@@ -22,6 +22,7 @@
 
 using System;
 using EventFlow.Extensions;
+using EventFlow.Kurrent.EventStore;
 using KurrentDB.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
