@@ -127,6 +127,21 @@ public class OrderSaga
     `AggregateSaga<,,>`).
 
 
+## Understanding Saga Lifecycle States
+
+
+Each Saga has an internal ```State``` property that defines how it processes events. This property can have the following values:
+
+- **New**
+  - Only events defined using ```ISagaIsStartedBy<>``` can be processed.
+- **Running**
+  - Events defined using ```ISagaHandles<>``` will be processed.
+  - Events defined using ```ISagaIsStartedBy<>``` will also behave the same as ```ISagaHandles<>```.
+- **Completed**
+  - No events will be processed by the Saga anymore.
+
+
+
 ## Alternative saga store
 
 By default, EventFlow is configured to use event sourcing and aggregate
