@@ -41,9 +41,6 @@ namespace EventFlow.ReadStores
         private static readonly ISet<Type> AggregateEventTypes;
 
         // ReSharper enable StaticMemberInGenericType
-
-        private readonly IReadStoreCachingStrategy cachingStrategy;
-
         protected ILogger Logger { get; }
         protected IServiceProvider ServiceProvider { get; }
         protected TReadModelStore ReadModelStore { get; }
@@ -89,15 +86,13 @@ namespace EventFlow.ReadStores
             IServiceProvider serviceProvider,
             TReadModelStore readModelStore,
             IReadModelDomainEventApplier readModelDomainEventApplier,
-            IReadModelFactory<TReadModel> readModelFactory,
-            IReadStoreCachingStrategy cachingStrategy)
+            IReadModelFactory<TReadModel> readModelFactory)
         {
             Logger = logger;
             ServiceProvider = serviceProvider;
             ReadModelStore = readModelStore;
             ReadModelDomainEventApplier = readModelDomainEventApplier;
             ReadModelFactory = readModelFactory;
-            this.cachingStrategy = cachingStrategy;
         }
 
         public async Task UpdateReadStoresAsync(

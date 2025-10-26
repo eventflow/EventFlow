@@ -10,13 +10,14 @@
     <PackageTags>CQRS ES event sourcing EF Entity Framework Core</PackageTags>
     <PackageReleaseNotes>Updated to include latest EventFlow</PackageReleaseNotes>
     <IsPackable>true</IsPackable>
-    <Version>0.2.2</Version>
+    <Version>0.2.4</Version>
 	<Product>ClearFlow.EntityFramework</Product>
 	<RepositoryUrl>https://github.com/kyle-bradley/EventFlow</RepositoryUrl>
   </PropertyGroup>
 	
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="System.Text.Json" Version="9.0.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,13 +26,13 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <PackageReference Include="Microsoft.EntityFrameworkCore">
-      <Version>8.0.11</Version>
+      <Version>8.0.13</Version>
     </PackageReference>
   </ItemGroup>
 	
 	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
 		<PackageReference Include="Microsoft.EntityFrameworkCore">
-			<Version>9.0.0</Version>
+			<Version>9.0.2</Version>
 		</PackageReference>
 	</ItemGroup>
 	

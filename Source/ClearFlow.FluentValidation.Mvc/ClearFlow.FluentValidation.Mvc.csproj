@@ -12,7 +12,7 @@
     <Description>FluentValidation support for commands</Description>
     <PackageTags>CQRS ES event sourcing EventStore FluentValidation</PackageTags>
     <IsPackable>true</IsPackable>
-    <Version>0.2.2</Version>
+    <Version>0.2.4</Version>
 	<Product>ClearFlow.FluentValidation.Mvc</Product>
 	<RepositoryUrl>https://github.com/kyle-bradley/EventFlow</RepositoryUrl>
 	<WarningsNotAsErrors>NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
@@ -20,9 +20,10 @@
 
   <ItemGroup>
     <PackageReference Include="MicroElements.Swashbuckle.FluentValidation" Version="6.1.0" />
-    <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Mvc" Version="1.4.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.2.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.2.0" />
+    <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Mvc" Version="1.5.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.3.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.3.0" />
+    <PackageReference Include="System.Text.Json" Version="9.0.2" />
   </ItemGroup>
 
   <ItemGroup>

@@ -44,12 +44,7 @@ namespace EventFlow.ReadStores
 
         public async Task<ReadModelEnvelope<TReadModel>> GetAsync(string id, CancellationToken cancellationToken)
         {
-            var cachedResult = await memoryCacheStrategy.QueryReadStoreModel<TReadModel>(id, cancellationToken);
-            if (cachedResult.IsEmpty)
-            {
-                return await GetReadModelAsync(id, cancellationToken);
-            }
-
+            var cachedResult = await memoryCacheStrategy.QueryReadStoreModel(id, GetReadModelAsync, cancellationToken);
             return cachedResult;
         }
 

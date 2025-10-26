@@ -10,7 +10,7 @@
     <PackageTags>CQRS ES event sourcing POSTGRESQL</PackageTags>
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
-	<Version>0.2.2</Version>
+	<Version>0.2.4</Version>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 
@@ -27,8 +27,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="dbup-core" Version="6.0.4" />
     <PackageReference Include="dbup-postgresql" Version="5.0.40" />
+    <PackageReference Include="libphonenumber-csharp" Version="8.13.55" />
 	 <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+	 <PackageReference Include="System.Text.Json" Version="9.0.2" />
   </ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
@@ -40,7 +44,7 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0' Or '$(TargetFramework)' == 'net6.0'">
-		<PackageReference Include="Npgsql" Version="9.0.2" />
+		<PackageReference Include="Npgsql" Version="7.0.9" />
 	</ItemGroup>
 	
   <ItemGroup>

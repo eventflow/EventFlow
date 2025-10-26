@@ -8,14 +8,15 @@
     <Description>Hangfire job scheduling support for EventFlow</Description>
     <PackageTags>CQRS ES event sourcing Hangfire</PackageTags>
     <PackageReleaseNotes>Updated to include latest EventFlow changes.</PackageReleaseNotes>
-    <Version>0.2.2</Version>
+    <Version>0.2.4</Version>
     <IsPackable>true</IsPackable>
 	<WarningsNotAsErrors>NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Hangfire.Core" Version="1.8.17" />
+    <PackageReference Include="Hangfire.Core" Version="1.8.18" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="System.Text.Json" Version="9.0.2" />
   </ItemGroup>
 
   <ItemGroup>

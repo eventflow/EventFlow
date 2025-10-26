@@ -8,7 +8,7 @@
 	  <Description>Common value objects available with ClearFlow</Description>
 	  <PackageTags>CQRS ES event sourcing value objects</PackageTags>
 	  <PackageReleaseNotes>Initial release for basic value objects.</PackageReleaseNotes>
-	  <Version>0.2.2</Version>
+	  <Version>0.2.4</Version>
 	  <Product>ClearFlow.ValueObjects</Product>
 	  <IsPackable>true</IsPackable>
 	  <Nullable>enable</Nullable>
@@ -18,7 +18,8 @@
     <PackageReference Include="EmailValidation" Version="1.2.0" />
     <PackageReference Include="FluentValidation" Version="11.11.0" />
     <PackageReference Include="libphonenumber-csharp" Version="8.13.51" />
-    <PackageReference Include="NMoneys" Version="7.3.0" />
+    <PackageReference Include="NMoneys" Version="7.4.0" />
+    <PackageReference Include="System.Text.Json" Version="9.0.2" />
   </ItemGroup>
 
   <ItemGroup>

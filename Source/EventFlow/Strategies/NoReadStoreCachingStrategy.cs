@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.ReadStores;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,7 +40,8 @@ namespace EventFlow.Strategies
             return Task.CompletedTask;
         }
 
-        public Task<ReadModelEnvelope<TReadModel>> QueryReadStoreModel<TReadModel>(string readModelId, CancellationToken cancellationToken)
+        public Task<ReadModelEnvelope<TReadModel>> QueryReadStoreModel<TReadModel>(string readModelId, Func<string, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> fetchNew,
+            CancellationToken cancellationToken)
             where TReadModel : class, IReadModel
         {
             return Task.FromResult(ReadModelEnvelope<TReadModel>.Empty(readModelId));
@@ -51,6 +53,5 @@ namespace EventFlow.Strategies
         {
             return Task.CompletedTask;
         }
-
     }
 }

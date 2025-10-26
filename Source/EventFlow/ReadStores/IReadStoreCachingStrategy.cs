@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,7 +31,9 @@ namespace EventFlow.ReadStores
     {
         Task DeleteReadModel<TReadModel>(string readModelId, CancellationToken cancellationToken);
         Task DeleteAllReadModels(CancellationToken cancellationToken);
-        Task<ReadModelEnvelope<TReadModel>> QueryReadStoreModel<TReadModel>(string readModelId, CancellationToken cancellationToken)
+
+        Task<ReadModelEnvelope<TReadModel>> QueryReadStoreModel<TReadModel>(string readModelId, Func<string, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> fetchNew,
+            CancellationToken cancellationToken)
             where TReadModel : class, IReadModel;
 
         Task UpdateReadStoreModel<TReadModel>(IReadOnlyCollection<ReadModelUpdateResult<TReadModel>> updatedModels, CancellationToken cancellationToken)

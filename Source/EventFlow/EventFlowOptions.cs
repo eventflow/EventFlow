@@ -180,7 +180,7 @@ namespace EventFlow
             serviceCollection.TryAddTransient<IDispatchToReadStoresResilienceStrategy, NoDispatchToReadStoresResilienceStrategy>();
             serviceCollection.TryAddTransient<ISagaUpdateResilienceStrategy, NoSagaUpdateResilienceStrategy>();
             serviceCollection.TryAddTransient<IDispatchToSubscriberResilienceStrategy, NoDispatchToSubscriberResilienceStrategy>();
-            serviceCollection.TryAddSingleton<IReadStoreCachingStrategy, InMemoryReadStoreCachingStrategy>();
+            serviceCollection.TryAddSingleton<IReadStoreCachingStrategy, NoReadStoreCachingStrategy>();
             serviceCollection.TryAddTransient<IReadStoreCachingConfiguration, ReadStoreCachingConfiguration>();
 
             serviceCollection.TryAddSingleton<IDispatchToReadStores, DispatchToReadStores>();

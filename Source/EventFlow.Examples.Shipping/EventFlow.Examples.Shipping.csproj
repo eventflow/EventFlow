@@ -4,6 +4,9 @@
     <IsPackable>False</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="9.0.2" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
   </ItemGroup>
 </Project>
