@@ -39,7 +39,7 @@ public void ConfigureServices(IServiceCollection services)
         .New
         .SetConnectionString(@"Server=.\SQLEXPRESS;Database=MyApp;User Id=sa;Password=Pa55w0rd!"))
       .UseMssqlEventStore()
-      .UseMssqlSnapshotStore()
+      .UseMsSqlSnapshotStore()
       .UseMssqlReadModel<UserReadModel>()
       .UseMssqlReadModel<UserNicknameReadModel, UserNicknameReadModelLocator>();
   });
@@ -80,12 +80,12 @@ Run this during deployment or application startup. The migrator is idempotent, s
 
 ## Snapshot store
 
-Snapshot persistence reduces load time for long-running aggregates. Enable it with `.UseMssqlSnapshotStore()` after calling `ConfigureMsSql`.
+Snapshot persistence reduces load time for long-running aggregates. Enable it with `.UseMsSqlSnapshotStore()` after calling `ConfigureMsSql`.
 
 ```csharp
 services.AddEventFlow(o =>
   o.ConfigureMsSql(config)
-   .UseMssqlSnapshotStore());
+   .UseMsSqlSnapshotStore());
 ```
 
 Provision the schema using the bundled scripts.
