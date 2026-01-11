@@ -53,6 +53,7 @@ namespace EventFlow.MsSql.ReadStores
         private readonly ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> _transientFaultHandler;
         private static readonly Func<TReadModel, int?> GetVersion;
         private static readonly Action<TReadModel, int?> SetVersion;
+        private static readonly Action<TReadModel, string> SetIdentity;
         private static readonly string ReadModelNameLowerCase = typeof(TReadModel).Name.ToLowerInvariant();
         private static readonly string ConnectionStringName = typeof(TReadModel).GetCustomAttribute<SqlReadModelConnectionStringNameAttribute>()?.ConnectionStringName;
 
@@ -77,6 +78,22 @@ namespace EventFlow.MsSql.ReadStores
             {
                 GetVersion = rm => (int?)versionPropertyInfo.GetValue(rm);
                 SetVersion = (rm, v) => versionPropertyInfo.SetValue(rm, v);
+            }
+
+            var identityPropertyInfo = propertyInfos
+                .SingleOrDefault(p => p.GetCustomAttributes().Any(a => a is SqlReadModelIdentityColumnAttribute));
+            if (identityPropertyInfo == null)
+            {
+                identityPropertyInfo = propertyInfos.SingleOrDefault(p => p.Name == "AggregateId");
+            }
+
+            if (identityPropertyInfo == null)
+            {
+                SetIdentity = (rm, i) => { };
+        }
+            else
+            {
+                SetIdentity = identityPropertyInfo.SetValue;
             }
         }
 
@@ -167,6 +184,7 @@ namespace EventFlow.MsSql.ReadStores
             else
             {
                 SetVersion(readModel, (int?) readModelEnvelope.Version);
+                SetIdentity(readModel, readModelId);
             }
 
             var sql = isNew
