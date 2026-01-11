@@ -37,9 +37,9 @@ using System.Threading;
 namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores
 {
     [Category(Categories.Integration)]
-    public class MsSqlReadModelStoreTests : TestSuiteForReadModelStore
+    public class ObsoleteMsSqlReadModelStoreTests : TestSuiteForReadModelStore
     {
-        protected override Type ReadModelType { get; } = typeof(MsSqlThingyReadModel);
+        protected override Type ReadModelType { get; } = typeof(ObsoleteMsSqlThingyReadModel);
 
         private IMsSqlDatabase _testDatabase;
 
@@ -50,11 +50,11 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores
             eventFlowOptions
                 .RegisterServices(sr => sr.AddTransient(typeof(ThingyMessageLocator)))
                 .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
-                .UseMssqlReadModel<MsSqlThingyReadModel>()
+                .UseMssqlReadModel<ObsoleteMsSqlThingyReadModel>()
                 .UseMssqlReadModel<MsSqlThingyMessageReadModel, ThingyMessageLocator>()
                 .AddQueryHandlers(
-                    typeof(MsSqlThingyGetQueryHandler),
-                    typeof(MsSqlThingyGetVersionQueryHandler),
+                    typeof(ObsoleteMsSqlThingyGetQueryHandler),
+                    typeof(ObsoleteMsSqlThingyGetVersionQueryHandler),
                     typeof(MsSqlThingyGetMessagesQueryHandler));
 
             var serviceProvider = base.Configure(eventFlowOptions);

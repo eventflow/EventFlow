@@ -20,14 +20,39 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.Core;
 using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels;
+using EventFlow.Queries;
+using EventFlow.Sql.Extensions;
+using EventFlow.TestHelpers.Aggregates;
+using EventFlow.TestHelpers.Aggregates.Queries;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.QueryHandlers
 {
-    public class MsSqlThingyGetVersionQueryHandler : MsSqlThingyGetVersionQueryHandlerBase<MsSqlThingyReadModel>
+    public class MsSqlThingyGetQueryHandlerBase<TReadModel> : IQueryHandler<ThingyGetQuery, Thingy>
+        where TReadModel : class, IThingyReadModel
     {
-        public MsSqlThingyGetVersionQueryHandler(IMsSqlConnection msSqlConnection) : base(msSqlConnection)
+        private readonly IMsSqlConnection _msSqlConnection;
+
+        public MsSqlThingyGetQueryHandlerBase(
+            IMsSqlConnection msSqlConnection)
         {
+            _msSqlConnection = msSqlConnection;
+        }
+
+        public async Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query, CancellationToken cancellationToken)
+        {
+            var readModels = await _msSqlConnection.QueryAsync<TReadModel>(
+                Label.Named("mssql-fetch-test-read-model"),
+                ReadModelExtensions.GetConnectionStringName<TReadModel>(),
+                cancellationToken,
+                "SELECT * FROM [ReadModel-ThingyAggregate] WHERE AggregateId = @AggregateId",
+                new { AggregateId = query.ThingyId.Value })
+                .ConfigureAwait(false);
+            return readModels.SingleOrDefault()?.ToThingy();
         }
     }
 }

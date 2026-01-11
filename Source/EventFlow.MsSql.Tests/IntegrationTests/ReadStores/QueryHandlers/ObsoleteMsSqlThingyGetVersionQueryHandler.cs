@@ -24,9 +24,10 @@ using EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.QueryHandlers
 {
-    public class MsSqlThingyGetVersionQueryHandler : MsSqlThingyGetVersionQueryHandlerBase<MsSqlThingyReadModel>
+    public class ObsoleteMsSqlThingyGetVersionQueryHandler
+        : MsSqlThingyGetVersionQueryHandlerBase<ObsoleteMsSqlThingyReadModel>
     {
-        public MsSqlThingyGetVersionQueryHandler(IMsSqlConnection msSqlConnection) : base(msSqlConnection)
+        public ObsoleteMsSqlThingyGetVersionQueryHandler(IMsSqlConnection msSqlConnection) : base(msSqlConnection)
         {
         }
     }

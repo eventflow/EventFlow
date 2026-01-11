@@ -21,10 +21,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Aggregates;
+using EventFlow.MsSql.ReadStores;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
-using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,15 +34,12 @@ using System.Threading.Tasks;
 namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels
 {
     [Table("ReadModel-ThingyAggregate")]
-    public class MsSqlThingyReadModel : IThingyReadModel,
+    public class ObsoleteMsSqlThingyReadModel : MssqlReadModel,
+        IThingyReadModel,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent>,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyPingEvent>,
         IAmReadModelFor<ThingyAggregate, ThingyId, ThingyDeletedEvent>
     {
-        public string AggregateId { get; set; }
-        public int LastAggregateSequenceNumber { get; set; }
-        public DateTimeOffset CreateTime { get; set; }
-        public DateTimeOffset UpdatedTime { get; set; }
         public bool DomainErrorAfterFirstReceived { get; set; }
         public int PingsReceived { get; set; }
 
