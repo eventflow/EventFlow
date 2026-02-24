@@ -1,18 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;netcoreapp3.1;net6.0;net8.0;net10.0</TargetFrameworks>
-    <PackageId>EventFlow.MongoDB</PackageId>
-    <Title>EventFlow.MongoDB</Title>
+    <PackageId>EventFlow.MongoDB.Temp</PackageId>
+    <Title>EventFlow.MongoDB.Temp</Title>
     <Authors>Jan Feyen, Warren Pieterse</Authors>
-    <Description>MongoDB ReadStore and Snapshot Persistence for EventFlow</Description>
+    <Description>MongoDB ReadStore and Snapshot Persistence for EventFlow (Custom build with MongoDB.Driver 2.27.0)</Description>
     <PackageTags>CQRS ES event sourcing MongoDB</PackageTags>
-    <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
+    <PackageReleaseNotes>Custom build with MongoDB.Driver 2.27.0 for internal use</PackageReleaseNotes>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-    <PackageReference Include="MongoDB.Driver" Version="[3.0.0,4.0)" />
+    <PackageReference Include="MongoDB.Driver" Version="2.27.0" />
   </ItemGroup>
 
   <ItemGroup>
