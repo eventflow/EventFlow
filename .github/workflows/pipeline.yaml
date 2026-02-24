@@ -37,7 +37,8 @@ jobs:
       EVENTFLOW_MSSQL_SERVER: 127.0.0.1,1433
       EVENTFLOW_MSSQL_USER: sa
       EVENTFLOW_MSSQL_PASS: Password12!
-      NUGET_APIKEY: ${{ secrets.nuget-api-key }}
+      # NUGET_APIKEY not used - publishing disabled for fork
+      # NUGET_APIKEY: ${{ secrets.nuget-api-key }}
 
     services:
       rabbitmq:
@@ -110,7 +111,7 @@ jobs:
         bake run \
           --convention=${{ inputs.bake-convention }} \
           --build-version ${{ inputs.version }} \
-          --destination="nuget>github,nuget,release>github"
+          --destination="local"
 
     - name: Upload NuGet packages
       uses: actions/upload-artifact@v4
