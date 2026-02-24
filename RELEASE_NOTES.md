@@ -1,4 +1,6 @@
-### New in 1.3.0 (not released yet)
+### New in 1.2.4 (not released yet)
+
+### New in 1.2.3 (released 2025-12-06)
 
 - New: Compiled and packaged for .NET 10, which has the dependency on `System.Linq.Async` removed
 
