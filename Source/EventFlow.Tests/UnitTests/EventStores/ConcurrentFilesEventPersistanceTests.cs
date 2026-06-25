@@ -33,6 +33,7 @@ using EventFlow.Configuration.EventNamingStrategy;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.EventStores.Files;
+using EventFlow.Serialization.NewtonsoftJson;
 using EventFlow.Exceptions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
@@ -68,7 +69,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 new NamespaceAndNameStrategy());
             definitionService.Load(typeof(ThingyPingEvent));
 
-            _serializer = new EventJsonSerializer(new JsonSerializer(), definitionService, factory);
+            _serializer = new EventJsonSerializer(new NewtonsoftJsonSerializer(), definitionService, factory);
         }
 
         [SetUp]
@@ -148,7 +149,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
 
         private FilesEventPersistence CreatePersistence(string storePath = "")
         {
-            var serializer = new JsonSerializer();
+            var serializer = new NewtonsoftJsonSerializer();
             var config = ConfigurePath(storePath);
             var locator = new FilesEventLocator(config);
             return new FilesEventPersistence(

@@ -135,7 +135,7 @@ namespace EventFlow.Tests.IntegrationTests
 
         public static IEnumerable<IEventFlowOptions> TestCases()
         {
-            yield return EventFlowOptions.New();
+            yield return EventFlowOptions.New().AddNewtonsoftJson();
         }
     }
 }

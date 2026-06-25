@@ -50,7 +50,7 @@ namespace EventFlow.Tests.Exploration
             var wasHandled = false;
             TestSubscriber.OnHandleAction = () => wasHandled = true;
             using (new DisposableAction(() => TestSubscriber.OnHandleAction = null))
-            using (var serviceProvider =  register(EventFlowOptions.New())
+            using (var serviceProvider =  register(EventFlowOptions.New().AddNewtonsoftJson())
                 .AddCommands(typeof(ThingyPingCommand))
                 .AddCommandHandlers(typeof(ThingyPingCommandHandler))
                 .RegisterServices(sr => sr.AddScoped<IScopedContext, ScopedContext>())

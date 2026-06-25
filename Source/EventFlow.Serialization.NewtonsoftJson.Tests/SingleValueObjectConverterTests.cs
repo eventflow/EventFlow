@@ -26,7 +26,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using Shouldly;
 
-namespace EventFlow.Tests.UnitTests.ValueObjects
+namespace EventFlow.Serialization.NewtonsoftJson.Tests
 {
     [Category(Categories.Unit)]
     public class SingleValueObjectConverterTests

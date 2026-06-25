@@ -33,13 +33,13 @@ using EventFlow.Core;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace EventFlow.EventStores.InMemory
 {
     public class InMemoryEventPersistence : IEventPersistence, IDisposable
     {
         private readonly ILogger<InMemoryEventPersistence> _logger;
+        private readonly IJsonSerializer _jsonSerializer;
 
         private readonly ConcurrentDictionary<string, ImmutableEventCollection> _eventStore =
             new ConcurrentDictionary<string, ImmutableEventCollection>();
@@ -54,6 +54,7 @@ namespace EventFlow.EventStores.InMemory
             public string Data { get; set; }
             public string Metadata { get; set; }
             public int AggregateSequenceNumber { get; set; }
+            public IJsonSerializer JsonSerializer { private get; set; }
 
             public override string ToString()
             {
@@ -67,12 +68,12 @@ namespace EventFlow.EventStores.InMemory
                     .ToString();
             }
 
-            private static string PrettifyJson(string json)
+            private string PrettifyJson(string json)
             {
                 try
                 {
-                    var obj = JsonConvert.DeserializeObject(json);
-                    var prettyJson = JsonConvert.SerializeObject(obj, Formatting.Indented);
+                    var obj = JsonSerializer.Deserialize(json, typeof(object));
+                    var prettyJson = JsonSerializer.Serialize(obj, true);
                     return prettyJson;
                 }
                 catch (Exception)
@@ -112,9 +113,11 @@ namespace EventFlow.EventStores.InMemory
         }
 
         public InMemoryEventPersistence(
-            ILogger<InMemoryEventPersistence> logger)
+            ILogger<InMemoryEventPersistence> logger,
+            IJsonSerializer jsonSerializer)
         {
             _logger = logger;
+            _jsonSerializer = jsonSerializer;
         }
 
         public Task<AllCommittedEventsPage> LoadAllCommittedEvents(
@@ -165,6 +168,7 @@ namespace EventFlow.EventStores.InMemory
                                     Data = e.SerializedData,
                                     Metadata = e.SerializedMetadata,
                                     GlobalSequenceNumber = globalCount + i + 1,
+                                    JsonSerializer = _jsonSerializer,
                                 };
                             _logger.LogTrace("Committing event {CommittedEvent}", committedDomainEvent);
                             return committedDomainEvent;

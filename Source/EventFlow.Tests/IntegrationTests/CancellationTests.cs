@@ -177,7 +177,7 @@ namespace EventFlow.Tests.IntegrationTests
             _commandHandler = new ManualCommandHandler();
             _subscriber = new ManualSubscriber();
 
-            var resolver = EventFlowOptions.New()
+            var resolver = EventFlowOptions.New().AddNewtonsoftJson()
                 .AddCommands(typeof(ThingyPingCommand))
                 .AddEvents(typeof(ThingyPingEvent))
                 .UseInMemoryReadStoreFor<InMemoryThingyReadModel>()

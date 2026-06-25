@@ -93,7 +93,7 @@ namespace EventFlow.Tests.IntegrationTests
         [Test]
         public async Task CommandResult()
         {
-            using (var resolver = EventFlowOptions.New()
+            using (var resolver = EventFlowOptions.New().AddNewtonsoftJson()
                 .AddCommandHandlers(
                     typeof(TestSuccessResultCommandHandler),
                     typeof(TestFailedResultCommandHandler))

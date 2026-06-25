@@ -43,7 +43,7 @@ namespace EventFlow.Tests.Exploration
         [SetUp]
         public void SetUp()
         {
-            _serviceProvider = EventFlowOptions.New()
+            _serviceProvider = EventFlowOptions.New().AddNewtonsoftJson()
                 .AddEvents(new []{ typeof(UpgradeEventV1), typeof(UpgradeEventV2) })
                 .AddEventUpgraders(typeof(UpgradeV1ToV2))
                 .ServiceCollection.BuildServiceProvider();

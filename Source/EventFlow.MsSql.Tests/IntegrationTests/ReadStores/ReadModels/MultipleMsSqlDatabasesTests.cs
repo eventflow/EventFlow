@@ -74,6 +74,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels
                     )");
 
             _serviceProvider = EventFlowOptions.New()
+                .AddNewtonsoftJson()
                 .AddEvents(new []{typeof(MagicEvent)})
                 .AddCommands(new []{typeof(MagicCommand)})
                 .AddCommandHandlers(typeof(MagicCommandHandler))

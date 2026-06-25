@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
+    <ProjectReference Include="..\EventFlow.Serialization.NewtonsoftJson\EventFlow.Serialization.NewtonsoftJson.csproj" />
   </ItemGroup>
    
 </Project>

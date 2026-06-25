@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.1;netcoreapp3.1;net6.0;net8.0;net10.0</TargetFrameworks>
+    <Title>EventFlow.Serialization.SystemTextJson</Title>
+    <Description>System.Text.Json based JSON serializer for EventFlow - https://docs.geteventflow.net/</Description>
+    <PackageTags>CQRS ES event sourcing json system.text.json</PackageTags>
+    <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\EventFlow.Serialization.SystemTextJson.xml</DocumentationFile>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
+  </ItemGroup>
+
+</Project>

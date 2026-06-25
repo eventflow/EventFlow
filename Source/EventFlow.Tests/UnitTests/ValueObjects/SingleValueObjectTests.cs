@@ -22,6 +22,7 @@
 
 using System;
 using System.Linq;
+using EventFlow.Serialization.NewtonsoftJson;
 using EventFlow.TestHelpers;
 using EventFlow.ValueObjects;
 using Newtonsoft.Json;

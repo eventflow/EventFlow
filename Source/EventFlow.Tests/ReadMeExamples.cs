@@ -46,6 +46,7 @@ namespace EventFlow.Tests
             var serviceCollection = new ServiceCollection()
                 .AddLogging()
                 .AddEventFlow(o => o
+                    .AddNewtonsoftJson()
                     .AddEvents(typeof(ExampleEvent))
                     .AddCommands(typeof(ExampleCommand))
                     .AddCommandHandlers(typeof(ExampleCommandHandler))

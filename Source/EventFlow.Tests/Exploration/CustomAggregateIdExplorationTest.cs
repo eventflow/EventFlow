@@ -24,6 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
+using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
@@ -37,7 +38,7 @@ namespace EventFlow.Tests.Exploration
         [Test]
         public async Task AggregatesCanHaveCustomImplementedIdentity()
         {
-            using (var serviceProvider = EventFlowOptions.New()
+            using (var serviceProvider = EventFlowOptions.New().AddNewtonsoftJson()
                 .ServiceCollection.BuildServiceProvider())
             {
                 // Arrange

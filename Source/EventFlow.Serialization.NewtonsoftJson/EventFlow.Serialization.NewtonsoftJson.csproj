@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.1;netcoreapp3.1;net6.0;net8.0;net10.0</TargetFrameworks>
+    <Title>EventFlow.Serialization.NewtonsoftJson</Title>
+    <Description>Newtonsoft.Json based JSON serializer for EventFlow - https://docs.geteventflow.net/</Description>
+    <PackageTags>CQRS ES event sourcing json newtonsoft</PackageTags>
+    <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\EventFlow.Serialization.NewtonsoftJson.xml</DocumentationFile>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
+  </ItemGroup>
+
+</Project>

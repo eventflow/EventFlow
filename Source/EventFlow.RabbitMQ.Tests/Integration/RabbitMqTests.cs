@@ -157,7 +157,8 @@ namespace EventFlow.RabbitMQ.Tests.Integration
             var eventFlowOptions = configure(EventFlowOptions.New()
                 .PublishToRabbitMq(RabbitMqConfiguration.With(_uri, false, exchange: exchange.Value))
                 .AddDefaults(EventFlowTestHelpers.Assembly)
-                .RegisterServices(c => c.AddTransient<IScopedContext, ScopedContext>()));
+                .RegisterServices(c => c.AddTransient<IScopedContext, ScopedContext>()))
+                .AddNewtonsoftJson();
 
             return eventFlowOptions.ServiceCollection.BuildServiceProvider();
         }

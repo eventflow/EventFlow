@@ -40,7 +40,7 @@ namespace EventFlow.Tests.IntegrationTests.Aggregates
         public async Task CreatesNewAggregateWithIdParameter()
         {
             // Arrange
-            using (var serviceProvider = EventFlowOptions.New().ServiceCollection.BuildServiceProvider())
+            using (var serviceProvider = EventFlowOptions.New().AddNewtonsoftJson().ServiceCollection.BuildServiceProvider())
             {
                 var id = ThingyId.New;
                 var sut = serviceProvider.GetRequiredService<IAggregateFactory>();
@@ -57,7 +57,7 @@ namespace EventFlow.Tests.IntegrationTests.Aggregates
         public async Task CreatesNewAggregateWithIdAndInterfaceParameters()
         {
             // Arrange
-            using (var serviceProvider = EventFlowOptions.New().ServiceCollection.BuildServiceProvider())
+            using (var serviceProvider = EventFlowOptions.New().AddNewtonsoftJson().ServiceCollection.BuildServiceProvider())
             {
                 var sut = serviceProvider.GetRequiredService<IAggregateFactory>();
 
@@ -73,7 +73,7 @@ namespace EventFlow.Tests.IntegrationTests.Aggregates
         public async Task CreatesNewAggregateWithIdAndTypeParameters()
         {
             // Arrange
-            using (var serviceProvider = EventFlowOptions.New()
+            using (var serviceProvider = EventFlowOptions.New().AddNewtonsoftJson()
                 .RegisterServices(f => f.AddTransient(typeof(Pinger)))
                 .ServiceCollection.BuildServiceProvider())
             {

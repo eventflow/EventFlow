@@ -53,7 +53,7 @@ namespace EventFlow.Tests.IntegrationTests
         [Test]
         public async Task ResolverAggregatesFactoryCanResolve()
         {
-            using (var serviceProvider = EventFlowOptions.New()
+            using (var serviceProvider = EventFlowOptions.New().AddNewtonsoftJson()
                 .RegisterServices(sr => sr.AddTransient(typeof(Service)))
                 .ServiceCollection.BuildServiceProvider())
             {
@@ -72,7 +72,7 @@ namespace EventFlow.Tests.IntegrationTests
         [Test]
         public void RegistrationDoesntCauseStackOverflow()
         {
-            using (var serviceProvider = EventFlowOptions.New()
+            using (var serviceProvider = EventFlowOptions.New().AddNewtonsoftJson()
                 .AddDefaults(EventFlowTestHelpers.Assembly)
                 .RegisterServices(s =>
                 {

@@ -23,11 +23,9 @@
 using System;
 using EventFlow.Extensions;
 using EventFlow.ValueObjects;
-using Newtonsoft.Json;
 
 namespace EventFlow.Core.Caching
 {
-    [JsonConverter(typeof(SingleValueObjectConverter))]
     public class CacheKey : SingleValueObject<string>
     {
         public const int MaxLength = 256;
