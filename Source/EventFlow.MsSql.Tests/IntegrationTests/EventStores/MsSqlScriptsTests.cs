@@ -45,7 +45,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores
             {
                 foreach (var sqlScript in sqlScripts)
                 {
-                    _msSqlDatabase.Execute(sqlScript.Content);
+                    _msSqlDatabase.Execute(sqlScript.Content.Replace("$MsSqlSchema$", "dbo"));
                 }
             }
         }

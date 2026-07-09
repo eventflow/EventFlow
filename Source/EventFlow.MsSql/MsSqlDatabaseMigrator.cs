@@ -37,7 +37,9 @@ namespace EventFlow.MsSql
 
         protected override UpgradeEngineBuilder For(SupportedDatabases supportedDatabases, string connectionString)
         {
-            return supportedDatabases.SqlDatabase(connectionString);
+            return supportedDatabases.SqlDatabase(connectionString)
+                .WithVariable("MsSqlSchema", Configuration.Schema.Value)
+                .JournalToSqlTable(Configuration.Schema.Value, "SchemaVersions");
         }
     }
 }

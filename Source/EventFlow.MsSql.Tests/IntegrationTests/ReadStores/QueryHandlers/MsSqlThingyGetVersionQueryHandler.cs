@@ -34,11 +34,14 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.QueryHandlers
     public class MsSqlThingyGetVersionQueryHandler : IQueryHandler<ThingyGetVersionQuery, long?>
     {
         private readonly IMsSqlConnection _msSqlConnection;
+        private readonly IMsSqlConfiguration _configuration;
 
         public MsSqlThingyGetVersionQueryHandler(
-            IMsSqlConnection msSqlConnection)
+            IMsSqlConnection msSqlConnection,
+            IMsSqlConfiguration configuration)
         {
             _msSqlConnection = msSqlConnection;
+            _configuration = configuration;
         }
 
         public async Task<long?> ExecuteQueryAsync(ThingyGetVersionQuery query, CancellationToken cancellationToken)
@@ -47,7 +50,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.QueryHandlers
                 Label.Named("mssql-fetch-test-read-model"),
                 ReadModelExtensions.GetConnectionStringName<MsSqlThingyReadModel>(),
                 cancellationToken,
-                "SELECT * FROM [ReadModel-ThingyAggregate] WHERE AggregateId = @AggregateId",
+                $"SELECT * FROM [{_configuration.Schema}].[ReadModel-ThingyAggregate] WHERE AggregateId = @AggregateId",
                 new { AggregateId = query.ThingyId.Value })
                 .ConfigureAwait(false);
             return readModels.SingleOrDefault()?.LastAggregateSequenceNumber;

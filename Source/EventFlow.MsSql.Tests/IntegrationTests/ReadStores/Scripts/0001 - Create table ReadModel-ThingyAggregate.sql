@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[ReadModel-ThingyAggregate](
+﻿CREATE TABLE [$MsSqlSchema$].[ReadModel-ThingyAggregate](
 	[PingsReceived] [int] NOT NULL,
 	[DomainErrorAfterFirstReceived] [bit] NOT NULL,
 
@@ -14,7 +14,7 @@
 	)
 )
 
-CREATE UNIQUE NONCLUSTERED INDEX [IX_ReadModel-ThingyAggregate_AggregateId] ON [dbo].[ReadModel-ThingyAggregate]
+CREATE UNIQUE NONCLUSTERED INDEX [IX_ReadModel-ThingyAggregate_AggregateId] ON [$MsSqlSchema$].[ReadModel-ThingyAggregate]
 (
 	[AggregateId] ASC
 )

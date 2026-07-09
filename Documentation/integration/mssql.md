@@ -48,6 +48,21 @@ public void ConfigureServices(IServiceCollection services)
 
 `ConfigureMsSql` registers the `IMsSqlConfiguration` and the database migrator that is reused by the event, snapshot, and read model stores. You can fine-tune the configuration (timeouts, retry counts, schema names) via the fluent helpers on `MsSqlConfiguration`.
 
+### Configure the schema name
+
+`MsSqlConfiguration` exposes a schema option:
+
+```csharp
+var config = MsSqlConfiguration
+  .New
+  .SetConnectionString(connectionString)
+  .SetSchema(new Schema("eventflow"));
+```
+
+If you do not set a schema explicitly, EventFlow uses `dbo` by default. The value passed to `Schema` is validated to ensure it is a legal SQL Server schema identifier.
+
+When using a custom schema, create it before running EventFlow migrations. Event flow migration scripts create tables, indexes, and types inside the configured schema, but they do not create the schema itself.
+
 ## Event store
 
 ### Enable the MSSQL event store
@@ -70,7 +85,7 @@ var migrator = serviceProvider.GetRequiredService<IMsSqlDatabaseMigrator>();
 await EventFlowEventStoresMsSql.MigrateDatabaseAsync(migrator, cancellationToken);
 ```
 
-Run this during deployment or application startup. The migrator is idempotent, so reruns simply ensure the schema is present. If your SQL login does not have `CREATE TYPE` rights, grant them explicitly; otherwise batch appends will fail at runtime.
+Run this during deployment or application startup. The migrator is idempotent, so reruns simply ensure required objects are present. If you configured a custom schema, ensure that schema already exists before migration execution. If your SQL login does not have `CREATE TYPE` rights, grant them explicitly; otherwise batch appends will fail at runtime.
 
 ### Recommended database settings
 

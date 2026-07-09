@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[ReadModel-ThingyMessage](
+﻿CREATE TABLE [$MsSqlSchema$].[ReadModel-ThingyMessage](
 	[Id] [bigint] IDENTITY(1,1) NOT NULL,
 	[ThingyId] [nvarchar](64) NOT NULL,
 	[MessageId] [nvarchar](64) NOT NULL,
@@ -9,12 +9,12 @@
 	)
 )
 
-CREATE UNIQUE NONCLUSTERED INDEX [IX_ReadModel-ThingyMessage_AggregateId] ON [dbo].[ReadModel-ThingyMessage]
+CREATE UNIQUE NONCLUSTERED INDEX [IX_ReadModel-ThingyMessage_AggregateId] ON [$MsSqlSchema$].[ReadModel-ThingyMessage]
 (
 	[MessageId] ASC
 )
 
-CREATE NONCLUSTERED INDEX [IX_ReadModel-ThingyMessage_ThingyId] ON [dbo].[ReadModel-ThingyMessage]
+CREATE NONCLUSTERED INDEX [IX_ReadModel-ThingyMessage_ThingyId] ON [$MsSqlSchema$].[ReadModel-ThingyMessage]
 (
 	[ThingyId] ASC
 )

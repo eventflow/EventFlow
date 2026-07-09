@@ -36,6 +36,7 @@ namespace EventFlow.MsSql.Integrations
         where TRow : class
     {
         private readonly string _name;
+        private readonly string _schema;
         private readonly IEnumerable<TRow> _rows;
         private readonly SqlMapper.IDynamicParameters _otherParameters;
 
@@ -75,14 +76,15 @@ namespace EventFlow.MsSql.Integrations
                 .ToArray();
         }
 
-        public TableParameter(string name, IEnumerable<TRow> rows, object otherParameters)
-            : this(name, rows, new DynamicParameters(otherParameters))
+        public TableParameter(string name, string schema, IEnumerable<TRow> rows, object otherParameters)
+            : this(name, schema, rows, new DynamicParameters(otherParameters))
         {
         }
 
-        public TableParameter(string name, IEnumerable<TRow> rows, SqlMapper.IDynamicParameters otherParameters)
+        public TableParameter(string name, string schema, IEnumerable<TRow> rows, SqlMapper.IDynamicParameters otherParameters)
         {
             _name = name;
+            _schema = schema;
             _rows = rows;
             _otherParameters = otherParameters;
         }
@@ -100,12 +102,12 @@ namespace EventFlow.MsSql.Integrations
             _otherParameters.AddParameters(command, identity);
         }
 
-        private static SqlParameter CreateSqlParameter(string name, IDbCommand command, List<SqlDataRecord> sqlDataRecords)
+        private SqlParameter CreateSqlParameter(string name, IDbCommand command, List<SqlDataRecord> sqlDataRecords)
         {
             var sqlParameter = (SqlParameter)command.CreateParameter();
             sqlParameter.SqlDbType = SqlDbType.Structured;
             sqlParameter.ParameterName = name;
-            sqlParameter.TypeName = $"{typeof(TRow).Name.ToLowerInvariant()}_list_type";
+            sqlParameter.TypeName = $"{_schema}.{typeof(TRow).Name.ToLowerInvariant()}_list_type";
             sqlParameter.Value = sqlDataRecords;
             return sqlParameter;
         }

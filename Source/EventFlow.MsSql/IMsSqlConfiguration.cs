@@ -27,8 +27,10 @@ namespace EventFlow.MsSql
 {
     public interface IMsSqlConfiguration : ISqlConfiguration<IMsSqlConfiguration>
     {
+        Schema Schema { get; }
         RetryDelay ServerBusyRetryDelay { get; }
 
+        IMsSqlConfiguration SetSchema(Schema schema);
         IMsSqlConfiguration SetServerBusyRetryDelay(RetryDelay retryDelay);
     }
 }

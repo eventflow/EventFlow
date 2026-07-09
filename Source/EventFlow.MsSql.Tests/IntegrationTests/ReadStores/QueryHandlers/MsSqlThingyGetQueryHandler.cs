@@ -35,11 +35,14 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.QueryHandlers
     public class MsSqlThingyGetQueryHandler : IQueryHandler<ThingyGetQuery, Thingy>
     {
         private readonly IMsSqlConnection _msSqlConnection;
+        private readonly IMsSqlConfiguration _configuration;
 
         public MsSqlThingyGetQueryHandler(
-            IMsSqlConnection msSqlConnection)
+            IMsSqlConnection msSqlConnection,
+            IMsSqlConfiguration configuration)
         {
             _msSqlConnection = msSqlConnection;
+            _configuration = configuration;
         }
 
         public async Task<Thingy> ExecuteQueryAsync(ThingyGetQuery query, CancellationToken cancellationToken)
@@ -48,7 +51,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.QueryHandlers
                 Label.Named("mssql-fetch-test-read-model"),
                 ReadModelExtensions.GetConnectionStringName<MsSqlThingyReadModel>(),
                 cancellationToken,
-                "SELECT * FROM [ReadModel-ThingyAggregate] WHERE AggregateId = @AggregateId",
+                $"SELECT * FROM [{_configuration.Schema}].[ReadModel-ThingyAggregate] WHERE AggregateId = @AggregateId",
                 new { AggregateId = query.ThingyId.Value })
                 .ConfigureAwait(false);
             return readModels.SingleOrDefault()?.ToThingy();
