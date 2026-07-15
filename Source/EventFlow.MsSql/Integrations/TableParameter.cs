@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-#if NETSTANDARD2_0_OR_GREATER
+#if NETSTANDARD2_0_OR_GREATER || NET5_0_OR_GREATER
 using Microsoft.Data.SqlClient;
 #else
 using System.Data.SqlClient;
@@ -32,7 +32,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Dapper;
-#if NETSTANDARD2_0_OR_GREATER
+#if NETSTANDARD2_0_OR_GREATER || NET5_0_OR_GREATER
 using Microsoft.Data.SqlClient.Server;
 #else
 using Microsoft.SqlServer.Server;

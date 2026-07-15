@@ -24,6 +24,8 @@
   <ItemGroup>
     <PackageReference Include="EventStore.Client" Version="5.0.1" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <!-- Security floor for GHSA-cmhx-cq75-c4mj (System.Text.RegularExpressions) via EventStore.Client -> protobuf-net -->
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
 
   <ItemGroup>
