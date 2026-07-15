@@ -22,7 +22,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Hangfire.Core" Version="1.6.20" />
+    <!-- Security fix for GHSA-xcvr-qv8h-m7xw (Microsoft.NETCore.Jit via the 1.6 netstandard chain);
+         net452/netstandard1.6 keep 1.6.20 as their 1.6 chain is unaffected and 1.7 pairs
+         with Hangfire.SqlServer 1.7.x -->
+    <PackageReference Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="Hangfire.Core" Version="1.7.37" />
+    <PackageReference Condition="'$(TargetFramework)' != 'netstandard2.0'" Include="Hangfire.Core" Version="1.6.20" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 

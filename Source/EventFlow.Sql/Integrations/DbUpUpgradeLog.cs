@@ -22,6 +22,9 @@
 
 using DbUp.Engine.Output;
 using EventFlow.Logs;
+#if NET8_0_OR_GREATER
+using System;
+#endif
 
 namespace EventFlow.Sql.Integrations
 {
@@ -34,6 +37,37 @@ namespace EventFlow.Sql.Integrations
             _log = log;
         }
 
+#if NET8_0_OR_GREATER
+        public void LogTrace(string format, params object[] args)
+        {
+            _log.Verbose(format, args);
+        }
+
+        public void LogDebug(string format, params object[] args)
+        {
+            _log.Debug(format, args);
+        }
+
+        public void LogInformation(string format, params object[] args)
+        {
+            _log.Information(format, args);
+        }
+
+        public void LogWarning(string format, params object[] args)
+        {
+            _log.Warning(format, args);
+        }
+
+        public void LogError(string format, params object[] args)
+        {
+            _log.Error(format, args);
+        }
+
+        public void LogError(Exception ex, string format, params object[] args)
+        {
+            _log.Error(ex, format, args);
+        }
+#else
         public void WriteInformation(string format, params object[] args)
         {
             _log.Information(format, args);
@@ -48,5 +82,6 @@ namespace EventFlow.Sql.Integrations
         {
             _log.Warning(format, args);
         }
+#endif
     }
 }

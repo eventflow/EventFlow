@@ -34,9 +34,13 @@ namespace EventFlow.Core
     {
         public static string GetCodeBase(Assembly assembly, bool includeFileName = false)
         {
+#if NET5_0_OR_GREATER
+            var path = assembly.Location;
+#else
             var codebase = assembly.CodeBase;
             var uri = new UriBuilder(codebase);
             var path = Path.GetFullPath(Uri.UnescapeDataString(uri.Path));
+#endif
             var codeBase = includeFileName ?
                 path :
                 Path.GetDirectoryName(path);

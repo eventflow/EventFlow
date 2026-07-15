@@ -1,4 +1,54 @@
-### New in 0.85 (not released yet)
+### New in 0.86 (not released yet)
+
+Additive .NET 10 support plus security dependency floors. Existing target
+frameworks and their dependency groups are unchanged except for the security
+floors explicitly listed below - net452 and netstandard1.6 consumers resolve
+exactly the same assets and dependencies as 0.85.5. Only applications
+targeting net10.0 (or later) pick up the new net10.0 assets below.
+
+* New: Added `net10.0` target framework to `EventFlow`, `EventFlow.Sql`,
+  `EventFlow.MsSql`, `EventFlow.AspNetCore` and `EventFlow.DependencyInjection`
+* New: On `net10.0`, the DbUp integration is compiled against `dbup-core` `6.1.1`
+  (new `IUpgradeLog` interface; adds a transitive dependency on
+  `Microsoft.Extensions.Logging.Abstractions`) and `dbup-sqlserver` `7.2.0`,
+  which unblocks consumers that need DbUp 6.x elsewhere in their dependency graph
+* New: On `net10.0`, `EventFlow.MsSql` depends on `Microsoft.Data.SqlClient` `6.1.4`
+* New: On `net10.0`, `EventFlow.AspNetCore` uses the ASP.NET Core shared framework
+  reference instead of the legacy `Microsoft.AspNetCore.*` `2.2`/`3.1` packages,
+  and `Microsoft.AspNetCore.Mvc.NewtonsoftJson` `10.0.0`
+* New: On `net10.0`, `EventFlow.DependencyInjection` depends on
+  `Microsoft.Extensions.DependencyInjection` `10.0.0`
+* Fix: Security floor `System.Text.Encodings.Web` `4.7.2` added to
+  `EventFlow.PostgreSql` (GHSA-ghhp-997w-qr28, pulled in via `Npgsql`)
+* Fix: Security floor `Snappier` `1.3.1` added to `EventFlow.MongoDB`
+  (GHSA-pggp-6c3x-2xmx, pulled in via `MongoDB.Driver`)
+* Breaking: Updated `Hangfire.Core` from `1.6.20` to `1.7.37` in
+  `EventFlow.Hangfire` for `netstandard2.0` only, due to GHSA-xcvr-qv8h-m7xw in
+  the 1.6 netstandard dependency chain. Consumers using `Hangfire.SqlServer`
+  (or other Hangfire 1.6.x storage packages) must move them to `1.7.x` together
+  (1.6.x storage packages pin `Hangfire.Core` exactly and will fail restore
+  with NU1107 otherwise); see the Hangfire 1.7 upgrade guide if you extend
+  Hangfire internals. `net452`/`netstandard1.6` keep `Hangfire.Core` `1.6.20`
+* Fix: Security floor `System.Text.RegularExpressions` `4.3.1` added to
+  `EventFlow.EventStores.EventStore` (GHSA-cmhx-cq75-c4mj, via
+  `EventStore.Client` -> `protobuf-net`)
+* Fix: Security floor `System.Text.RegularExpressions` `4.3.1` added to
+  `EventFlow.SQLite` for `netstandard2.0` only (GHSA-cmhx-cq75-c4mj, via
+  `dbup-sqlserver` `5.0.40` chain)
+* Fix: `EventFlow.TestHelpers` updated `Microsoft.Data.SqlClient` from `5.1.4`
+  to `5.2.2` and added security floor `System.Text.RegularExpressions` `4.3.1`
+  (GHSA-cmhx-cq75-c4mj, via `AutoFixture.AutoMoq` and `Moq`)
+* Fix: `EventFlow.MsSql` updated `Microsoft.Data.SqlClient` from `5.2.0` to
+  `5.2.2` on `netstandard2.0` and added security floor
+  `System.Text.RegularExpressions` `4.3.1` (GHSA-cmhx-cq75-c4mj, via
+  `dbup-sqlserver` `5.0.40` chain)
+* Note: `SharpCompress` (GHSA-6c8g-7p36-r338, via `MongoDB.Driver`) has no
+  patched release yet; EventFlow does not extract archives - monitor for a
+  fixed version
+* Note: The `net452` and `netstandard1.6` dependency graphs are intentionally
+  unchanged (legacy, platform-covered)
+
+### New in 0.85.5 (released 2025-05-29)
 
 * New: Update from `System.Data.SqlClient` to `Microsoft.Data.SqlClient` (thanks @janrybka)
 

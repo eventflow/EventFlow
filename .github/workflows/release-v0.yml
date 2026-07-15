@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
   build:
@@ -36,11 +37,13 @@ jobs:
       run: |
         powershell -NoProfile -ExecutionPolicy unrestricted -Command ".\up-integration-environment.ps1"
 
+    - name: Install Bake
+      run: |
+        dotnet tool update -g Bake --version 0.37.51
+
     - name: Run Bake
       run: |
-        declare -i REVISION
-        REVISION=4714+$GITHUB_RUN_NUMBER
-        bake run --convention=Release --build-version 0.85.$REVISION --destination="nuget>github,nuget,release>github"
+        bake run --convention=Release --build-version 0.86.${{ github.run_number }} --destination="nuget>github,nuget,release>github"
 
     - name: Upload NuGet packages
       uses: actions/upload-artifact@v4

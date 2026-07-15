@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-#if NETSTANDARD2_0_OR_GREATER
+#if NETSTANDARD2_0_OR_GREATER || NET5_0_OR_GREATER
 using Microsoft.Data.SqlClient;
 #else
 using System.Data.SqlClient;

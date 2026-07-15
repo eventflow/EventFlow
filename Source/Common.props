@@ -9,6 +9,14 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <PackageIcon>icon-128.png</PackageIcon>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
+    <!-- Legacy TFMs flood the SDK 10 audit with known advisories in old transitive chains;
+         the modern (netstandard2.0+) graphs are kept clean via explicit floors instead -->
+    <NuGetAudit>false</NuGetAudit>
+    <NoWarn>$(NoWarn);NETSDK1215</NoWarn>
+    <!-- Keep nuspec dependency groups for the pre-net10.0 TFMs byte-identical to 0.85.5;
+         SDK 10 package pruning would otherwise silently drop framework-provided packages
+         (e.g. Microsoft.CSharp) from the netcoreapp3.x dependency groups. -->
+    <RestoreEnablePackagePruning>false</RestoreEnablePackagePruning>
   </PropertyGroup>
 
   <ItemGroup>
