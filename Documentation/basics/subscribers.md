@@ -75,7 +75,7 @@ By default any exceptions thrown by a subscriber are **swallowed**
 by EventFlow after it has been logged as an error. Depending on the
 application this might be the preferred behavior, but in some cases
 it isn't. If a subscriber exception should be thrown, and thus allowing
-them to be caught in e.g. command handlers, the behaivor can be disabled
+them to be caught in e.g. command handlers, the behavior can be disabled
 by setting the `ThrowSubscriberExceptions` to `true` when configuring EventFlow.
 
 ## Asynchronous subscribers
