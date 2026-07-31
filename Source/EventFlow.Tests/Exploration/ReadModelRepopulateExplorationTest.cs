@@ -42,7 +42,7 @@ namespace EventFlow.Tests.Exploration
         [SetUp]
         public void SetUp()
         {
-            _serviceProvider = EventFlowOptions.New()
+            _serviceProvider = EventFlowOptions.New().AddNewtonsoftJson()
                 .AddEvents(new[] { typeof(EventV1), typeof(EventV2) })
                 .AddEventUpgraders(typeof(BrokenUpgradeV1ToV2))
                 .UseInMemoryReadStoreFor<UpgradeReadModel>()

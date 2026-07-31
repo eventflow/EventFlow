@@ -63,7 +63,7 @@ namespace EventFlow.TestHelpers
         [SetUp]
         public void SetUpIntegrationTest()
         {
-            var eventFlowOptions = Options(EventFlowOptions.New())
+            var eventFlowOptions = Options(EventFlowOptions.New().AddNewtonsoftJson())
                 .RegisterServices(c => c.AddTransient<IScopedContext, ScopedContext>())
                 .AddQueryHandler<DbContextQueryHandler, DbContextQuery, string>()
                 .AddDefaults(EventFlowTestHelpers.Assembly, 

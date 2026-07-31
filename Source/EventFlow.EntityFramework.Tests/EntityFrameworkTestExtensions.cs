@@ -35,13 +35,15 @@ namespace EventFlow.EntityFramework.Tests
         public static IEventFlowOptions ConfigureForEventStoreTest(this IEventFlowOptions options)
         {
             return options
-                .UseEntityFrameworkEventStore<TestDbContext>();
+                .UseEntityFrameworkEventStore<TestDbContext>()
+                .AddNewtonsoftJson();
         }
 
         public static IEventFlowOptions ConfigureForSnapshotStoreTest(this IEventFlowOptions options)
         {
             return options
-                .UseEntityFrameworkSnapshotStore<TestDbContext>();
+                .UseEntityFrameworkSnapshotStore<TestDbContext>()
+                .AddNewtonsoftJson();
         }
 
         public static IEventFlowOptions ConfigureForReadStoreTest(this IEventFlowOptions options)
@@ -53,14 +55,16 @@ namespace EventFlow.EntityFramework.Tests
                 .AddQueryHandlers(
                     typeof(EfThingyGetQueryHandler),
                     typeof(EfThingyGetVersionQueryHandler),
-                    typeof(EfThingyGetMessagesQueryHandler));
+                    typeof(EfThingyGetMessagesQueryHandler))
+                .AddNewtonsoftJson();
         }
 
         public static IEventFlowOptions ConfigureForReadStoreIncludeTest(this IEventFlowOptions options)
         {
             return options
                 .UseEntityFrameworkReadModel<PersonReadModelEntity, TestDbContext>(cfg => cfg.Include(x => x.Addresses))
-                .AddQueryHandlers(typeof(PersonGetQueryHandler));
+                .AddQueryHandlers(typeof(PersonGetQueryHandler))
+                .AddNewtonsoftJson();
         }
     }
 }

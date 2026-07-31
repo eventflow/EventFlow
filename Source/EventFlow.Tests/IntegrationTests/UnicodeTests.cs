@@ -108,7 +108,7 @@ namespace EventFlow.Tests.IntegrationTests
         [Test]
         public async Task UnicodeIntegration()
         {
-            var resolver = EventFlowOptions.New()
+            var resolver = EventFlowOptions.New().AddNewtonsoftJson()
                 .AddEvents(typeof(Püng1Event))
                 .AddCommands(typeof(Cömmand))
                 .AddCommandHandlers(typeof(CömmandHändler))

@@ -66,7 +66,7 @@ namespace EventFlow.Tests.IntegrationTests
 
         private static ServiceProvider SetupEventFlow(Func<IEventFlowOptions, IEventFlowOptions> configure = null)
         {
-            var eventFlowOptions = EventFlowOptions.New()
+            var eventFlowOptions = EventFlowOptions.New().AddNewtonsoftJson()
                 .RegisterServices(sr => sr.AddScoped<IScopedContext, ScopedContext>())
                 .AddDefaults(EventFlowTestHelpers.Assembly);
 

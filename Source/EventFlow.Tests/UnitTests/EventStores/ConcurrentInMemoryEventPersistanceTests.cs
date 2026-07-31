@@ -33,6 +33,7 @@ using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
 using EventFlow.Exceptions;
+using EventFlow.Serialization.NewtonsoftJson;
 using EventFlow.Snapshots;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
@@ -85,11 +86,11 @@ namespace EventFlow.Tests.UnitTests.EventStores
             var metadataProviders = Enumerable.Empty<IMetadataProvider>();
             var snapshotStore = Mock<ISnapshotStore>();
             var factory = new DomainEventFactory();
-            var persistence = new InMemoryEventPersistence(Logger<InMemoryEventPersistence>());
+            var persistence = new InMemoryEventPersistence(Logger<InMemoryEventPersistence>(), new NewtonsoftJsonSerializer());
             var upgradeManager = new EventUpgradeManager(Logger<EventUpgradeManager>(), serviceProvider, new EventUpgradeContextFactory());
             var definitionService = new EventDefinitionService(Logger<EventDefinitionService>(), Mock<ILoadedVersionedTypes>(), new NamespaceAndClassNameStrategy());
             definitionService.Load(typeof(ThingyPingEvent));
-            var serializer = new EventJsonSerializer(new JsonSerializer(), definitionService, factory);
+            var serializer = new EventJsonSerializer(new NewtonsoftJsonSerializer(), definitionService, factory);
 
             var store = new EventStoreBase(
                 Logger<EventStoreBase>(),

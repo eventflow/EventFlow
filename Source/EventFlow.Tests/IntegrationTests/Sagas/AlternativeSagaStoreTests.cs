@@ -44,7 +44,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
         [SetUp]
         public void SetUp()
         {
-            _serviceProvider = EventFlowOptions.New()
+            _serviceProvider = EventFlowOptions.New().AddNewtonsoftJson()
                 .AddSagas(typeof(AlternativeSagaStoreTestClasses.TestSaga))
                 .AddCommandHandlers(
                     typeof(AlternativeSagaStoreTestClasses.SagaTestACommandHandler),

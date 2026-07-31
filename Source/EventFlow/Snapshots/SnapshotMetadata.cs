@@ -25,7 +25,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using EventFlow.Core;
-using Newtonsoft.Json;
 
 namespace EventFlow.Snapshots
 {
@@ -52,42 +51,36 @@ namespace EventFlow.Snapshots
         {
         }
 
-        [JsonIgnore]
         public string AggregateId
         {
             get => GetMetadataValue(SnapshotMetadataKeys.AggregateId);
             set => Add(SnapshotMetadataKeys.AggregateId, value);
         }
 
-        [JsonIgnore]
         public string AggregateName
         {
             get => GetMetadataValue(SnapshotMetadataKeys.AggregateName);
             set => Add(SnapshotMetadataKeys.AggregateName, value);
         }
 
-        [JsonIgnore]
         public int AggregateSequenceNumber
         {
             get => GetMetadataValue(SnapshotMetadataKeys.AggregateSequenceNumber, int.Parse);
             set => Add(SnapshotMetadataKeys.AggregateSequenceNumber, value.ToString(CultureInfo.InvariantCulture));
         }
 
-        [JsonIgnore]
         public string SnapshotName
         {
             get => GetMetadataValue(SnapshotMetadataKeys.SnapshotName);
             set => Add(SnapshotMetadataKeys.SnapshotName, value);
         }
 
-        [JsonIgnore]
         public int SnapshotVersion
         {
             get => GetMetadataValue(SnapshotMetadataKeys.SnapshotVersion, int.Parse);
             set => Add(SnapshotMetadataKeys.SnapshotVersion, value.ToString(CultureInfo.InvariantCulture));
         }
 
-        [JsonIgnore]
         public IReadOnlyCollection<ISourceId> PreviousSourceIds
         {
             get

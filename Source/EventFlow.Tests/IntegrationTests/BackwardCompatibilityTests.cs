@@ -53,7 +53,7 @@ namespace EventFlow.Tests.IntegrationTests
             var codeBase = ReflectionHelper.GetCodeBase(GetType().Assembly);
             var filesEventStoreDirectory = Path.GetFullPath(Path.Combine(codeBase, "..", "..", "..", "TestData", "FilesEventStore"));
 
-            _serviceProvider = EventFlowOptions.New()
+            _serviceProvider = EventFlowOptions.New().AddNewtonsoftJson()
                 .UseFilesEventPersistence(FilesEventStoreConfiguration.Create(filesEventStoreDirectory))
                 .AddEvents(EventFlowTestHelpers.Assembly)
                 .AddCommandHandlers(EventFlowTestHelpers.Assembly)

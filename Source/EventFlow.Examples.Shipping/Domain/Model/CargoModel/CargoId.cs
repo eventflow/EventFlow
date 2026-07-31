@@ -22,11 +22,9 @@
 
 using EventFlow.Core;
 using EventFlow.ValueObjects;
-using Newtonsoft.Json;
 
 namespace EventFlow.Examples.Shipping.Domain.Model.CargoModel
 {
-    [JsonConverter(typeof(SingleValueObjectConverter))]
     public class CargoId : Identity<CargoId>
     {
         public CargoId(string value) : base(value)
