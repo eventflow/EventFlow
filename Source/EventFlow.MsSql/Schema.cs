@@ -20,45 +20,31 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Linq;
-using EventFlow.Extensions;
-using EventFlow.MsSql.EventStores;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.MsSql;
-using NUnit.Framework;
+using System;
+using System.Text.RegularExpressions;
+using EventFlow.ValueObjects;
 
-namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores
+namespace EventFlow.MsSql
 {
-    [Category(Categories.Integration)]
-    public class MsSqlScriptsTests
+    /// <summary>
+    /// Represents an MSSQL Server schema name.
+    /// </summary>
+    public class Schema : SingleValueObject<string>
     {
-        private IMsSqlDatabase _msSqlDatabase;
-
-        [Test]
-        public void SqlScriptsAreIdempotent()
+        /// <summary>
+        /// Creates an MSSQL Server schema name value object.
+        /// </summary>
+        /// <param name="value">
+        /// Schema name that starts with a letter or underscore, followed by up to 127 letters,
+        /// digits, or one of '@', '$', '#', '_'.
+        /// </param>
+        public Schema(string value) : base(value)
         {
-            // Arrange
-            var sqlScripts = EventFlowEventStoresMsSql.GetSqlScripts().ToList();
-
-            // Act
-            foreach (var _ in Enumerable.Range(0, 2))
+            var regex = @"^[\p{L}_][\p{L}\p{N}@$#_]{0,127}$";
+            if (!Regex.IsMatch(value, regex))
             {
-                foreach (var sqlScript in sqlScripts)
-                {
-                    _msSqlDatabase.Execute(sqlScript.Content.Replace("$MsSqlSchema$", "dbo"));
-                }
+                throw new ArgumentException("Invalid MSSQL schema name provided", nameof(value));
             }
-        }
-
-        [SetUp]
-        public void SetUp()
-        {
-            _msSqlDatabase = MsSqlHelpz.CreateDatabase("eventflow");
-        }
-
-        public void TearDown()
-        {
-            _msSqlDatabase.DisposeSafe(LogHelper.For<MsSqlScriptsTests>(), "MSSQL database");
         }
     }
 }

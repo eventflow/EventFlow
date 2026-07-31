@@ -20,45 +20,46 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Linq;
-using EventFlow.Extensions;
-using EventFlow.MsSql.EventStores;
+using System;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.MsSql;
 using NUnit.Framework;
 
-namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores
+namespace EventFlow.MsSql.Tests.UnitTests
 {
-    [Category(Categories.Integration)]
-    public class MsSqlScriptsTests
+    [Category(Categories.Unit)]
+    public class SchemaTests
     {
-        private IMsSqlDatabase _msSqlDatabase;
+        [TestCase("dbo")]
+        [TestCase("eventflow")]
+        [TestCase("_eventflow")]
+        [TestCase("schema1")]
+        [TestCase("a@b$c#d_e")]
+        public void ValidSchemaNameDoesNotThrow(string value)
+        {
+            Assert.DoesNotThrow(() => new Schema(value));
+        }
 
         [Test]
-        public void SqlScriptsAreIdempotent()
+        public void MaximumLengthSchemaNameDoesNotThrow()
         {
-            // Arrange
-            var sqlScripts = EventFlowEventStoresMsSql.GetSqlScripts().ToList();
-
-            // Act
-            foreach (var _ in Enumerable.Range(0, 2))
-            {
-                foreach (var sqlScript in sqlScripts)
-                {
-                    _msSqlDatabase.Execute(sqlScript.Content.Replace("$MsSqlSchema$", "dbo"));
-                }
-            }
+            var value = new string('a', 128);
+            Assert.DoesNotThrow(() => new Schema(value));
         }
 
-        [SetUp]
-        public void SetUp()
+        [TestCase("")]
+        [TestCase("1eventflow")]
+        [TestCase("event-flow")]
+        [TestCase("event flow")]
+        public void InvalidSchemaNameThrowsArgumentException(string value)
         {
-            _msSqlDatabase = MsSqlHelpz.CreateDatabase("eventflow");
+            Assert.Throws<ArgumentException>(() => new Schema(value));
         }
 
-        public void TearDown()
+        [Test]
+        public void SchemaNameLongerThanMaximumLengthThrowsArgumentException()
         {
-            _msSqlDatabase.DisposeSafe(LogHelper.For<MsSqlScriptsTests>(), "MSSQL database");
+            var value = new string('a', 129);
+            Assert.Throws<ArgumentException>(() => new Schema(value));
         }
     }
 }

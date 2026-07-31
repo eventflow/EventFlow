@@ -20,45 +20,31 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Linq;
-using EventFlow.Extensions;
-using EventFlow.MsSql.EventStores;
 using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.MsSql;
 using NUnit.Framework;
 
-namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores
+namespace EventFlow.MsSql.Tests.UnitTests
 {
-    [Category(Categories.Integration)]
-    public class MsSqlScriptsTests
+    [Category(Categories.Unit)]
+    public class MsSqlConfigurationTests
     {
-        private IMsSqlDatabase _msSqlDatabase;
+        [Test]
+        public void NewUsesDboSchemaByDefault()
+        {
+            var configuration = MsSqlConfiguration.New;
+
+            Assert.That(configuration.Schema.Value, Is.EqualTo("dbo"));
+        }
 
         [Test]
-        public void SqlScriptsAreIdempotent()
+        public void SetSchemaUpdatesSchemaAndReturnsSameInstance()
         {
-            // Arrange
-            var sqlScripts = EventFlowEventStoresMsSql.GetSqlScripts().ToList();
+            var configuration = MsSqlConfiguration.New;
 
-            // Act
-            foreach (var _ in Enumerable.Range(0, 2))
-            {
-                foreach (var sqlScript in sqlScripts)
-                {
-                    _msSqlDatabase.Execute(sqlScript.Content.Replace("$MsSqlSchema$", "dbo"));
-                }
-            }
-        }
+            var updatedConfiguration = configuration.SetSchema(new Schema("eventflow"));
 
-        [SetUp]
-        public void SetUp()
-        {
-            _msSqlDatabase = MsSqlHelpz.CreateDatabase("eventflow");
-        }
-
-        public void TearDown()
-        {
-            _msSqlDatabase.DisposeSafe(LogHelper.For<MsSqlScriptsTests>(), "MSSQL database");
+            Assert.That(updatedConfiguration.Schema.Value, Is.EqualTo("eventflow"));
+            Assert.That(updatedConfiguration, Is.SameAs(configuration));
         }
     }
 }

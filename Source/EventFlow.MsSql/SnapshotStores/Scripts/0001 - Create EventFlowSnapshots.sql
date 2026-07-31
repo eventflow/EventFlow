@@ -1,6 +1,6 @@
-﻿IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = N'dbo'  AND table_name = N'EventFlowSnapshots')
+﻿IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = N'$MsSqlSchema$'  AND table_name = N'EventFlowSnapshots')
 BEGIN
-	CREATE TABLE [dbo].[EventFlowSnapshots](
+	CREATE TABLE [$MsSqlSchema$].[EventFlowSnapshots](
 		[Id] [bigint] IDENTITY(1,1) NOT NULL,
 		[AggregateId] [nvarchar](128) NOT NULL,
 		[AggregateName] [nvarchar](128) NOT NULL,
@@ -13,7 +13,7 @@ BEGIN
 		)
 	)
 
-	CREATE UNIQUE NONCLUSTERED INDEX [IX_EventFlowSnapshots_AggregateId_AggregateSequenceNumber] ON [dbo].[EventFlowSnapshots]
+	CREATE UNIQUE NONCLUSTERED INDEX [IX_EventFlowSnapshots_AggregateId_AggregateSequenceNumber] ON [$MsSqlSchema$].[EventFlowSnapshots]
 	(
 		[AggregateName] ASC,
 		[AggregateId] ASC,

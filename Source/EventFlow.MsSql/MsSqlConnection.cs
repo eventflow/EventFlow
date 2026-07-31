@@ -53,7 +53,7 @@ namespace EventFlow.MsSql
             Logger.LogTrace(
                 "Using optimized table type to insert with SQL: {Sql}",
                 sql);
-            var tableParameter = new TableParameter<TRow>("@rows", rows, new {});
+            var tableParameter = new TableParameter<TRow>("@rows", Configuration.Schema.Value, rows, new {});
             return QueryAsync<TResult>(label, connectionStringName, cancellationToken, sql, tableParameter);
         }
     }

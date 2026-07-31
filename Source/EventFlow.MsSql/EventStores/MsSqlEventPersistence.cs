@@ -49,13 +49,16 @@ namespace EventFlow.MsSql.EventStores
 
         private readonly ILogger<MsSqlEventPersistence> _logger;
         private readonly IMsSqlConnection _connection;
+        private readonly IMsSqlConfiguration _configuration;
 
         public MsSqlEventPersistence(
             ILogger<MsSqlEventPersistence> logger,
-            IMsSqlConnection connection)
+            IMsSqlConnection connection,
+            IMsSqlConfiguration configuration)
         {
             _logger = logger;
             _connection = connection;
+            _configuration = configuration;
         }
 
         public async Task<AllCommittedEventsPage> LoadAllCommittedEvents(
@@ -67,10 +70,10 @@ namespace EventFlow.MsSql.EventStores
                 ? 0
                 : long.Parse(globalPosition.Value);
 
-            const string sql = @"
+            var sql = $@"
                 SELECT TOP(@pageSize)
                     GlobalSequenceNumber, BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
-                FROM EventFlow
+                FROM [{_configuration.Schema}].EventFlow
                 WHERE
                     GlobalSequenceNumber >= @startPosition
                 ORDER BY
@@ -121,9 +124,9 @@ namespace EventFlow.MsSql.EventStores
                 eventDataModels.Count,
                 id);
 
-            const string sql = @"
+            var sql = $@"
                 INSERT INTO
-                    EventFlow
+                    [{_configuration.Schema}].EventFlow
                         (BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber)
                         OUTPUT CAST(INSERTED.GlobalSequenceNumber as bigint)
                     SELECT
@@ -171,10 +174,10 @@ namespace EventFlow.MsSql.EventStores
             int fromEventSequenceNumber,
             CancellationToken cancellationToken)
         {
-            const string sql = @"
+            var sql = $@"
                 SELECT
                     GlobalSequenceNumber, BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
-                FROM EventFlow
+                FROM [{_configuration.Schema}].EventFlow
                 WHERE
                     AggregateId = @AggregateId AND
                     AggregateSequenceNumber >= @FromEventSequenceNumber
@@ -200,10 +203,10 @@ namespace EventFlow.MsSql.EventStores
             int toEventSequenceNumber,
             CancellationToken cancellationToken)
         {
-            const string sql = @"
+            var sql = $@"
                 SELECT
                     GlobalSequenceNumber, BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
-                FROM EventFlow
+                FROM [{_configuration.Schema}].EventFlow
                 WHERE
                     AggregateId = @AggregateId AND
                     AggregateSequenceNumber >= @FromEventSequenceNumber AND
@@ -227,7 +230,7 @@ namespace EventFlow.MsSql.EventStores
 
         public async Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
-            const string sql = @"DELETE FROM EventFlow WHERE AggregateId = @AggregateId";
+            var sql = $@"DELETE FROM [{_configuration.Schema}].EventFlow WHERE AggregateId = @AggregateId";
             var affectedRows = await _connection.ExecuteAsync(
                 Label.Named("mssql-delete-aggregate"),
                 null,

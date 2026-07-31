@@ -20,45 +20,51 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Linq;
+using System;
+using System.Threading;
 using EventFlow.Extensions;
-using EventFlow.MsSql.EventStores;
+using EventFlow.MsSql.Extensions;
+using EventFlow.MsSql.SnapshotStores;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.MsSql;
+using EventFlow.TestHelpers.Suites;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
-namespace EventFlow.MsSql.Tests.IntegrationTests.EventStores
+namespace EventFlow.MsSql.Tests.IntegrationTests.SnapshotStores
 {
     [Category(Categories.Integration)]
-    public class MsSqlScriptsTests
+    public class MsSqlSnapshotStoreWithCustomSchemaTests : TestSuiteForSnapshotStore
     {
-        private IMsSqlDatabase _msSqlDatabase;
+        private const string CustomSchema = "eventflow";
 
-        [Test]
-        public void SqlScriptsAreIdempotent()
+        private IMsSqlDatabase _testDatabase;
+
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
-            // Arrange
-            var sqlScripts = EventFlowEventStoresMsSql.GetSqlScripts().ToList();
+            _testDatabase = MsSqlHelpz.CreateDatabase("eventflow-snapshots-custom-schema");
+            _testDatabase.Execute($"CREATE SCHEMA [{CustomSchema}]");
 
-            // Act
-            foreach (var _ in Enumerable.Range(0, 2))
-            {
-                foreach (var sqlScript in sqlScripts)
-                {
-                    _msSqlDatabase.Execute(sqlScript.Content.Replace("$MsSqlSchema$", "dbo"));
-                }
-            }
+            eventFlowOptions
+                .ConfigureMsSql(MsSqlConfiguration.New
+                    .SetConnectionString(_testDatabase.ConnectionString.Value)
+                    .SetSchema(new Schema(CustomSchema)))
+                .UseMsSqlSnapshotStore();
+
+            var serviceProvider = base.Configure(eventFlowOptions);
+
+            var databaseMigrator = serviceProvider.GetRequiredService<IMsSqlDatabaseMigrator>();
+            EventFlowSnapshotStoresMsSql.MigrateDatabaseAsync(
+                databaseMigrator,
+                CancellationToken.None).Wait();
+
+            return serviceProvider;
         }
 
-        [SetUp]
-        public void SetUp()
-        {
-            _msSqlDatabase = MsSqlHelpz.CreateDatabase("eventflow");
-        }
-
+        [TearDown]
         public void TearDown()
         {
-            _msSqlDatabase.DisposeSafe(LogHelper.For<MsSqlScriptsTests>(), "MSSQL database");
+            _testDatabase.DisposeSafe(Logger, "Failed to delete database");
         }
     }
 }

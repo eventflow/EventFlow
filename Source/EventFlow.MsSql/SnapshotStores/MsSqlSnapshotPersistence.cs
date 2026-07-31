@@ -35,11 +35,14 @@ namespace EventFlow.MsSql.SnapshotStores
     public class MsSqlSnapshotPersistence : ISnapshotPersistence
     {
         private readonly IMsSqlConnection _msSqlConnection;
+        private readonly IMsSqlConfiguration _configuration;
 
         public MsSqlSnapshotPersistence(
-            IMsSqlConnection msSqlConnection)
+            IMsSqlConnection msSqlConnection,
+            IMsSqlConfiguration configuration)
         {
             _msSqlConnection = msSqlConnection;
+            _configuration = configuration;
         }
 
         public async Task<CommittedSnapshot> GetSnapshotAsync(
@@ -51,7 +54,7 @@ namespace EventFlow.MsSql.SnapshotStores
                 Label.Named("fetch-snapshot"),
                 null,
                 cancellationToken,
-                "SELECT TOP 1 * FROM [dbo].[EventFlowSnapshots] WHERE AggregateName = @AggregateName AND AggregateId = @AggregateId ORDER BY AggregateSequenceNumber DESC",
+                $"SELECT TOP 1 * FROM [{_configuration.Schema}].[EventFlowSnapshots] WHERE AggregateName = @AggregateName AND AggregateId = @AggregateId ORDER BY AggregateSequenceNumber DESC",
                 new
                 {
                     AggregateId = identity.Value,
@@ -91,7 +94,7 @@ namespace EventFlow.MsSql.SnapshotStores
                     Label.Named("set-snapshot"),
                     null,
                     cancellationToken,
-                    @"INSERT INTO [dbo].[EventFlowSnapshots]
+                    $@"INSERT INTO [{_configuration.Schema}].[EventFlowSnapshots]
                         (AggregateId, AggregateName, AggregateSequenceNumber, Metadata, Data)
                         VALUES
                         (@AggregateId, @AggregateName, @AggregateSequenceNumber, @Metadata, @Data)",
@@ -113,7 +116,7 @@ namespace EventFlow.MsSql.SnapshotStores
                 Label.Named("delete-snapshots-for-aggregate"),
                 null,
                 cancellationToken,
-                "DELETE FROM [dbo].[EventFlowSnapshots] WHERE AggregateName = @AggregateName AND AggregateId = @AggregateId",
+                $"DELETE FROM [{_configuration.Schema}].[EventFlowSnapshots] WHERE AggregateName = @AggregateName AND AggregateId = @AggregateId",
                 new
                 {
                     AggregateId = identity.Value, 
@@ -129,7 +132,7 @@ namespace EventFlow.MsSql.SnapshotStores
                 Label.Named("purge-snapshots-for-aggregate"),
                 null,
                 cancellationToken,
-                "DELETE FROM [dbo].[EventFlowSnapshots] WHERE AggregateName = @AggregateName",
+                $"DELETE FROM [{_configuration.Schema}].[EventFlowSnapshots] WHERE AggregateName = @AggregateName",
                 new
                 {
                     AggregateName = aggregateType.GetAggregateName().Value
@@ -143,7 +146,7 @@ namespace EventFlow.MsSql.SnapshotStores
                 Label.Named("purge-all-snapshots"),
                 null,
                 cancellationToken,
-                "DELETE FROM [dbo].[EventFlowSnapshots]");
+                $"DELETE FROM [{_configuration.Schema}].[EventFlowSnapshots]");
         }
 
         public class MsSqlSnapshotDataModel

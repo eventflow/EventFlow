@@ -34,10 +34,19 @@ namespace EventFlow.MsSql
         {
         }
 
+        public Schema Schema { get; private set; } = new Schema("dbo");
+
         // From official documentation on MSDN: "The service is currently busy. Retry the request after 10 seconds"
         public RetryDelay ServerBusyRetryDelay { get; private set; } = RetryDelay.Between(
             TimeSpan.FromSeconds(10),
             TimeSpan.FromSeconds(15));
+
+        public IMsSqlConfiguration SetSchema(Schema schema)
+        {
+            Schema = schema;
+
+            return this;
+        }
 
         public IMsSqlConfiguration SetServerBusyRetryDelay(RetryDelay retryDelay)
         {

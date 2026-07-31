@@ -36,11 +36,14 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.QueryHandlers
     public class MsSqlThingyGetMessagesQueryHandler : IQueryHandler<ThingyGetMessagesQuery, IReadOnlyCollection<ThingyMessage>>
     {
         private readonly IMsSqlConnection _msSqlConnection;
+        private readonly IMsSqlConfiguration _configuration;
 
         public MsSqlThingyGetMessagesQueryHandler(
-            IMsSqlConnection msSqlConnection)
+            IMsSqlConnection msSqlConnection,
+            IMsSqlConfiguration configuration)
         {
             _msSqlConnection = msSqlConnection;
+            _configuration = configuration;
         }
 
         public async Task<IReadOnlyCollection<ThingyMessage>> ExecuteQueryAsync(ThingyGetMessagesQuery query, CancellationToken cancellationToken)
@@ -49,7 +52,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.QueryHandlers
                 Label.Named("mssql-fetch-thingy-message-read-model"),
                 ReadModelExtensions.GetConnectionStringName<MsSqlThingyMessageReadModel>(),
                 cancellationToken,
-                "SELECT * FROM [ReadModel-ThingyMessage] WHERE ThingyId = @ThingyId",
+                $"SELECT * FROM [{_configuration.Schema}].[ReadModel-ThingyMessage] WHERE ThingyId = @ThingyId",
                 new { ThingyId = query.ThingyId.Value })
                 .ConfigureAwait(false);
             return readModels

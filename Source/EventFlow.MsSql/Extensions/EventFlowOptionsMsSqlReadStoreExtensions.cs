@@ -69,7 +69,7 @@ namespace EventFlow.MsSql.Extensions
             IServiceCollection serviceCollection)
             where TReadModel : class, IReadModel
         {
-            serviceCollection.TryAddSingleton<IReadModelSqlGenerator, ReadModelSqlGenerator>();
+            serviceCollection.TryAddSingleton<IReadModelSqlGenerator, MssqlReadModelSqlGenerator>();
             serviceCollection.TryAddTransient<IMssqlReadModelStore<TReadModel>, MssqlReadModelStore<TReadModel>>();
             serviceCollection.TryAddTransient<IReadModelStore<TReadModel>>(p => p.GetRequiredService<IMssqlReadModelStore<TReadModel>>());
         }
