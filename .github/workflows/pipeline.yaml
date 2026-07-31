@@ -29,6 +29,10 @@ jobs:
     runs-on:
     - ubuntu-22.04
 
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+      cancel-in-progress: ${{ !contains(github.ref, 'release') && inputs.cancel-in-progress }}
+
     environment: 
       name: ${{ inputs.environment }}
 
