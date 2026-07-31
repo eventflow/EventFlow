@@ -31,7 +31,7 @@ jobs:
 
     concurrency:
       group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-      cancel-in-progress: ${{ !contains(github.ref, 'release') && inputs.cancel-in-progress }}
+      cancel-in-progress: ${{ !contains(github.ref, 'release') }}
 
     environment: 
       name: ${{ inputs.environment }}
