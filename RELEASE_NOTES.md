@@ -1,5 +1,7 @@
 ### New in 0.85 (not released yet)
 
+* New: Added the separate `EventFlow.EventStores.KurrentDB` gRPC adapter for .NET Framework 4.8 and .NET 8, preserving the existing EventStore TCP adapter.
+
 * New: Update from `System.Data.SqlClient` to `Microsoft.Data.SqlClient` (thanks @janrybka)
 
 ### New in 0.84.4 (released 2024-11-26)

@@ -1,0 +1,51 @@
+// The MIT License (MIT)
+//
+// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// https://github.com/eventflow/EventFlow
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of
+// this software and associated documentation files (the "Software"), to deal in
+// the Software without restriction, including without limitation the rights to
+// use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+// the Software, and to permit persons to whom the Software is furnished to do so,
+// subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+// FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+// COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+// IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+// CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+using System;
+
+namespace EventFlow.EventStores.KurrentDB.Tests
+{
+    internal static class TestConnectionStrings
+    {
+#if NET48
+        // WinHTTP requires TLS for HTTP/2. Certificate validation is disabled
+        // only for the dedicated containers' self-signed development certificates.
+        public static string Persistence => Environment.GetEnvironmentVariable("KURRENTDB_NET48_CONNECTION_STRING")
+            ?? "kurrentdb://admin:changeit@localhost:22116?tlsVerifyCert=false";
+        public static string Suite => Environment.GetEnvironmentVariable("KURRENTDB_NET48_SUITE_CONNECTION_STRING")
+            ?? "kurrentdb://admin:changeit@localhost:22117?tlsVerifyCert=false";
+        public static string Migration => Environment.GetEnvironmentVariable("KURRENTDB_NET48_MIGRATION_CONNECTION_STRING")
+            ?? "kurrentdb://admin:changeit@localhost:22118?tlsVerifyCert=false";
+        public static string MigrationTcp => Environment.GetEnvironmentVariable("KURRENTDB_NET48_MIGRATION_TCP_URL")
+            ?? "tcp://localhost:21118";
+#else
+        public static string Persistence => Environment.GetEnvironmentVariable("KURRENTDB_CONNECTION_STRING")
+            ?? "kurrentdb://localhost:22113?tls=false";
+        public static string Suite => Environment.GetEnvironmentVariable("KURRENTDB_SUITE_CONNECTION_STRING")
+            ?? "kurrentdb://localhost:22114?tls=false";
+        public static string Migration => Environment.GetEnvironmentVariable("KURRENTDB_MIGRATION_CONNECTION_STRING")
+            ?? "kurrentdb://localhost:22115?tls=false";
+        public static string MigrationTcp => Environment.GetEnvironmentVariable("KURRENTDB_MIGRATION_TCP_URL")
+            ?? "tcp://localhost:21115";
+#endif
+    }
+}

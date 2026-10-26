@@ -1,0 +1,75 @@
+services:
+  kurrentdb: &kurrentdb
+    image: docker.kurrent.io/kurrent-latest/kurrentdb:26.1.1
+    environment:
+      KURRENTDB_INSECURE: "true"
+      KURRENTDB_CLUSTER_SIZE: "1"
+      KURRENTDB_MEM_DB: "true"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:2113/health/live"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    ports:
+      - "127.0.0.1:22113:2113"
+
+  kurrentdb-suite:
+    <<: *kurrentdb
+    ports:
+      - "127.0.0.1:22114:2113"
+
+  eventstore-migration:
+    image: eventstore/eventstore:23.10.8-bookworm-slim
+    environment:
+      EVENTSTORE_INSECURE: "true"
+      EVENTSTORE_CLUSTER_SIZE: "1"
+      EVENTSTORE_MEM_DB: "true"
+      EVENTSTORE_ENABLE_EXTERNAL_TCP: "true"
+      EVENTSTORE_NODE_IP: "0.0.0.0"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:2113/health/live"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    ports:
+      - "127.0.0.1:22115:2113"
+      - "127.0.0.1:21115:1113"
+
+  kurrentdb-net48: &kurrentdb-net48
+    <<: *kurrentdb
+    profiles: [net48]
+    tmpfs:
+      - /home/kurrent:uid=1001,gid=1001,mode=0700
+    environment:
+      KURRENTDB_DEV: "true"
+      KURRENTDB_CLUSTER_SIZE: "1"
+      KURRENTDB_MEM_DB: "true"
+      KURRENTDB_NODE_IP: "0.0.0.0"
+    healthcheck:
+      test: ["CMD", "curl", "--insecure", "--fail", "--silent", "https://localhost:2113/health/live"]
+      interval: 2s
+      timeout: 5s
+      retries: 60
+    ports:
+      - "127.0.0.1:22116:2113"
+
+  kurrentdb-suite-net48:
+    <<: *kurrentdb-net48
+    ports:
+      - "127.0.0.1:22117:2113"
+
+  eventstore-migration-net48:
+    <<: *kurrentdb-net48
+    image: eventstore/eventstore:23.10.8-bookworm-slim
+    tmpfs:
+      - /home/eventstore:uid=1000,gid=1000,mode=0700
+    environment:
+      EVENTSTORE_DEV: "true"
+      EVENTSTORE_CLUSTER_SIZE: "1"
+      EVENTSTORE_MEM_DB: "true"
+      EVENTSTORE_ENABLE_EXTERNAL_TCP: "true"
+      EVENTSTORE_DISABLE_EXTERNAL_TCP_TLS: "true"
+      EVENTSTORE_NODE_IP: "0.0.0.0"
+    ports:
+      - "127.0.0.1:22118:2113"
+      - "127.0.0.1:21118:1113"

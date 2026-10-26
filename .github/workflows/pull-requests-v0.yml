@@ -29,9 +29,24 @@ jobs:
       run: |
         powershell -NoProfile -ExecutionPolicy unrestricted -Command ".\up-integration-environment.ps1"
 
+    - name: Install .NET SDK for KurrentDB adapter
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Start isolated KurrentDB test databases
+      run: docker compose -p eventflow-kurrentdb-tests -f docker-compose.kurrentdb.yml up -d --wait --force-recreate
+
+    - name: Run KurrentDB adapter tests
+      run: dotnet test Source/EventFlow.EventStores.KurrentDB.Tests/EventFlow.EventStores.KurrentDB.Tests.csproj -c Release -f net8.0 --logger trx
+
     - name: Run Bake
       run: |
         bake run --build-version 0.85.${{ github.run_number }}
+
+    - name: Stop isolated KurrentDB test databases
+      if: always()
+      run: docker compose -p eventflow-kurrentdb-tests -f docker-compose.kurrentdb.yml down
 
     - name: Upload NuGet packages
       uses: actions/upload-artifact@v4

@@ -128,6 +128,7 @@ to the documentation.
   * SQLite
   * PostgreSQL
   * EventStore - [home page](https://eventstore.org/)
+  * [KurrentDB gRPC](Source/EventFlow.EventStores.KurrentDB/README.md) - .NET Framework 4.8 and .NET 8+
 * [**Subscribers:**](https://docs.geteventflow.net/Subscribers.html)
   Listeners that act on specific domain events. Useful if an specific action
   needs to be triggered after a domain event has been committed.
